@@ -26,7 +26,7 @@ import org.gradle.api.Project;
 public class ChangelogExtension {
 	static final String NAME = "spotlessChangelog";
 	private final Project project;
-	private final ChangelogModel model;
+	final ChangelogModel model;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);

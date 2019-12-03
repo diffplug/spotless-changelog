@@ -46,4 +46,10 @@ public class ChangelogModel {
 		}
 		return commitMessage;
 	}
+
+	public void check() {
+		if (!(changelogFile.exists() && changelogFile.isFile())) {
+			throw new IllegalArgumentException("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
+		}
+	}
 }

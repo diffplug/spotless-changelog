@@ -40,11 +40,11 @@ dependencies {
 /////////////////////////////
 gradlePlugin {
 	plugins {
-		blowdryer {
+		spotlessChangelog {
 			id = 'com.diffplug.spotless-changelog'
-			implementationClass = 'com.diffplug.spotless.changelog.ChangelogPlugin'
+			implementationClass = 'com.diffplug.spotless.changelog.gradle.ChangelogPlugin'
 			displayName = 'Spotless Changelog'
-			description = 'Keep your gradle builds dry 干'
+			description = 'Enforces the keepachangelog format, and uses the changelog as the source-of-truth for the most recent version and for calculating and tagging the next released version.'
 		}
 	}
 }
