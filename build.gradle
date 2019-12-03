@@ -1,7 +1,5 @@
 plugins {
-	id 'java-gradle-plugin'
-	id 'com.gradle.plugin-publish' version '0.10.1'
-	id 'com.github.ben-manes.versions' version '0.27.0'
+	id 'com.github.ben-manes.versions' version '0.27.0' // dependencyUpdate
 	id 'com.diffplug.gradle.spotless' version '3.26.1'
 }
 
@@ -20,53 +18,4 @@ spotless {
 		trimTrailingWhitespace()
 		endWithNewline()
 	}
-	java {
-		target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
-		licenseHeaderFile    rootProject.file('gradle/spotless/spotless.license.java')		// License header file
-		eclipse().configFile rootProject.file('gradle/spotless/spotless.eclipseformat.xml')	// XML file dumped out by the Eclipse formatter
-		importOrder()
-		removeUnusedImports()
-	}
-}
-
-apply plugin: 'eclipse'
-tasks.eclipse.dependsOn(cleanEclipse)
-tasks.eclipse.dependsOn(pluginUnderTestMetadata)
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-	implementation "com.squareup.okhttp3:okhttp:4.2.2"
-	implementation "com.squareup.okio:okio:2.4.1"
-	implementation 'com.diffplug.durian:durian-core:1.2.0'
-	implementation 'com.diffplug.durian:durian-io:1.2.0'
-	testImplementation 'junit:junit:4.12'
-	testImplementation 'org.assertj:assertj-core:3.14.0'
-}
-
-/////////////////////////////
-// Gradle publishing setup //
-/////////////////////////////
-gradlePlugin {
-	plugins {
-		blowdryer {
-			id = 'com.diffplug.blowdryer'
-			implementationClass = 'com.diffplug.blowdryer.BlowdryerPlugin'
-			displayName = 'Blowdryer'
-			description = 'Keep your gradle builds dry 干'
-		}
-	}
-}
-pluginBundle {
-	website = 'https://github.com/diffplug/blowdryer'
-	vcsUrl = 'https://github.com/diffplug/blowdryer.git'
-	tags = [
-		'defaults',
-		'standards',
-		'multi-project',
-		'dry',
-		'干'
-	]
 }

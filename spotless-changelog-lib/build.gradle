@@ -1,0 +1,34 @@
+plugins {
+	id 'java'
+	id 'com.gradle.plugin-publish' version '0.10.1'
+}
+
+apply plugin: 'com.diffplug.gradle.spotless'
+spotless {
+	groovyGradle {
+		target '*.gradle'
+		greclipse()
+	}
+	java {
+		licenseHeaderFile    rootProject.file('gradle/spotless/spotless.license.java')		// License header file
+		eclipse().configFile rootProject.file('gradle/spotless/spotless.eclipseformat.xml')	// XML file dumped out by the Eclipse formatter
+		importOrder()
+		removeUnusedImports()
+	}
+}
+
+apply plugin: 'eclipse'
+tasks.eclipse.dependsOn(cleanEclipse)
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//implementation 'keepachangelog-parser-java'
+	implementation 'com.diffplug.durian:durian-core:1.2.0'
+	implementation 'com.diffplug.durian:durian-collect:1.2.0'
+	implementation 'com.diffplug.durian:durian-io:1.2.0'
+	testImplementation 'junit:junit:4.12'
+	testImplementation 'org.assertj:assertj-core:3.14.0'
+}

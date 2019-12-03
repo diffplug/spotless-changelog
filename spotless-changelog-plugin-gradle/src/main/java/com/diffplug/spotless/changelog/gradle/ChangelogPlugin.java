@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.diffplug.blowdryer;
+package com.diffplug.spotless.changelog.gradle;
 
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
-public class BlowdryerPlugin implements Plugin<Project> {
-	static final String PLUGIN_ID = "com.diffplug.blowdryer";
-
+public class ChangelogPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		if (project.getRootProject() != project) {
-			throw new IllegalArgumentException("You must apply " + PLUGIN_ID + " only on the root project, not " + project.getPath());
-		}
-		Blowdryer.setResourcePluginNull(); // because of gradle daemon
-		project.getExtensions().create(BlowdryerExtension.NAME, BlowdryerExtension.class, project);
 
-		project.getTasks().register("blowdryerWipeEntireCache", task -> {
-			task.doFirst(unused -> Blowdryer.wipeEntireCache());
-		});
 	}
 }

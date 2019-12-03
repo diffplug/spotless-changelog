@@ -1,0 +1,60 @@
+plugins {
+	id 'java-gradle-plugin'
+	id 'com.gradle.plugin-publish' version '0.10.1'
+}
+
+apply plugin: 'com.diffplug.gradle.spotless'
+spotless {
+	groovyGradle {
+		target '*.gradle'
+		greclipse()
+	}
+	java {
+		target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+		licenseHeaderFile    rootProject.file('gradle/spotless/spotless.license.java')		// License header file
+		eclipse().configFile rootProject.file('gradle/spotless/spotless.eclipseformat.xml')	// XML file dumped out by the Eclipse formatter
+		importOrder()
+		removeUnusedImports()
+	}
+}
+
+apply plugin: 'eclipse'
+tasks.eclipse.dependsOn(cleanEclipse)
+tasks.eclipse.dependsOn(pluginUnderTestMetadata)
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation project(':spotless-changelog-lib')
+	implementation 'com.diffplug.durian:durian-core:1.2.0'
+	implementation 'com.diffplug.durian:durian-collect:1.2.0'
+	implementation 'com.diffplug.durian:durian-io:1.2.0'
+	testImplementation 'junit:junit:4.12'
+	testImplementation 'org.assertj:assertj-core:3.14.0'
+}
+
+/////////////////////////////
+// Gradle publishing setup //
+/////////////////////////////
+gradlePlugin {
+	plugins {
+		blowdryer {
+			id = 'com.diffplug.spotless-changelog'
+			implementationClass = 'com.diffplug.spotless.changelog.ChangelogPlugin'
+			displayName = 'Spotless Changelog'
+			description = 'Keep your gradle builds dry 干'
+		}
+	}
+}
+pluginBundle {
+	website = 'https://github.com/diffplug/spotless-changelog'
+	vcsUrl = 'https://github.com/diffplug/spotless-changelog.git'
+	tags = [
+		'changelog',
+		'keepachangelog',
+		'version',
+		'git',
+	]
+}

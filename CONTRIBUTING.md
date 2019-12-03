@@ -1,4 +1,4 @@
-# Contributing to Blowdryer
+# Contributing to SpotlessChangelog
 
 Pull requests are welcome!  In order to get merged, you'll need to:
 
@@ -9,7 +9,7 @@ Pull requests are welcome!  In order to get merged, you'll need to:
 
 It's a bog-standard gradle build.
 
-- `gradlew eclipse` creates an Eclipse project file for you.
+- `gradlew eclipse` creates Eclipse project files for you.
 - `gradlew build` builds the jar and runs the tests
 
 If you're getting style warnings, `gradlew spotlessApply` will apply anything necessary to fix formatting. For more info on the formatter, check out [spotless](https://github.com/diffplug/spotless).
@@ -38,7 +38,7 @@ To test your changes, run `gradlew publishToMavenLocal` on your Blowdryer projec
 
 ## Use unreleased versions from JitPack
 
-We publish tagged releases to mavenCentral, jcenter, and the gradle plugin portal.  But you can also grab any intermediate release using [JitPack](https://jitpack.io/#com.diffplug/blowdryer).
+We publish tagged releases to mavenCentral, jcenter, and the gradle plugin portal.  But you can also grab any intermediate release using [JitPack](https://jitpack.io/#com.diffplug/spotless-changelog-plugin-gradle).
 
 ## License
 

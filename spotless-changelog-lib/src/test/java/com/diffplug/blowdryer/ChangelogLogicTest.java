@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 DiffPlug
+ * Copyright 2019 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,6 @@
  */
 package com.diffplug.blowdryer;
 
+public class ChangelogLogicTest {
 
-import java.io.IOException;
-import org.gradle.testkit.runner.GradleRunner;
-
-public class GradleHarness extends ResourceHarness {
-	/** A gradleRunner(). */
-	protected GradleRunner gradleRunner() throws IOException {
-		return GradleRunner.create().withProjectDir(rootFolder()).withPluginClasspath();
-	}
 }

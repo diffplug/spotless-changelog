@@ -1,4 +1,28 @@
-# Spotless Changelog
+# <img align="left" src="logo.png"> Spotless Changelog
+
+<!---freshmark shields
+output = [
+    link(shield('Gradle plugin', 'plugins.gradle.org', 'com.diffplug.spotless-changelog', 'blue'), 'https://plugins.gradle.org/plugin/com.diffplug.spotless-changelog'),
+    //link(shield('Maven central', 'mavencentral', 'com.diffplug:spotless-changelog', 'blue'), 'https://search.maven.org/search?q=g:com.diffplug%20AND%20a:spotless-changelog'),
+    //link(image('License Apache 2.0', 'https://img.shields.io/badge/apache--2.0-blue.svg'), 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'),
+    link(shield('Apache 2.0', 'license', 'apache-2.0', 'blue'), 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'),
+    '',
+    link(image('Latest', 'https://jitpack.io/v/diffplug/spotless-changelog.svg'), 'https://jitpack.io/#diffplug/spotless-changelog'),
+    link(shield('Changelog', 'keepachangelog', 'yes', 'brightgreen'), 'CHANGELOG.md'),
+    link(shield('Javadoc', 'javadoc', 'yes', 'brightgreen'), 'https://jitpack.io/com/github/diffplug/spotless-changelog/latest/javadoc/'),
+    link(shield('Live chat', 'gitter', 'chat', 'brightgreen'), 'https://gitter.im/diffplug/spotless-changelog'),
+    link(image('JitCI', 'https://jitci.com/gh/diffplug/spotless-changelog/svg'), 'https://jitci.com/gh/diffplug/spotless-changelog')
+    ].join('\n');
+-->
+[![Gradle plugin](https://img.shields.io/badge/plugins.gradle.org-com.diffplug.spotless--changelog-blue.svg)](https://plugins.gradle.org/plugin/com.diffplug.spotless-changelog)
+[![Apache 2.0](https://img.shields.io/badge/license-apache--2.0-blue.svg)](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
+
+[![Latest](https://jitpack.io/v/diffplug/spotless-changelog.svg)](https://jitpack.io/#diffplug/spotless-changelog)
+[![Changelog](https://img.shields.io/badge/keepachangelog-yes-brightgreen.svg)](CHANGELOG.md)
+[![Javadoc](https://img.shields.io/badge/javadoc-yes-brightgreen.svg)](https://jitpack.io/com/github/diffplug/spotless-changelog/latest/javadoc/)
+[![Live chat](https://img.shields.io/badge/gitter-chat-brightgreen.svg)](https://gitter.im/diffplug/spotless-changelog)
+[![JitCI](https://jitci.com/gh/diffplug/spotless-changelog/svg)](https://jitci.com/gh/diffplug/spotless-changelog)
+<!---freshmark /shields -->
 
 Spotless Changelog checks that your changelog complies with the format of [keepachangelog](https://keepachangelog.com/), and uses the information from **only the changelog file** to compute the version of the next release. If you want, you can use the computed version to update the changelog file, then commit, tag, and push whenever a release is published.
 
@@ -77,7 +101,7 @@ If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will st
 ```gradle
 spotlessChangelog {  // defaults
   tagPrefix 'release/'
-  commitMessage 'Published release/{version}' // {version} will be replaced 
+  commitMessage 'Published release/{version}' // {version} will be replaced
   remote 'origin'
   branch 'master'
 }
@@ -103,7 +127,7 @@ spotlessChangelog { // all defaults
   forceNextVersion null
   // tag and push
   tagPrefix 'release/'
-  commitMessage 'Published release/{version}' // {version} will be replaced 
+  commitMessage 'Published release/{version}' // {version} will be replaced
   remote 'origin'
   branch 'master'
 }

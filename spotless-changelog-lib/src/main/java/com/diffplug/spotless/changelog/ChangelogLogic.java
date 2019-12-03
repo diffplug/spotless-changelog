@@ -13,26 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.diffplug.blowdryer;
+package com.diffplug.spotless.changelog;
 
+public class ChangelogLogic {
 
-import java.io.File;
-import java.io.IOException;
-
-/** Alias for {@link Blowdryer}. */
-public class 干 {
-	/** Alias for {@link Blowdryer#immutableUrl(String)}. */
-	public static File immutableUrl(String url) {
-		return Blowdryer.immutableUrl(url);
-	}
-
-	/** Alias for {@link Blowdryer#file(String)}. */
-	public static File file(String resource) {
-		return Blowdryer.file(resource);
-	}
-
-	/** Alias for {@link Blowdryer#prop(String, String)}. */
-	public static String prop(String propFile, String key) throws IOException {
-		return Blowdryer.prop(propFile, key);
-	}
 }

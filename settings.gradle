@@ -1,1 +1,3 @@
-rootProject.name = 'blowdryer'
+rootProject.name = 'spotless-changelog'
+include 'spotless-changelog-lib'
+include 'spotless-changelog-plugin-gradle'
