@@ -69,7 +69,7 @@ When computing the next version, Spotless Changelog always starts with the most 
 spotlessChangelog {  // defaults
   typesBumpMinor ['Added']
   typesBumpMajor ['Changed', 'Removed']
-  ifFoundBumpMajor '**BREAKING**'
+  ifFoundBumpMajor ['**BREAKING**']
 }
 ```
 
@@ -78,7 +78,7 @@ The defaults above are what is required for [semver](https://semver.org/).  If y
 ```gradle
 spotlessChangelog { // but semver is good!  use it!  don't mistake your version for a brand!
   typesBumpMajor []
-  ifFoundBumpMajor '**BREAKING**'
+  ifFoundBumpMajor ['**BREAKING**']
 }
 ```
 
@@ -123,7 +123,7 @@ spotlessChangelog { // all defaults
   // calculate next version
   typesBumpMinor ['Added']
   typesBumpMajor ['Changed', 'Removed']
-  ifFoundBumpMajor '**BREAKING**'
+  ifFoundBumpMajor ['**BREAKING**']
   forceNextVersion null
   // tag and push
   tagPrefix 'release/'
@@ -137,6 +137,8 @@ spotlessChangelog { // all defaults
 
 - `changelogCheck` - throws an error if the changelog is not formatted according to [keepachangelog](https://keepachangelog.com/)
   - if `enforceCheck true` (default) then `check.dependsOn changelogCheck`
+- `changelogPrint` - prints the last published version and calculated next version
+  - `myproj 1.0.4 -> 1.1.0`
 - `changelogBump` - updates the changelog on disk with the next version and the current date
   - applying `changelogBump` multiple times in a row is fine, an empty section under `[Unreleased]` is enough to know that it has already been applied.
 - `changelogPush` - commits the changelog, tags, and pushes

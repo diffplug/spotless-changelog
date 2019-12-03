@@ -22,6 +22,6 @@ import org.gradle.api.Project;
 public class ChangelogPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-
+		project.getExtensions().create(ChangelogExtension.NAME, ChangelogExtension.class, project);
 	}
 }
