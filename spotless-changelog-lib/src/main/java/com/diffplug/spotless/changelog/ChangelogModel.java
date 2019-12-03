@@ -19,20 +19,21 @@ package com.diffplug.spotless.changelog;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 public class ChangelogModel {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
 	public static final String COMMIT_MESSAGE_VERSION = "{version}";
 
 	// keep changelog formatted
-	public File changelogFile;
+	public File changelogFile = new File(DEFAULT_FILE);
 	public List<String> types = Arrays.asList("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security");
 	public boolean enforceCheck = true;
 	// calculate next version
 	public List<String> typesBumpMinor = Arrays.asList("Added");
 	public List<String> typesBumpMajor = Arrays.asList("Changed", "Removed");
 	public List<String> ifFoundBumpMajor = Arrays.asList("**BREAKING**");
-	public String forceNextVersion = null;
+	public @NullOr String forceNextVersion = null;
 	// tag and push
 	public String tagPrefix = "release/";
 	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
