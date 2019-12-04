@@ -47,33 +47,17 @@ public class ChangelogExtension {
 		changelogFile = project.file(file);
 	}
 
-	public void types(String... types) {
-		types(Arrays.asList(types));
-	}
-
-	public void types(List<String> types) {
-		nextVersionCfg.types = types;
-	}
-
 	public void enforceCheck(boolean enforceCheck) {
 		this.enforceCheck = enforceCheck;
 	}
 
 	// calculate next version
-	public void typesBumpMinor(String... types) {
-		typesBumpMinor(Arrays.asList(types));
+	public void ifFoundBumpMinor(String... types) {
+		ifFoundBumpMajor(Arrays.asList(types));
 	}
 
-	public void typesBumpMinor(List<String> types) {
-		nextVersionCfg.typesBumpMinor = types;
-	}
-
-	public void typesBumpMajor(String... types) {
-		typesBumpMajor(Arrays.asList(types));
-	}
-
-	public void typesBumpMajor(List<String> types) {
-		nextVersionCfg.typesBumpMajor = types;
+	public void ifFoundBumpMinor(List<String> types) {
+		nextVersionCfg.ifFoundBumpMinor = types;
 	}
 
 	public void ifFoundBumpMajor(String... types) {

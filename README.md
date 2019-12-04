@@ -24,13 +24,13 @@ output = [
 [![JitCI](https://jitci.com/gh/diffplug/spotless-changelog/svg)](https://jitci.com/gh/diffplug/spotless-changelog)
 <!---freshmark /shields -->
 
-Spotless Changelog checks that your changelog complies with the format of [keepachangelog](https://keepachangelog.com/), and uses the information from **only the changelog file** to compute the version of the next release. If you want, you can use the computed version to update the changelog file, then commit, tag, and push whenever a release is published.
+Spotless Changelog checks that your changelog complies with the format of [keepachangelog](https://keepachangelog.com/), and uses the information from **only the changelog file** to compute the version of the next release. If you want, you can use the computed version to update the changelog file, then automatically commit, tag, and push when a release is published.
 
 There are [many plugins](https://plugins.gradle.org/search?term=version) that compute your next version using a variety of configurable rules based on git tags, commit message standards, class file comparison, and other methods.  They tend to require a lot of documentation.
 
 If your changelog doesn't already have information about breaking changes and new features, then you should fix that first, whether you end up adopting this plugin or not!  But once your changelog has that information, why not make things simple and use it as the source-of-truth?  If you want, there are also plugins which can generate your changelog automatically from your [git commits](https://plugins.gradle.org/search?term=git+changelog) or [github issues](https://plugins.gradle.org/search?term=github+changelog) (although we tend to think that's overkill).
 
-Currently Spotless Changelog only has a gradle plugin, but the logic lives in a separate lib, and we welcome contributions for other build systems, just [as happened with the Spotless code formatter](https://github.com/diffplug/spotless/issues/102).
+Currently Spotless Changelog only has a gradle plugin, but the logic lives in a separate library, and we welcome contributions for other build systems, just [as happened with the Spotless code formatter](https://github.com/diffplug/spotless/issues/102).
 
 ## Keep your changelog clean
 
@@ -54,12 +54,13 @@ plugins {
 
 spotlessChangelog { // only necessary if you need to change the defaults below
   changelogFile 'CHANGELOG.md'
-  types ['Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Security']
   enforceCheck true
 }
 ```
 
-The `changelogCheck` task will now run every time `gradlew check` runs, and it will verify that the changelog conforms to the changelog format, and that every change type is one of the allowed types.
+The `changelogCheck` task will now run every time `gradlew check` runs, and it will verify that the changelog versions and dates conform to the format.
+
+It *does not* enforce the entire keepachangelog format, only the `## [x.y.z] yyyy-mm-dd` lines.  We're happy to take a PR to support a stricter format, but it will be optional.
 
 ### Legacy changelogs
 
@@ -73,17 +74,7 @@ When computing the next version, Spotless Changelog always starts with the most 
 
 ```gradle
 spotlessChangelog {  // defaults
-  typesBumpMinor ['Added']
-  typesBumpMajor ['Changed', 'Removed']
-  ifFoundBumpMajor ['**BREAKING**']
-}
-```
-
-The defaults above are what is required for [semver](https://semver.org/).  If you want more control over when you bump the major version, you could do this:
-
-```gradle
-spotlessChangelog { // but semver is good!  use it!  don't mistake your version for a brand!
-  typesBumpMajor []
+  ifFoundBumpMinor ['### Added']
   ifFoundBumpMajor ['**BREAKING**']
 }
 ```
@@ -123,11 +114,9 @@ If `release` is the task that publishes your library, then `tasks.release.finali
 spotlessChangelog { // all defaults
   // keep changelog formatted
   changelogFile 'CHANGELOG.md'
-  types ['Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Security']
   enforceCheck true
   // calculate next version
-  typesBumpMinor ['Added']
-  typesBumpMajor ['Changed', 'Removed']
+  ifFoundBumpMinor ['### Added']
   ifFoundBumpMajor ['**BREAKING**']
   forceNextVersion null
   // tag and push

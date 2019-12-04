@@ -30,14 +30,11 @@ public class ChangelogModel {
 	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
 
 	public static class NextVersionCfg implements Serializable {
-		public List<String> types = Arrays.asList("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security");
-		public List<String> typesBumpMinor = Arrays.asList("Added");
-		public List<String> typesBumpMajor = Arrays.asList("Changed", "Removed");
+		public List<String> ifFoundBumpMinor = Arrays.asList("###", "Removed");
 		public List<String> ifFoundBumpMajor = Arrays.asList("**BREAKING**");
 		public @NullOr String forceNextVersion = null;
 	}
 
-	// tag and push
 	public static class PushCfg {
 		public String tagPrefix = "release/";
 		public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
