@@ -16,49 +16,43 @@
 package com.diffplug.spotless.changelog.gradle;
 
 
-import com.diffplug.spotless.changelog.ChangelogModel;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaBasePlugin;
-import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskProvider;
 
 public class ChangelogPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
+		// make sure there is a check task
 		project.getPlugins().apply(BasePlugin.class);
 
 		ChangelogExtension extension = project.getExtensions().create(ChangelogExtension.NAME, ChangelogExtension.class, project);
-		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension.model);
+		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension.nextVersionCfg);
 		project.afterEvaluate(unused -> {
-			if (extension.model.enforceCheck) {
+			if (extension.enforceCheck) {
 				project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME).configure(t -> t.dependsOn(check));
 			}
 		});
 	}
 
 	public static abstract class ChangelogTask extends DefaultTask {
-		protected final ChangelogModel model;
+		protected final ChangelogExtension cfg;
 
-		protected ChangelogTask(ChangelogModel model) {
-			this.model = model;
+		protected ChangelogTask(ChangelogExtension cfg) {
+			this.cfg = cfg;
 		}
 	}
 
-	public static class CheckTask extends ChangelogTask {
+	public static abstract class CheckTask extends ChangelogTask {
 		public static final String NAME = "changelogCheck";
 
 		@Inject
-		public CheckTask(ChangelogModel model) {
-			super(model);
-		}
-
-		@TaskAction
-		public void check() {
-			model.check();
+		public CheckTask(ChangelogExtension cfg) {
+			super(cfg);
 		}
 	}
 }

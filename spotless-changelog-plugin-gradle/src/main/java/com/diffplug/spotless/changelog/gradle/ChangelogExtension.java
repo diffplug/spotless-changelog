@@ -17,6 +17,7 @@ package com.diffplug.spotless.changelog.gradle;
 
 
 import com.diffplug.spotless.changelog.ChangelogModel;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -25,18 +26,25 @@ import org.gradle.api.Project;
 /** Plugin DSL. */
 public class ChangelogExtension {
 	static final String NAME = "spotlessChangelog";
+
 	private final Project project;
-	final ChangelogModel model;
+
+	File changelogFile;
+	ChangelogModel.NextVersionCfg nextVersionCfg;
+	ChangelogModel.PushCfg pushCfg;
+	boolean enforceCheck;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
-		model = new ChangelogModel();
+		this.changelogFile = project.file(ChangelogModel.DEFAULT_FILE);
+		this.nextVersionCfg = new ChangelogModel.NextVersionCfg();
+		this.pushCfg = new ChangelogModel.PushCfg();
 		changelogFile(ChangelogModel.DEFAULT_FILE);
 	}
 
 	// keep changelog formatted
 	public void changelogFile(Object file) {
-		model.changelogFile = project.file(ChangelogModel.DEFAULT_FILE);
+		changelogFile = project.file(file);
 	}
 
 	public void types(String... types) {
@@ -44,11 +52,11 @@ public class ChangelogExtension {
 	}
 
 	public void types(List<String> types) {
-		model.types = types;
+		nextVersionCfg.types = types;
 	}
 
 	public void enforceCheck(boolean enforceCheck) {
-		model.enforceCheck = enforceCheck;
+		this.enforceCheck = enforceCheck;
 	}
 
 	// calculate next version
@@ -57,7 +65,7 @@ public class ChangelogExtension {
 	}
 
 	public void typesBumpMinor(List<String> types) {
-		model.typesBumpMinor = types;
+		nextVersionCfg.typesBumpMinor = types;
 	}
 
 	public void typesBumpMajor(String... types) {
@@ -65,7 +73,7 @@ public class ChangelogExtension {
 	}
 
 	public void typesBumpMajor(List<String> types) {
-		model.typesBumpMajor = types;
+		nextVersionCfg.typesBumpMajor = types;
 	}
 
 	public void ifFoundBumpMajor(String... types) {
@@ -73,27 +81,27 @@ public class ChangelogExtension {
 	}
 
 	public void ifFoundBumpMajor(List<String> types) {
-		model.ifFoundBumpMajor = types;
+		nextVersionCfg.ifFoundBumpMajor = types;
 	}
 
 	public void forceNextVersion(String forceNextVersion) {
-		model.forceNextVersion = forceNextVersion;
+		nextVersionCfg.forceNextVersion = forceNextVersion;
 	}
 
 	// tag and push
 	public void tagPrefix(String tagPrefix) {
-		model.tagPrefix = tagPrefix;
+		pushCfg.tagPrefix = tagPrefix;
 	}
 
 	public void commitMessage(String commitMessage) {
-		model.commitMessage = ChangelogModel.validateCommitMessage(commitMessage);
+		pushCfg.commitMessage = ChangelogModel.validateCommitMessage(commitMessage);
 	}
 
 	public void remote(String remote) {
-		model.remote = remote;
+		pushCfg.remote = remote;
 	}
 
 	public void branch(String branch) {
-		model.branch = branch;
+		pushCfg.branch = branch;
 	}
 }
