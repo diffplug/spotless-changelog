@@ -32,7 +32,7 @@ If your changelog doesn't already have information about breaking changes and ne
 
 Currently Spotless Changelog only has a gradle plugin, but the logic lives in a separate lib, and we welcome contributions for other build systems, just [as happened with the Spotless code formatter](https://github.com/diffplug/spotless/issues/102).
 
-## How it works
+## Keep your changelog clean
 
 You have to start out with a changelog in the [keepachangelog](https://keepachangelog.com/) format. Here is a concise example:
 
@@ -61,7 +61,13 @@ spotlessChangelog { // only necessary if you need to change the defaults below
 
 The `changelogCheck` task will now run every time `gradlew check` runs, and it will verify that the changelog conforms to the changelog format, and that every change type is one of the allowed types.
 
-### Computing the next version
+### Legacy changelogs
+
+If you have a big long legacy changelog that's not in the [keepachangelog](https://keepachangelog.com/) format, good job!  Changelogs are good!
+
+You don't have to convert the whole thing.  Just stick `<!-- do not parse below here -->` on its own line into your changelog, and it will stop parsing as soon as this line is encountered.  The goal isn't perfection, just better.
+
+## Compute the next version
 
 When computing the next version, Spotless Changelog always starts with the most recent version from your changelog.  From there, the only decision Spotless Changelog has to make is which position to bump: `major`, `minor`, or `patch`.  By default, Spotless Changelog will bump `patch`.  All you need to do is set the rules for escalating to a `minor` or `major` bump:
 
@@ -89,12 +95,11 @@ cmd> gradlew changelogPrint
 myproj 1.0.4 -> 1.1.0
 ```
 
-#### First release, betas, release-candidates, etc.
+### First release, betas, release-candidates, etc.
 
-If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit everything else.
+If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.
 
-
-### Update the changelog, commit, push
+## Update the changelog, commit, push
 
 `gradlew changelogBump` will turn `[Unreleased]` into `[1.2.3] 2011-11-11` (or whatever) and add a new `[Unreleased]` section in your working copy file.  `gradlew changelogPush` will commit, tag, and push that change.
 
@@ -148,6 +153,6 @@ spotlessChangelog { // all defaults
 
 - Huge thanks to Olivier Lacan and [contributors](https://github.com/olivierlacan/keep-a-changelog/graphs/contributors) for [keepachangelog](https://keepachangelog.com/en/1.0.0/).
     - Changelog format is arbitrary, but a consistent format unlocks tooling. It's such an abstract thing, keepachangelog is an outstanding achievement of branding for the greater good!
-- Huge thanks to [Colin Dean](https://github.com/colindean) for [keepachangelog-parser-java](https://github.com/colindean/keepachangelog-parser-java).  That library was much harder to write than Spotless Changelog!
+- Thanks to [Colin Dean](https://github.com/colindean) for [keepachangelog-parser-java](https://github.com/colindean/keepachangelog-parser-java).  We ended up not using it, but because it existed, we [thought](https://twitter.com/pinboard/status/761656824202276864?lang=en) this plugin would be easy to build.
 - Built by [gradle](https://gradle.org/).
 - Maintained by [DiffPlug](https://www.diffplug.com/).
