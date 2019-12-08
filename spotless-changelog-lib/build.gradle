@@ -1,28 +1,5 @@
-plugins {
-	id 'java'
-	id 'com.gradle.plugin-publish' version '0.10.1'
-}
-
-apply plugin: 'com.diffplug.gradle.spotless'
-spotless {
-	groovyGradle {
-		target '*.gradle'
-		greclipse()
-	}
-	java {
-		licenseHeaderFile    rootProject.file('gradle/spotless/spotless.license.java')		// License header file
-		eclipse().configFile rootProject.file('gradle/spotless/spotless.eclipseformat.xml')	// XML file dumped out by the Eclipse formatter
-		importOrder()
-		removeUnusedImports()
-	}
-}
-
-apply plugin: 'eclipse'
-tasks.eclipse.dependsOn(cleanEclipse)
-
-repositories {
-	mavenCentral()
-}
+apply from: 干.file('base/java8.gradle')
+apply from: 干.file('spotless/java.gradle')
 
 dependencies {
 	compileOnly 'pl.tlinkowski.annotation:pl.tlinkowski.annotation.basic:0.2.0'

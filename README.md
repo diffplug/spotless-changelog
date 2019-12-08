@@ -73,7 +73,7 @@ You don't have to convert the whole thing.  Just stick `<!-- do not parse below 
 When computing the next version, Spotless Changelog always starts with the most recent version from your changelog.  From there, the only decision Spotless Changelog has to make is which position to bump: `major`, `minor`, or `patch`.  By default, Spotless Changelog will bump `patch`.  All you need to do is set the rules for escalating to a `minor` or `major` bump:
 
 ```gradle
-spotlessChangelog {  // defaults
+spotlessChangelog {  // defaults, but setting them explicitly is good documentation for your buildscript users
   ifFoundBumpMinor ['### Added']
   ifFoundBumpMajor ['**BREAKING**']
 }
