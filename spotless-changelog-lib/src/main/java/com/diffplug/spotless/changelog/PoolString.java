@@ -35,6 +35,8 @@ class PoolString implements CharSequence, java.io.Serializable {
 		}
 	}
 
+	private static final PoolString empty = new PoolString("", 0, 0);
+
 	private PoolString(CharSequence base, int startIndex, int endIndex) {
 		//Preconditions.checkArgument(base instanceof StringBuilder || base instanceof String);
 		Preconditions.checkArgument(0 <= startIndex);
@@ -247,8 +249,6 @@ class PoolString implements CharSequence, java.io.Serializable {
 	public static PoolString empty() {
 		return empty;
 	}
-
-	private static final PoolString empty = PoolString.of("");
 
 	public boolean isEmpty() {
 		return length() == 0;
