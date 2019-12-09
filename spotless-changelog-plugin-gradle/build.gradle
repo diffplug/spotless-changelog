@@ -1,10 +1,11 @@
+apply plugin: 'com.diffplug.blowdryer'
 
-plugins {
-	id 'com.gradle.plugin-publish' version '0.10.1'
-}
+ext.maven_name='Spotless Changelog Gradle Plugin'
+ext.maven_desc='Gradle plugin for parsing and updating a changelog'
 
 apply from: 干.file('base/java8.gradle')
 apply from: 干.file('base/gradle-plugin.gradle')
+apply from: 干.file('base/maven.gradle')
 apply from: 干.file('spotless/java.gradle')
 
 dependencies {
@@ -14,26 +15,4 @@ dependencies {
 	implementation 'com.diffplug.durian:durian-io:1.2.0'
 	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.assertj:assertj-core:3.14.0'
-}
-
-/////////////////////////////
-// Gradle publishing setup //
-/////////////////////////////
-gradlePlugin {
-	plugins {
-		spotlessChangelog {
-			id = 'com.diffplug.spotless-changelog'
-			implementationClass = 'com.diffplug.spotless.changelog.gradle.ChangelogPlugin'
-			displayName = 'Spotless Changelog'
-			description = 'Enforces the keepachangelog format, and uses the changelog as the source-of-truth for the most recent version and for calculating and tagging the next released version.'
-		}
-	}
-}
-pluginBundle {
-	tags = [
-		'changelog',
-		'keepachangelog',
-		'version',
-		'git',
-	]
 }
