@@ -1,5 +1,3 @@
-apply plugin: 'com.diffplug.blowdryer'
-
 ext.maven_name='Spotless Changelog Lib'
 ext.maven_desc='Utilities for parsing and updating a changelog'
 

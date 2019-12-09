@@ -1,5 +1,3 @@
-apply plugin: 'com.diffplug.blowdryer'
-
 ext.maven_name='Spotless Changelog Gradle Plugin'
 ext.maven_desc='Gradle plugin for parsing and updating a changelog'
 
