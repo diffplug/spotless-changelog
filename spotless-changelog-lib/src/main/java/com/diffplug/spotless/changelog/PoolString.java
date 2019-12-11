@@ -172,10 +172,10 @@ class PoolString implements CharSequence, java.io.Serializable {
 		} else {
 			result = ((StringBuilder) base).indexOf(lookingFor, startIndex);
 		}
-		if (result < endIndex) {
-			return result - startIndex;
-		} else {
+		if (result == -1 || result >= endIndex) {
 			return -1;
+		} else {
+			return result - startIndex;
 		}
 	}
 
@@ -186,10 +186,10 @@ class PoolString implements CharSequence, java.io.Serializable {
 		} else {
 			result = ((StringBuilder) base).indexOf(String.valueOf(lookingFor), startIndex);
 		}
-		if (result < endIndex) {
-			return result - startIndex;
-		} else {
+		if (result == -1 || result >= endIndex) {
 			return -1;
+		} else {
+			return result - startIndex;
 		}
 	}
 
@@ -214,6 +214,9 @@ class PoolString implements CharSequence, java.io.Serializable {
 	 * everything after that.
 	 */
 	public PoolString after(PoolString other) {
+		if (other.isEmpty()) {
+			return this;
+		}
 		Preconditions.checkArgument(other.base == base);
 		Preconditions.checkArgument(other.startIndex == startIndex);
 		if (other.endIndex == endIndex) {
