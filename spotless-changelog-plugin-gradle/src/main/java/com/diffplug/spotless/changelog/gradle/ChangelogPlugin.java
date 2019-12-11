@@ -35,6 +35,8 @@ public class ChangelogPlugin implements Plugin<Project> {
 		project.getPlugins().apply(BasePlugin.class);
 
 		ChangelogExtension extension = project.getExtensions().create(ChangelogExtension.NAME, ChangelogExtension.class, project);
+		project.getTasks().register(PrintTask.NAME, PrintTask.class, extension);
+
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
 		project.afterEvaluate(unused -> {
 			if (extension.enforceCheck) {
@@ -76,6 +78,20 @@ public class ChangelogPlugin implements Plugin<Project> {
 				});
 			});
 			throw new GradleException(allErrors);
+		}
+	}
+
+	public static abstract class PrintTask extends ChangelogTask {
+		public static final String NAME = "changelogPrint";
+
+		@Inject
+		public PrintTask(ChangelogExtension extension) {
+			super(extension);
+		}
+
+		@TaskAction
+		public void print() {
+			System.out.println(getProject().getName() + " " + extension.getVersionLast() + " -> " + extension.getVersionNext());
 		}
 	}
 }

@@ -43,7 +43,7 @@ public class ChangelogPluginTest extends GradleHarness {
 	}
 
 	@Test
-	public void changelogErrors() throws IOException {
+	public void changelogCheck() throws IOException {
 		writeSpotlessChangelog();
 		write("CHANGELOG.md",
 				"",
@@ -52,5 +52,25 @@ public class ChangelogPluginTest extends GradleHarness {
 				"## [1.0.0]");
 		Assertions.assertThat(gradleRunner().withArguments("changelogCheck").buildAndFail().getOutput())
 				.contains("CHANGELOG.md:5: '] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd");
+
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		gradleRunner().withArguments("changelogCheck").build();
+	}
+
+	@Test
+	public void changelogPrint() throws IOException {
+		writeSpotlessChangelog();
+		write("settings.gradle", "rootProject.name='undertest'");
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
 	}
 }
