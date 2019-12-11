@@ -106,7 +106,7 @@ public class ParsedChangelog {
 	}
 
 	/** Returns the most recently published version, if any. */
-	public @NullOr String versionMostRecent() {
+	public @NullOr String versionLast() {
 		if (versionsRaw.size() <= 1) {
 			return null;
 		} else {
@@ -124,10 +124,6 @@ public class ParsedChangelog {
 
 	private void addError(int lineNumber, String message) {
 		parseErrors.put(lineNumber, message);
-	}
-
-	public boolean hasErrors() {
-		return parseErrors.isEmpty();
 	}
 
 	/** Map from line number to the error message, in the order they were encountered. */

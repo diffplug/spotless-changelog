@@ -30,7 +30,7 @@ public class ParsedChangelogTest {
 		Consumer<String> test = str -> {
 			test(str)
 					.errors("{-1=Needs to have '## [Unreleased]'}")
-					.mostRecent(null);
+					.last(null);
 		};
 		test.accept("");
 		test.accept("\n");
@@ -42,12 +42,12 @@ public class ParsedChangelogTest {
 	public void unreleased() throws IOException {
 		test("## [Unreleased]")
 				.errors("{1=Needs a newline directly before '## [Unreleased]'}")
-				.mostRecent(null);
+				.last(null);
 		test("\n\n  ## [Unreleased]")
 				.errors("{3=Needs a newline directly before '## [Unreleased]'}")
-				.mostRecent(null);
+				.last(null);
 
-		Function<String, ChangelogAssertions> test = str -> test(str).errors("{}").mostRecent(null);
+		Function<String, ChangelogAssertions> test = str -> test(str).errors("{}").last(null);
 		test.apply("\n## [Unreleased]").unreleasedChanges("");
 		test.apply("First line\n## [Unreleased]").unreleasedChanges("");
 		test.apply("First line\n## [Unreleased]\nLast line").unreleasedChanges("\nLast line");
@@ -57,22 +57,22 @@ public class ParsedChangelogTest {
 
 	@Test
 	public void releasedOne() throws IOException {
-		test("\n## [Unreleased]\n## [").mostRecent(null)
+		test("\n## [Unreleased]\n## [").last(null)
 				.errors("{3='] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
-		test("\n## [Unreleased]\n## [x.y.z").mostRecent(null)
+		test("\n## [Unreleased]\n## [x.y.z").last(null)
 				.errors("{3='] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
-		test("\n## [Unreleased]\n## [x.y.z] -").mostRecent(null)
+		test("\n## [Unreleased]\n## [x.y.z] -").last(null)
 				.errors("{3='] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
-		test("\n## [Unreleased]\n## [x.y.z] - ").mostRecent(null)
+		test("\n## [Unreleased]\n## [x.y.z] - ").last(null)
 				.errors("{3='yyyy-mm-dd' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
-		test("\n## [Unreleased]\n## [x.y.z] - 1234a23").mostRecent(null)
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a23").last(null)
 				.errors("{3='yyyy-mm-dd' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
-		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78").mostRecent("x.y.z")
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78").last("x.y.z")
 				.errors("{}");
-		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78a").mostRecent(null)
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78a").last(null)
 				.errors("{3=If you want to put stuff after 'yyyy-mm-dd', you need to separate it with a space}");
-		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78 moreStuff").mostRecent("x.y.z").errors("{}").unreleasedChanges("");
-		test("\n## [Unreleased]\nOnething\n## [x.y.z] - 1234a56b78 moreStuff").mostRecent("x.y.z").errors("{}").unreleasedChanges("\nOnething");
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78 moreStuff").last("x.y.z").errors("{}").unreleasedChanges("");
+		test("\n## [Unreleased]\nOnething\n## [x.y.z] - 1234a56b78 moreStuff").last("x.y.z").errors("{}").unreleasedChanges("\nOnething");
 	}
 
 	static class ChangelogAssertions {
@@ -94,9 +94,9 @@ public class ParsedChangelogTest {
 			return this;
 		}
 
-		ChangelogAssertions mostRecent(@NullOr String version) {
-			Assertions.assertThat(unix.versionMostRecent()).isEqualTo(version);
-			Assertions.assertThat(win.versionMostRecent()).isEqualTo(version);
+		ChangelogAssertions last(@NullOr String version) {
+			Assertions.assertThat(unix.versionLast()).isEqualTo(version);
+			Assertions.assertThat(win.versionLast()).isEqualTo(version);
 			return this;
 		}
 

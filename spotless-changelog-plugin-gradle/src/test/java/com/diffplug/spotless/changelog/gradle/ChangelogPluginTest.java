@@ -41,4 +41,16 @@ public class ChangelogPluginTest extends GradleHarness {
 		Assertions.assertThat(gradleRunner().withArguments("changelogCheck").buildAndFail().getOutput())
 				.contains("Looked for changelog at '", "', but it was not present.");
 	}
+
+	@Test
+	public void changelogErrors() throws IOException {
+		writeSpotlessChangelog();
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"",
+				"## [1.0.0]");
+		Assertions.assertThat(gradleRunner().withArguments("changelogCheck").buildAndFail().getOutput())
+				.contains("CHANGELOG.md:5: '] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd");
+	}
 }

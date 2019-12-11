@@ -16,8 +16,11 @@
 package com.diffplug.spotless.changelog.gradle;
 
 
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Preconditions;
 import com.diffplug.spotless.changelog.ChangelogModel;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +45,40 @@ public class ChangelogExtension {
 		changelogFile(ChangelogModel.DEFAULT_FILE);
 	}
 
+	private volatile ChangelogModel model;
+
+	ChangelogModel model() {
+		if (model == null) {
+			synchronized (this) {
+				if (model == null) {
+					try {
+						model = ChangelogModel.calculate(changelogFile, nextVersionCfg);
+					} catch (IOException e) {
+						throw Errors.asRuntime(e);
+					}
+				}
+			}
+		}
+		return model;
+	}
+
+	private synchronized void assertNotCalculatedYet() {
+		Preconditions.checkState(model == null, "You can't change the config after calling versionNext or versionLast");
+	}
+
+	/** Reads the last-published version - you can't change the configuration after calling this method. */
+	public String getVersionLast() {
+		return model().parsed().versionLast();
+	}
+
+	/** Calculates the next-to-publish version - you can't change the configuration after calling this method. */
+	public String getVersionNext() {
+		return model().versionNext();
+	}
+
 	// keep changelog formatted
 	public void changelogFile(Object file) {
+		assertNotCalculatedYet();
 		changelogFile = project.file(file);
 	}
 
@@ -57,6 +92,7 @@ public class ChangelogExtension {
 	}
 
 	public void ifFoundBumpMinor(List<String> types) {
+		assertNotCalculatedYet();
 		nextVersionCfg.ifFoundBumpMinor = types;
 	}
 
@@ -65,10 +101,12 @@ public class ChangelogExtension {
 	}
 
 	public void ifFoundBumpMajor(List<String> types) {
+		assertNotCalculatedYet();
 		nextVersionCfg.ifFoundBumpMajor = types;
 	}
 
 	public void forceNextVersion(String forceNextVersion) {
+		assertNotCalculatedYet();
 		nextVersionCfg.forceNextVersion = forceNextVersion;
 	}
 

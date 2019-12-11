@@ -19,8 +19,11 @@ package com.diffplug.spotless.changelog;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import org.osgi.framework.Version;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 public class ChangelogModel {
@@ -28,6 +31,7 @@ public class ChangelogModel {
 	public static final String COMMIT_MESSAGE_VERSION = "{version}";
 	public static final String UNRELEASED = "## [Unreleased]";
 	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
+	public static final String FIRST_VERSION = "0.1.0";
 
 	public static class NextVersionCfg implements Serializable {
 		public List<String> ifFoundBumpMinor = Arrays.asList("###", "Removed");
@@ -44,20 +48,64 @@ public class ChangelogModel {
 
 	public static String validateCommitMessage(String commitMessage) {
 		if (!commitMessage.contains(COMMIT_MESSAGE_VERSION)) {
-			throw new IllegalArgumentException("The commit message must contain '{version}' to be replaced with the real version.");
+			throw new IllegalArgumentException("The commit message must contain '" + COMMIT_MESSAGE_VERSION + "' to be replaced with the real version.");
 		}
 		return commitMessage;
 	}
 
-	public static class VersionResult {
-		String lastPublished;
-		String next;
-	}
-
-	public static VersionResult calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
+	public static ChangelogModel calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
 		if (!(changelogFile.exists() && changelogFile.isFile())) {
 			throw new IllegalArgumentException("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
 		}
-		return null;
+		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
+		ParsedChangelog parsed = new ParsedChangelog(content);
+
+		String nextVersion;
+		if (cfg.forceNextVersion != null) {
+			nextVersion = cfg.forceNextVersion;
+		} else if (parsed.versionLast() == null) {
+			nextVersion = FIRST_VERSION;
+		} else {
+			nextVersion = nextVersion(parsed.unreleasedChanges(), Version.parseVersion(parsed.versionLast()), cfg).toString();
+		}
+		return new ChangelogModel(parsed, nextVersion);
+	}
+
+	private static Version nextVersion(String unreleasedChanges, Version last, NextVersionCfg cfg) {
+		if (last.getMajor() == 0) {
+			boolean bumpMinor = cfg.ifFoundBumpMajor.stream().anyMatch(unreleasedChanges::contains) ||
+					cfg.ifFoundBumpMinor.stream().anyMatch(unreleasedChanges::contains);
+			if (bumpMinor) {
+				return new Version(0, last.getMinor() + 1, 0);
+			} else {
+				return new Version(0, last.getMinor(), last.getMicro());
+			}
+		} else {
+			boolean bumpMajor = cfg.ifFoundBumpMajor.stream().anyMatch(unreleasedChanges::contains);
+			if (bumpMajor) {
+				return new Version(last.getMajor() + 1, 0, 0);
+			}
+			boolean bumpMinor = cfg.ifFoundBumpMinor.stream().anyMatch(unreleasedChanges::contains);
+			if (bumpMinor) {
+				return new Version(last.getMajor(), last.getMinor() + 1, 0);
+			}
+			return new Version(last.getMajor(), last.getMinor(), last.getMicro() + 1);
+		}
+	}
+
+	private final ParsedChangelog parsed;
+	private final String nextVersion;
+
+	private ChangelogModel(ParsedChangelog parsed, String nextVersion) {
+		this.parsed = parsed;
+		this.nextVersion = nextVersion;
+	}
+
+	public String versionNext() {
+		return nextVersion;
+	}
+
+	public ParsedChangelog parsed() {
+		return parsed;
 	}
 }
