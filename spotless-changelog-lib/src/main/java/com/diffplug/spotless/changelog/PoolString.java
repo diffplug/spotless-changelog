@@ -83,7 +83,7 @@ class PoolString implements CharSequence, java.io.Serializable {
 			if (base instanceof StringBuilder) {
 				builder = (StringBuilder) base;
 				start = startIndex;
-				end = other.endIndex;
+				end = endIndex + other.length();
 			} else {
 				builder = new StringBuilder(length() + other.length());
 				builder.append(this);
