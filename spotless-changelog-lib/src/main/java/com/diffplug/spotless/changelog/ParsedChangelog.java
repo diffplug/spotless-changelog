@@ -22,6 +22,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import pl.tlinkowski.annotation.basic.NullOr;
 
+/**
+ * Partitions a string into its changelog headers and the release notes under each header.
+ * 
+ * Capable of round-tripping - if you change the strings inside ParsedChangelog, you can write out
+ * a new changelog with new content, while preserving all formatting and non-changelog content in
+ * the string. 
+ */
 public class ParsedChangelog {
 	private static final String VERSION_BEGIN = "\n## [";
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
@@ -34,6 +41,7 @@ public class ParsedChangelog {
 	private final @NullOr PoolString unparseableAfterError;
 	private final LinkedHashMap<Integer, String> parseErrors = new LinkedHashMap<>();
 
+	/** Takes a changelog string as its argument. */
 	public ParsedChangelog(String contentRaw) {
 		contentUnix = PoolString.of(contentRaw.replace("\r\n", "\n"));
 		windowsNewlines = contentUnix.length() < contentRaw.length();
@@ -77,6 +85,7 @@ public class ParsedChangelog {
 		}
 	}
 
+	/** Returns the full content of this changelog as a string unix-newlines. */
 	public String toStringUnix() {
 		PoolString total = beforeUnreleased;
 		for (Map.Entry<VersionHeader, PoolString> entry : versionsRaw.entrySet()) {
@@ -89,6 +98,14 @@ public class ParsedChangelog {
 		return total.toString();
 	}
 
+	/** Returns the full content of this changelog as a string, with the same newlines as the input string. */
+	@Override
+	public String toString() {
+		String unix = toStringUnix();
+		return windowsNewlines ? unix.replace("\n", "\r\n") : unix;
+	}
+
+	/** Returns the most recently published version, if any. */
 	public @NullOr String versionMostRecent() {
 		if (versionsRaw.size() <= 1) {
 			return null;
@@ -97,7 +114,7 @@ public class ParsedChangelog {
 		}
 	}
 
-	/** Returns everything in the unreleased block. */
+	/** Returns the string describing unreleased changes - starts with a newline. */
 	public String unreleasedChanges() {
 		if (versionsRaw.isEmpty()) {
 			return "";
@@ -116,12 +133,6 @@ public class ParsedChangelog {
 	/** Map from line number to the error message, in the order they were encountered. */
 	public LinkedHashMap<Integer, String> errors() {
 		return parseErrors;
-	}
-
-	@Override
-	public String toString() {
-		String unix = toStringUnix();
-		return windowsNewlines ? unix.replace("\n", "\r\n") : unix;
 	}
 
 	static class VersionHeader {
