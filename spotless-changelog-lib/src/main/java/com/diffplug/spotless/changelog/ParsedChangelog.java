@@ -97,6 +97,14 @@ public class ParsedChangelog {
 		}
 	}
 
+	/** Returns everything in the unreleased block. */
+	public String unreleasedChanges() {
+		if (versionsRaw.isEmpty()) {
+			return "";
+		}
+		return Iterables.get(versionsRaw.values(), 0).toString().replace("\r\n", "\n");
+	}
+
 	private void addError(int lineNumber, String message) {
 		parseErrors.put(lineNumber, message);
 	}
@@ -151,7 +159,7 @@ public class ParsedChangelog {
 				misc = null;
 			} else {
 				// endDate > line.length()
-				if (line.charAt(endDate + 1) != ' ') {
+				if (line.charAt(endDate) != ' ') {
 					parser.addError(line.baseLineNumberStart(), "If you want to put stuff after 'yyyy-mm-dd', you need to separate it with a space");
 					return null;
 				} else {

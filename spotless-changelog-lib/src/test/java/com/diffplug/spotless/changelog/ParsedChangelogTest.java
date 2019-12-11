@@ -19,6 +19,7 @@ package com.diffplug.spotless.changelog;
 import com.diffplug.common.base.Preconditions;
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import pl.tlinkowski.annotation.basic.NullOr;
@@ -46,15 +47,12 @@ public class ParsedChangelogTest {
 				.errors("{3=Needs a newline directly before '## [Unreleased]'}")
 				.mostRecent(null);
 
-		Consumer<String> test = str -> {
-			test(str)
-					.errors("{}")
-					.mostRecent(null);
-		};
-		test.accept("\n## [Unreleased]");
-		test.accept("First line\n## [Unreleased]");
-		test.accept("First line\n## [Unreleased]\nLast line");
-		test.accept("First line\n## [Unreleased] with stuff after\nLast line");
+		Function<String, ChangelogAssertions> test = str -> test(str).errors("{}").mostRecent(null);
+		test.apply("\n## [Unreleased]").unreleasedChanges("");
+		test.apply("First line\n## [Unreleased]").unreleasedChanges("");
+		test.apply("First line\n## [Unreleased]\nLast line").unreleasedChanges("\nLast line");
+		test.apply("First line\n## [Unreleased] with stuff after\nLast line").unreleasedChanges("\nLast line");
+		test.apply("First line\n## [Unreleased] with stuff after\nLast line\n").unreleasedChanges("\nLast line\n");
 	}
 
 	@Test
@@ -69,8 +67,12 @@ public class ParsedChangelogTest {
 				.errors("{3='yyyy-mm-dd' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
 		test("\n## [Unreleased]\n## [x.y.z] - 1234a23").mostRecent(null)
 				.errors("{3='yyyy-mm-dd' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
-		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78")
-				.mostRecent("x.y.z").errors("{}");
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78").mostRecent("x.y.z")
+				.errors("{}");
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78a").mostRecent(null)
+				.errors("{3=If you want to put stuff after 'yyyy-mm-dd', you need to separate it with a space}");
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78 moreStuff").mostRecent("x.y.z").errors("{}").unreleasedChanges("");
+		test("\n## [Unreleased]\nOnething\n## [x.y.z] - 1234a56b78 moreStuff").mostRecent("x.y.z").errors("{}").unreleasedChanges("\nOnething");
 	}
 
 	static class ChangelogAssertions {
@@ -95,6 +97,12 @@ public class ParsedChangelogTest {
 		ChangelogAssertions mostRecent(@NullOr String version) {
 			Assertions.assertThat(unix.versionMostRecent()).isEqualTo(version);
 			Assertions.assertThat(win.versionMostRecent()).isEqualTo(version);
+			return this;
+		}
+
+		ChangelogAssertions unreleasedChanges(String unreleased) {
+			Assertions.assertThat(unix.unreleasedChanges()).isEqualTo(unreleased);
+			Assertions.assertThat(win.unreleasedChanges()).isEqualTo(unreleased);
 			return this;
 		}
 	}
