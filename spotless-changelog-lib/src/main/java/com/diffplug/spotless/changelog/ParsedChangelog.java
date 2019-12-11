@@ -17,7 +17,6 @@ package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.base.Preconditions;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import pl.tlinkowski.annotation.basic.NullOr;
@@ -34,7 +33,7 @@ public class ParsedChangelog {
 	private final @NullOr PoolString unparseableAfterError;
 	private final LinkedHashMap<Integer, String> parseErrors = new LinkedHashMap<>();
 
-	public ParsedChangelog(String contentRaw) throws IOException {
+	public ParsedChangelog(String contentRaw) {
 		contentUnix = PoolString.of(contentRaw.replace("\r\n", "\n"));
 		windowsNewlines = contentUnix.length() < contentRaw.length();
 
@@ -45,7 +44,17 @@ public class ParsedChangelog {
 		toParse = toParse.after(beforeUnreleased);
 
 		if (toParse.isEmpty()) {
-			addError(-1, "Needs to have '## [Unreleased]'");
+			unparseableAfterError = null;
+			if (!beforeUnreleased.endsWith(UNRELEASED)) {
+				int almostHadIt = contentRaw.indexOf("## [Unreleased]");
+				if (almostHadIt >= 0) {
+					int lineNumber = PoolString.of(contentRaw, almostHadIt, almostHadIt + 1).baseLineNumberStart();
+					addError(lineNumber, "Needs a newline directly before '## [Unreleased]'");
+				} else {
+					addError(-1, "Needs to have '## [Unreleased]'");
+				}
+			}
+			return;
 		}
 
 		while (true) {
@@ -78,6 +87,14 @@ public class ParsedChangelog {
 		return total.toString();
 	}
 
+	public @NullOr String versionMostRecent() {
+		if (versionsRaw.isEmpty()) {
+			return null;
+		} else {
+			return versionsRaw.keySet().iterator().next().version.toString();
+		}
+	}
+
 	private void addError(int lineNumber, String message) {
 		parseErrors.put(lineNumber, message);
 	}
@@ -106,9 +123,9 @@ public class ParsedChangelog {
 		PoolString misc;
 
 		static VersionHeader unreleased(PoolString line) {
-			Preconditions.checkArgument(line.startsWith(VERSION_BEGIN));
+			Preconditions.checkArgument(line.startsWith(UNRELEASED));
 			VersionHeader header = new VersionHeader();
-			header.misc = line.subSequence(VERSION_BEGIN.length(), line.length());
+			header.misc = line.subSequence(UNRELEASED.length(), line.length());
 			return header;
 		}
 
@@ -150,7 +167,7 @@ public class ParsedChangelog {
 
 		PoolString toStringUnix() {
 			if (version == null) {
-				return misc;
+				return PoolString.concat(UNRELEASED, misc);
 			} else if (misc == null) {
 				return PoolString.concat("\n## [", version, "] - ", date);
 			} else {

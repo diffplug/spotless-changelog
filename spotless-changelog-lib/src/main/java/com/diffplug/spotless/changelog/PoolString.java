@@ -152,6 +152,19 @@ class PoolString implements CharSequence, java.io.Serializable {
 		return true;
 	}
 
+	public boolean endsWith(String suffix) {
+		if (length() < suffix.length()) {
+			return false;
+		}
+		int offset = length() - suffix.length();
+		for (int i = 0; i < suffix.length(); ++i) {
+			if (charAt(i + offset) != suffix.charAt(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public int indexOf(String lookingFor) {
 		int result;
 		if (base instanceof String) {
