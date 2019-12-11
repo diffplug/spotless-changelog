@@ -59,7 +59,18 @@ public class ParsedChangelogTest {
 
 	@Test
 	public void releasedOne() throws IOException {
-
+		test("\n## [Unreleased]\n## [").mostRecent(null)
+				.errors("{3='] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
+		test("\n## [Unreleased]\n## [x.y.z").mostRecent(null)
+				.errors("{3='] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
+		test("\n## [Unreleased]\n## [x.y.z] -").mostRecent(null)
+				.errors("{3='] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
+		test("\n## [Unreleased]\n## [x.y.z] - ").mostRecent(null)
+				.errors("{3='yyyy-mm-dd' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a23").mostRecent(null)
+				.errors("{3='yyyy-mm-dd' is missing from the expected '## [x.y.z] - yyyy-mm-dd'}");
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78")
+				.mostRecent("x.y.z").errors("{}");
 	}
 
 	static class ChangelogAssertions {

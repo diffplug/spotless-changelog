@@ -17,6 +17,7 @@ package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.base.Preconditions;
+import com.diffplug.common.collect.Iterables;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import pl.tlinkowski.annotation.basic.NullOr;
@@ -59,23 +60,13 @@ public class ParsedChangelog {
 
 		while (true) {
 			int lastSlash = toParse.subSequence(1, toParse.length()).indexOf('\n');
-			if (lastSlash == -1) {
-				versionsRaw.put(VersionHeader.unreleased(toParse), PoolString.empty());
-				unparseableAfterError = null;
+			PoolString versionHeader = lastSlash == -1 ? toParse : toParse.subSequence(0, lastSlash + 1);
+			VersionHeader header = VersionHeader.parse(versionHeader, this);
+			if (header == null) {
+				unparseableAfterError = toParse;
 				return;
 			}
-			PoolString versionHeader = toParse.subSequence(0, lastSlash + 1);
 			toParse = toParse.after(versionHeader);
-			VersionHeader header;
-			if (versionsRaw.isEmpty()) {
-				header = VersionHeader.unreleased(versionHeader);
-			} else {
-				header = VersionHeader.parse(versionHeader, this);
-				if (header == null) {
-					unparseableAfterError = toParse;
-					return;
-				}
-			}
 			PoolString versionContent = toParse.until(VERSION_BEGIN);
 			versionsRaw.put(header, versionContent);
 			toParse = toParse.after(versionContent);
@@ -102,7 +93,7 @@ public class ParsedChangelog {
 		if (versionsRaw.size() <= 1) {
 			return null;
 		} else {
-			return versionsRaw.keySet().iterator().next().version.toString();
+			return Iterables.get(versionsRaw.keySet(), 1).version.toString();
 		}
 	}
 
@@ -133,14 +124,13 @@ public class ParsedChangelog {
 		@NullOr
 		PoolString misc;
 
-		static VersionHeader unreleased(PoolString line) {
-			Preconditions.checkArgument(line.startsWith(UNRELEASED));
-			VersionHeader header = new VersionHeader();
-			header.misc = line.subSequence(UNRELEASED.length(), line.length());
-			return header;
-		}
-
 		static @NullOr VersionHeader parse(PoolString line, ParsedChangelog parser) {
+			VersionHeader header = new VersionHeader();
+			if (parser.versionsRaw.isEmpty()) {
+				Preconditions.checkArgument(line.startsWith(UNRELEASED));
+				header.misc = line.subSequence(UNRELEASED.length(), line.length());
+				return header;
+			}
 			Preconditions.checkArgument(line.startsWith(VERSION_BEGIN));
 			int versionEnd = line.indexOf("] - ");
 			if (versionEnd == -1) {
@@ -169,7 +159,6 @@ public class ParsedChangelog {
 				}
 			}
 
-			VersionHeader header = new VersionHeader();
 			header.version = line.subSequence(VERSION_BEGIN.length(), versionEnd);
 			header.date = line.subSequence(startDate, endDate);
 			header.misc = misc;
