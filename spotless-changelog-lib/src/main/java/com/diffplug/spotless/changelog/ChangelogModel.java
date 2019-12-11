@@ -29,12 +29,11 @@ import pl.tlinkowski.annotation.basic.NullOr;
 public class ChangelogModel {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
 	public static final String COMMIT_MESSAGE_VERSION = "{version}";
-	public static final String UNRELEASED = "## [Unreleased]";
 	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
 	public static final String FIRST_VERSION = "0.1.0";
 
 	public static class NextVersionCfg implements Serializable {
-		public List<String> ifFoundBumpMinor = Arrays.asList("###", "Removed");
+		public List<String> ifFoundBumpMinor = Arrays.asList("### Added");
 		public List<String> ifFoundBumpMajor = Arrays.asList("**BREAKING**");
 		public @NullOr String forceNextVersion = null;
 	}
@@ -58,6 +57,10 @@ public class ChangelogModel {
 			throw new IllegalArgumentException("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
 		}
 		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
+		return calculate(content, cfg);
+	}
+
+	static ChangelogModel calculate(String content, NextVersionCfg cfg) {
 		ParsedChangelog parsed = new ParsedChangelog(content);
 
 		String nextVersion;
@@ -78,7 +81,7 @@ public class ChangelogModel {
 			if (bumpMinor) {
 				return new Version(0, last.getMinor() + 1, 0);
 			} else {
-				return new Version(0, last.getMinor(), last.getMicro());
+				return new Version(0, last.getMinor(), last.getMicro() + 1);
 			}
 		} else {
 			boolean bumpMajor = cfg.ifFoundBumpMajor.stream().anyMatch(unreleasedChanges::contains);
