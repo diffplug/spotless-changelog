@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.diffplug.blowdryer;
+package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.base.Preconditions;
-import com.diffplug.spotless.changelog.ParsedChangelog;
 import java.io.IOException;
 import java.util.function.Consumer;
 import org.assertj.core.api.Assertions;
@@ -25,6 +24,44 @@ import org.junit.Test;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 public class ParsedChangelogTest {
+	@Test
+	public void empty() {
+		Consumer<String> test = str -> {
+			test(str)
+					.errors("{-1=Needs to have '## [Unreleased]'}")
+					.mostRecent(null);
+		};
+		test.accept("");
+		test.accept("\n");
+		test.accept("\n\n");
+		test.accept("\n\n\n");
+	}
+
+	@Test
+	public void unreleased() throws IOException {
+		test("## [Unreleased]")
+				.errors("{1=Needs a newline directly before '## [Unreleased]'}")
+				.mostRecent(null);
+		test("\n\n  ## [Unreleased]")
+				.errors("{3=Needs a newline directly before '## [Unreleased]'}")
+				.mostRecent(null);
+
+		Consumer<String> test = str -> {
+			test(str)
+					.errors("{}")
+					.mostRecent(null);
+		};
+		test.accept("\n## [Unreleased]");
+		test.accept("First line\n## [Unreleased]");
+		test.accept("First line\n## [Unreleased]\nLast line");
+		test.accept("First line\n## [Unreleased] with stuff after\nLast line");
+	}
+
+	@Test
+	public void releasedOne() throws IOException {
+
+	}
+
 	static class ChangelogAssertions {
 		ParsedChangelog unix, win;
 
@@ -53,35 +90,5 @@ public class ParsedChangelogTest {
 
 	private ChangelogAssertions test(String content) {
 		return new ChangelogAssertions(content);
-	}
-
-	@Test
-	public void empty() {
-		Consumer<String> test = str -> {
-			test(str)
-					.errors("{-1=Needs to have '## [Unreleased]'}")
-					.mostRecent(null);
-		};
-		test.accept("");
-		test.accept("\n");
-		test.accept("\n\n");
-		test.accept("\n\n\n");
-	}
-
-	@Test
-	public void unreleased() throws IOException {
-		test("## [Unreleased]")
-				.errors("{1=Needs a newline directly before '## [Unreleased]'}")
-				.mostRecent(null);
-		test("\n\n  ## [Unreleased]")
-				.errors("{3=Needs a newline directly before '## [Unreleased]'}")
-				.mostRecent(null);
-
-		Consumer<String> test = str -> {
-			//			test(str)
-			//				.errors("{-1, "Neees }")
-			//				.mostRecent(null);
-		};
-		//		test.accept("## [Unreleased]");
 	}
 }

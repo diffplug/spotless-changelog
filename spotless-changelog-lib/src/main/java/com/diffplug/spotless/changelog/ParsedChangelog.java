@@ -58,20 +58,31 @@ public class ParsedChangelog {
 		}
 
 		while (true) {
-			PoolString versionHeader = toParse.until("\n");
-			@NullOr
+			int lastSlash = toParse.subSequence(1, toParse.length()).indexOf('\n');
+			if (lastSlash == -1) {
+				versionsRaw.put(VersionHeader.unreleased(toParse), PoolString.empty());
+				unparseableAfterError = null;
+				return;
+			}
+			PoolString versionHeader = toParse.subSequence(0, lastSlash + 1);
+			toParse = toParse.after(versionHeader);
 			VersionHeader header;
 			if (versionsRaw.isEmpty()) {
 				header = VersionHeader.unreleased(versionHeader);
 			} else {
 				header = VersionHeader.parse(versionHeader, this);
-			}
-			if (header == null) {
-				unparseableAfterError = toParse;
-				return;
+				if (header == null) {
+					unparseableAfterError = toParse;
+					return;
+				}
 			}
 			PoolString versionContent = toParse.until(VERSION_BEGIN);
 			versionsRaw.put(header, versionContent);
+			toParse = toParse.after(versionContent);
+			if (toParse.isEmpty()) {
+				unparseableAfterError = null;
+				return;
+			}
 		}
 	}
 
@@ -88,7 +99,7 @@ public class ParsedChangelog {
 	}
 
 	public @NullOr String versionMostRecent() {
-		if (versionsRaw.isEmpty()) {
+		if (versionsRaw.size() <= 1) {
 			return null;
 		} else {
 			return versionsRaw.keySet().iterator().next().version.toString();
@@ -167,7 +178,8 @@ public class ParsedChangelog {
 
 		PoolString toStringUnix() {
 			if (version == null) {
-				return PoolString.concat(UNRELEASED, misc);
+				// {{beforeUnreleased includes '## [Unreleased]'}}{{misc}}
+				return PoolString.concat(ParsedChangelog.UNRELEASED, misc);
 			} else if (misc == null) {
 				return PoolString.concat("\n## [", version, "] - ", date);
 			} else {

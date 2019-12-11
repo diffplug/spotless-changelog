@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.diffplug.blowdryer;
+package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.io.Resources;
