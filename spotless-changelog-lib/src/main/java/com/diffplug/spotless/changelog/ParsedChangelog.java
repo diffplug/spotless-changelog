@@ -20,6 +20,7 @@ import com.diffplug.common.base.Preconditions;
 import com.diffplug.common.collect.Iterables;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 /**
@@ -34,16 +35,16 @@ public class ParsedChangelog {
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
 	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- do not parse below here -->";
 
-	private final PoolString contentUnix;
 	private final boolean windowsNewlines;
 	private final PoolString dontParse, beforeUnreleased;
-	private final LinkedHashMap<VersionHeader, PoolString> versionsRaw = new LinkedHashMap<>();
+	private final LinkedHashMap<VersionHeader, PoolString> versionsRaw;
 	private final @NullOr PoolString unparseableAfterError;
 	private final LinkedHashMap<Integer, String> parseErrors = new LinkedHashMap<>();
 
 	/** Takes a changelog string as its argument. */
 	public ParsedChangelog(String contentRaw) {
-		contentUnix = PoolString.of(contentRaw.replace("\r\n", "\n"));
+		versionsRaw = new LinkedHashMap<>();
+		PoolString contentUnix = PoolString.of(contentRaw.replace("\r\n", "\n"));
 		windowsNewlines = contentUnix.length() < contentRaw.length();
 
 		PoolString toParse = contentUnix.until(DONT_PARSE_BELOW_HERE);
@@ -83,6 +84,18 @@ public class ParsedChangelog {
 				return;
 			}
 		}
+	}
+
+	/** Copy-constructor. */
+	private ParsedChangelog(boolean windowsNewlines,
+			PoolString dontParse, PoolString beforeUnreleased,
+			LinkedHashMap<VersionHeader, PoolString> versionsRaw,
+			@NullOr PoolString unparseableAfterError) {
+		this.windowsNewlines = windowsNewlines;
+		this.dontParse = dontParse;
+		this.beforeUnreleased = beforeUnreleased;
+		this.versionsRaw = versionsRaw;
+		this.unparseableAfterError = unparseableAfterError;
 	}
 
 	/** Returns the full content of this changelog as a string unix-newlines. */
@@ -131,15 +144,37 @@ public class ParsedChangelog {
 		return parseErrors;
 	}
 
-	static class VersionHeader {
+	public static class VersionHeader {
 		@NullOr
-		PoolString version;
+		private PoolString version;
 		@NullOr
-		PoolString date;
+		private PoolString date;
 		@NullOr
-		PoolString misc;
+		private PoolString misc;
 
-		static @NullOr VersionHeader parse(PoolString line, ParsedChangelog parser) {
+		private VersionHeader() {}
+
+		/** Creates a VersionHeader of the given version and date. */
+		public static VersionHeader versionDate(String version, String date) {
+			VersionHeader header = new VersionHeader();
+			header.version = PoolString.of(version);
+			header.date = PoolString.of(date);
+			return header;
+		}
+
+		public CharSequence version() {
+			return version;
+		}
+
+		public CharSequence date() {
+			return date;
+		}
+
+		public CharSequence misc() {
+			return misc;
+		}
+
+		private static @NullOr VersionHeader parse(PoolString line, ParsedChangelog parser) {
 			VersionHeader header = new VersionHeader();
 			if (parser.versionsRaw.isEmpty()) {
 				Preconditions.checkArgument(line.startsWith(UNRELEASED));
@@ -190,5 +225,23 @@ public class ParsedChangelog {
 				return PoolString.concat("\n## [", version, "] - ", date, " ", misc);
 			}
 		}
+	}
+
+	/** Returns a ParsedChangelog where the version list has been mutated by the given mutator. */
+	@SuppressWarnings("unchecked")
+	public ParsedChangelog mutatedBy(Consumer<LinkedHashMap<VersionHeader, CharSequence>> mutator) {
+		LinkedHashMap<VersionHeader, CharSequence> copy = new LinkedHashMap<>(versionsRaw);
+		mutator.accept(copy);
+		copy.replaceAll((header, charSeq) -> {
+			if (charSeq instanceof PoolString) {
+				return (PoolString) charSeq;
+			} else {
+				return PoolString.of((String) charSeq);
+			}
+		});
+		return new ParsedChangelog(windowsNewlines,
+				dontParse, beforeUnreleased,
+				(LinkedHashMap<VersionHeader, PoolString>) (Object) copy,
+				unparseableAfterError);
 	}
 }
