@@ -75,6 +75,26 @@ public class ParsedChangelogTest {
 		test("\n## [Unreleased]\nOnething\n## [x.y.z] - 1234a56b78 moreStuff").last("x.y.z").errors("{}").unreleasedChanges("\nOnething");
 	}
 
+	@Test
+	public void afterRelease() throws IOException {
+		test("\n## [Unreleased]\n## [x.y.z] - 1234a56b78").afterRelease(
+				"\n## [Unreleased]\n\n## [1.0.0] - 2020-12-30\n## [x.y.z] - 1234a56b78");
+		test("\n## [Unreleased] moreStuff\n## [x.y.z] - 1234a56b78").afterRelease(
+				"\n## [Unreleased] moreStuff\n\n## [1.0.0] - 2020-12-30\n## [x.y.z] - 1234a56b78");
+		test("\n## [Unreleased]\n-CONTENT\n## [x.y.z] - 1234a56b78").afterRelease(
+				"\n## [Unreleased]\n\n## [1.0.0] - 2020-12-30\n-CONTENT\n## [x.y.z] - 1234a56b78");
+		test("\n## [Unreleased] moreStuff\n-CONTENT\n## [x.y.z] - 1234a56b78").afterRelease(
+				"\n## [Unreleased] moreStuff\n\n## [1.0.0] - 2020-12-30\n-CONTENT\n## [x.y.z] - 1234a56b78");
+		test("\n## [Unreleased]\n-CONTENT\n").afterRelease(
+				"\n## [Unreleased]\n\n## [1.0.0] - 2020-12-30\n-CONTENT\n");
+		test("\n## [Unreleased] moreStuff\n-CONTENT\n").afterRelease(
+				"\n## [Unreleased] moreStuff\n\n## [1.0.0] - 2020-12-30\n-CONTENT\n");
+		test("\n## [Unreleased]").afterRelease(
+				"\n## [Unreleased]\n\n## [1.0.0] - 2020-12-30");
+		test("\n## [Unreleased] moreStuff\n-CONTENT\n").afterRelease(
+				"\n## [Unreleased] moreStuff\n\n## [1.0.0] - 2020-12-30\n-CONTENT\n");
+	}
+
 	static class ChangelogAssertions {
 		ParsedChangelog unix, win;
 
@@ -103,6 +123,16 @@ public class ParsedChangelogTest {
 		ChangelogAssertions unreleasedChanges(String unreleased) {
 			Assertions.assertThat(unix.unreleasedChanges()).isEqualTo(unreleased);
 			Assertions.assertThat(win.unreleasedChanges()).isEqualTo(unreleased);
+			return this;
+		}
+
+		ChangelogAssertions afterRelease(String afterRelease) {
+			errors("{}");
+			String VERSION = "1.0.0";
+			String DATE = "2020-12-30";
+			String unreleased = unix.releaseUnreleased(VERSION, DATE).toString();
+			Assertions.assertThat(unreleased).isEqualTo(afterRelease);
+			Assertions.assertThat(win.releaseUnreleased(VERSION, DATE).toString()).isEqualTo(unreleased.replace("\n", "\r\n"));
 			return this;
 		}
 	}

@@ -103,7 +103,7 @@ public class ParsedChangelog {
 	public String toStringUnix() {
 		PoolString total = beforeUnreleased;
 		for (VersionEntry entry : versionsRaw) {
-			total = total.concat(entry.toStringUnix()).concat(entry.changes);
+			total = total.concat(entry.toStringUnix());
 		}
 		if (unparseableAfterError != null) {
 			total = total.concat(unparseableAfterError);
@@ -217,14 +217,24 @@ public class ParsedChangelog {
 		}
 
 		/** Sets the changes to be used in this entry (must be start with a newline, or be empty). Unix or windows newlines are fine. */
-		public VersionEntry setChanges(String changes) {
-			String changesUnix = changes.replaceAll("\r\n", "\n");
-			if (this.changes.sameAs(changesUnix)) {
-				return this;
+		public VersionEntry setChanges(CharSequence changesRaw) {
+			CharSequence changesUnix = asUnix(changesRaw);
+			Preconditions.checkArgument(changesUnix.length() == 0 || changesUnix.charAt(0) == '\n');
+			if (changesUnix instanceof PoolString) {
+				this.changes = (PoolString) changesUnix;
+			} else if (!this.changes.sameAs(changesUnix)) {
+				this.changes = PoolString.of(changesUnix.toString());
 			}
-			Preconditions.checkArgument(changesUnix.isEmpty() || changesUnix.charAt(0) == '\n');
-			this.changes = PoolString.of(changesUnix);
 			return this;
+		}
+
+		private static CharSequence asUnix(CharSequence change) {
+			for (int i = 0; i < change.length(); ++i) {
+				if (change.charAt(i) == '\r') {
+					return change.toString().replace("\r\n", "\n");
+				}
+			}
+			return change;
 		}
 
 		private static @NullOr VersionEntry parse(PoolString line, ParsedChangelog parser) {
@@ -271,22 +281,35 @@ public class ParsedChangelog {
 		PoolString toStringUnix() {
 			if (version == null) {
 				// {{beforeUnreleased includes '## [Unreleased]'}}{{misc}}
-				return PoolString.concat(ParsedChangelog.UNRELEASED, headerMisc);
+				return PoolString.concat(ParsedChangelog.UNRELEASED, headerMisc, changes);
 			} else if (headerMisc == null) {
-				return PoolString.concat("\n## [", version, "] - ", date);
+				return PoolString.concat("\n## [", version, "] - ", date, changes);
 			} else {
-				return PoolString.concat("\n## [", version, "] - ", date, " ", headerMisc);
+				return PoolString.concat("\n## [", version, "] - ", date, " ", headerMisc, changes);
 			}
 		}
 	}
 
 	/** Returns a ParsedChangelog where the version list has been mutated by the given mutator. */
-	public ParsedChangelog withMutatedVersions(Consumer<List<VersionEntry>> mutator) {
+	private ParsedChangelog withMutatedVersions(Consumer<List<VersionEntry>> mutator) {
 		List<VersionEntry> copy = new ArrayList<>(versionsRaw);
 		mutator.accept(copy);
 		return new ParsedChangelog(windowsNewlines,
 				dontParse, beforeUnreleased,
 				copy,
 				unparseableAfterError);
+	}
+
+	/** Returns a new changelog where the [Unreleased] section has been released with the given version and date. */
+	public ParsedChangelog releaseUnreleased(String version, String date) {
+		return withMutatedVersions(list -> {
+			VersionEntry unreleased = list.get(0);
+			Preconditions.checkArgument(unreleased.isUnreleased());
+
+			VersionEntry entry = VersionEntry.versionDate(version, date);
+			entry.setChanges(unreleased.changes());
+			unreleased.setChanges("\n");
+			list.add(1, entry);
+		});
 	}
 }
