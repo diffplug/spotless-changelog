@@ -17,9 +17,10 @@ package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.base.Preconditions;
-import com.diffplug.common.collect.Iterables;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import pl.tlinkowski.annotation.basic.NullOr;
 
@@ -37,13 +38,13 @@ public class ParsedChangelog {
 
 	private final boolean windowsNewlines;
 	private final PoolString dontParse, beforeUnreleased;
-	private final LinkedHashMap<VersionHeader, PoolString> versionsRaw;
+	private final List<VersionEntry> versionsRaw;
 	private final @NullOr PoolString unparseableAfterError;
 	private final LinkedHashMap<Integer, String> parseErrors = new LinkedHashMap<>();
 
 	/** Takes a changelog string as its argument. */
 	public ParsedChangelog(String contentRaw) {
-		versionsRaw = new LinkedHashMap<>();
+		versionsRaw = new ArrayList<>();
 		PoolString contentUnix = PoolString.of(contentRaw.replace("\r\n", "\n"));
 		windowsNewlines = contentUnix.length() < contentRaw.length();
 
@@ -70,15 +71,15 @@ public class ParsedChangelog {
 		while (true) {
 			int lastSlash = toParse.subSequence(1, toParse.length()).indexOf('\n');
 			PoolString versionHeader = lastSlash == -1 ? toParse : toParse.subSequence(0, lastSlash + 1);
-			VersionHeader header = VersionHeader.parse(versionHeader, this);
-			if (header == null) {
+			VersionEntry version = VersionEntry.parse(versionHeader, this);
+			if (version == null) {
 				unparseableAfterError = toParse;
 				return;
 			}
 			toParse = toParse.after(versionHeader);
-			PoolString versionContent = toParse.until(VERSION_BEGIN);
-			versionsRaw.put(header, versionContent);
-			toParse = toParse.after(versionContent);
+			version.changes = toParse.until(VERSION_BEGIN);
+			versionsRaw.add(version);
+			toParse = toParse.after(version.changes);
 			if (toParse.isEmpty()) {
 				unparseableAfterError = null;
 				return;
@@ -89,7 +90,7 @@ public class ParsedChangelog {
 	/** Copy-constructor. */
 	private ParsedChangelog(boolean windowsNewlines,
 			PoolString dontParse, PoolString beforeUnreleased,
-			LinkedHashMap<VersionHeader, PoolString> versionsRaw,
+			List<VersionEntry> versionsRaw,
 			@NullOr PoolString unparseableAfterError) {
 		this.windowsNewlines = windowsNewlines;
 		this.dontParse = dontParse;
@@ -101,8 +102,8 @@ public class ParsedChangelog {
 	/** Returns the full content of this changelog as a string unix-newlines. */
 	public String toStringUnix() {
 		PoolString total = beforeUnreleased;
-		for (Map.Entry<VersionHeader, PoolString> entry : versionsRaw.entrySet()) {
-			total = total.concat(entry.getKey().toStringUnix()).concat(entry.getValue());
+		for (VersionEntry entry : versionsRaw) {
+			total = total.concat(entry.toStringUnix()).concat(entry.changes);
 		}
 		if (unparseableAfterError != null) {
 			total = total.concat(unparseableAfterError);
@@ -123,7 +124,7 @@ public class ParsedChangelog {
 		if (versionsRaw.size() <= 1) {
 			return null;
 		} else {
-			return Iterables.get(versionsRaw.keySet(), 1).version.toString();
+			return versionsRaw.get(1).version.toString();
 		}
 	}
 
@@ -132,7 +133,7 @@ public class ParsedChangelog {
 		if (versionsRaw.isEmpty()) {
 			return "";
 		}
-		return Iterables.get(versionsRaw.values(), 0).toString().replace("\r\n", "\n");
+		return versionsRaw.get(0).changes.toString();
 	}
 
 	private void addError(int lineNumber, String message) {
@@ -144,41 +145,93 @@ public class ParsedChangelog {
 		return parseErrors;
 	}
 
-	public static class VersionHeader {
-		@NullOr
-		private PoolString version;
-		@NullOr
-		private PoolString date;
-		@NullOr
-		private PoolString misc;
+	/** Contains everything about a single entry in the changelog list. */
+	public static class VersionEntry {
+		/** Null signifies unreleased. */
+		private @NullOr PoolString version;
 
-		private VersionHeader() {}
+		/** Null signifies unreleased. */
+		private @NullOr PoolString date;
+
+		/** Null signifies nothing after the date. For unreleased, it is always non-null. */
+		private @NullOr PoolString headerMisc;
+
+		/** The changes for this version. Guaranteed to be non-null once parsed. */
+		private @NullOr PoolString changes;
+
+		private VersionEntry() {}
 
 		/** Creates a VersionHeader of the given version and date. */
-		public static VersionHeader versionDate(String version, String date) {
-			VersionHeader header = new VersionHeader();
+		public static VersionEntry versionDate(String version, String date) {
+			VersionEntry header = new VersionEntry();
 			header.version = PoolString.of(version);
 			header.date = PoolString.of(date);
 			return header;
 		}
 
+		/** If unreleased, you can't ask for version or date. */
+		public boolean isUnreleased() {
+			return version == null;
+		}
+
+		/** The version (make sure it's not {@link #isUnreleased()}. */
 		public CharSequence version() {
+			Preconditions.checkArgument(!isUnreleased());
 			return version;
 		}
 
+		/** The date (make sure it's not {@link #isUnreleased()}. */
 		public CharSequence date() {
+			Preconditions.checkArgument(!isUnreleased());
 			return date;
 		}
 
-		public CharSequence misc() {
-			return misc;
+		/** Anything that appears after the `[Unreleased]` tag. */
+		public @NullOr CharSequence headerMisc() {
+			if (headerMisc == null) {
+				return null;
+			} else {
+				if (isUnreleased()) {
+					// unreleased behaves a little different
+					return headerMisc.length() <= 1 ? null : headerMisc.subSequence(1, headerMisc.length());
+				} else {
+					return headerMisc;
+				}
+			}
 		}
 
-		private static @NullOr VersionHeader parse(PoolString line, ParsedChangelog parser) {
-			VersionHeader header = new VersionHeader();
+		/** Sets the changes to be used in this entry (must be start with a newline, or be empty). Unix or windows newlines are fine. */
+		public VersionEntry setHeaderMisc(@NullOr String headerMisc) {
+			if (headerMisc == null) {
+				this.headerMisc = null;
+				return this;
+			}
+			Preconditions.checkArgument(headerMisc.indexOf('\n') == -1);
+			this.headerMisc = PoolString.of(isUnreleased() ? " " + headerMisc : headerMisc);
+			return this;
+		}
+
+		/** The changes in this version, guaranteed to either be empty or to start with a newline. */
+		public CharSequence changes() {
+			return Objects.requireNonNull(changes);
+		}
+
+		/** Sets the changes to be used in this entry (must be start with a newline, or be empty). Unix or windows newlines are fine. */
+		public VersionEntry setChanges(String changes) {
+			String changesUnix = changes.replaceAll("\r\n", "\n");
+			if (this.changes.sameAs(changesUnix)) {
+				return this;
+			}
+			Preconditions.checkArgument(changesUnix.isEmpty() || changesUnix.charAt(0) == '\n');
+			this.changes = PoolString.of(changesUnix);
+			return this;
+		}
+
+		private static @NullOr VersionEntry parse(PoolString line, ParsedChangelog parser) {
+			VersionEntry header = new VersionEntry();
 			if (parser.versionsRaw.isEmpty()) {
 				Preconditions.checkArgument(line.startsWith(UNRELEASED));
-				header.misc = line.subSequence(UNRELEASED.length(), line.length());
+				header.headerMisc = line.subSequence(UNRELEASED.length(), line.length());
 				return header;
 			}
 			Preconditions.checkArgument(line.startsWith(VERSION_BEGIN));
@@ -211,37 +264,29 @@ public class ParsedChangelog {
 
 			header.version = line.subSequence(VERSION_BEGIN.length(), versionEnd);
 			header.date = line.subSequence(startDate, endDate);
-			header.misc = misc;
+			header.headerMisc = misc;
 			return header;
 		}
 
 		PoolString toStringUnix() {
 			if (version == null) {
 				// {{beforeUnreleased includes '## [Unreleased]'}}{{misc}}
-				return PoolString.concat(ParsedChangelog.UNRELEASED, misc);
-			} else if (misc == null) {
+				return PoolString.concat(ParsedChangelog.UNRELEASED, headerMisc);
+			} else if (headerMisc == null) {
 				return PoolString.concat("\n## [", version, "] - ", date);
 			} else {
-				return PoolString.concat("\n## [", version, "] - ", date, " ", misc);
+				return PoolString.concat("\n## [", version, "] - ", date, " ", headerMisc);
 			}
 		}
 	}
 
 	/** Returns a ParsedChangelog where the version list has been mutated by the given mutator. */
-	@SuppressWarnings("unchecked")
-	public ParsedChangelog mutatedBy(Consumer<LinkedHashMap<VersionHeader, CharSequence>> mutator) {
-		LinkedHashMap<VersionHeader, CharSequence> copy = new LinkedHashMap<>(versionsRaw);
+	public ParsedChangelog withMutatedVersions(Consumer<List<VersionEntry>> mutator) {
+		List<VersionEntry> copy = new ArrayList<>(versionsRaw);
 		mutator.accept(copy);
-		copy.replaceAll((header, charSeq) -> {
-			if (charSeq instanceof PoolString) {
-				return (PoolString) charSeq;
-			} else {
-				return PoolString.of((String) charSeq);
-			}
-		});
 		return new ParsedChangelog(windowsNewlines,
 				dontParse, beforeUnreleased,
-				(LinkedHashMap<VersionHeader, PoolString>) (Object) copy,
+				copy,
 				unparseableAfterError);
 	}
 }
