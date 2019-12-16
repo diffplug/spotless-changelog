@@ -32,7 +32,6 @@ public class ChangelogPluginTest extends GradleHarness {
 				"spotlessChangelog {",
 				Arrays.stream(lines).collect(Collectors.joining("\n")),
 				"}");
-
 	}
 
 	@Test
@@ -71,6 +70,30 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"Some minor change",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
 				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"### Added",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"**BREAKING**",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
 	}
 }

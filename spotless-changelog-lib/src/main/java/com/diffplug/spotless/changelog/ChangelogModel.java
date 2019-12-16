@@ -68,6 +68,9 @@ public class ChangelogModel {
 			nextVersion = cfg.forceNextVersion;
 		} else if (parsed.versionLast() == null) {
 			nextVersion = FIRST_VERSION;
+		} else if (parsed.noUnreleasedChanges()) {
+			// we bumped, but don't have any new changes, so the next version is still "this" version
+			nextVersion = parsed.versionLast();
 		} else {
 			nextVersion = nextVersion(parsed.unreleasedChanges(), Version.parseVersion(parsed.versionLast()), cfg).toString();
 		}

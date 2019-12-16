@@ -38,43 +38,46 @@ public class NextVersionTest {
 		test("\n## [Unreleased]\n### Added\n").isEqualTo("0.1.0");
 		test("\n## [Unreleased]\n**BREAKING**\n").isEqualTo("0.1.0");
 		test("\n## [Unreleased]\n### Added\n**BREAKING**\n").isEqualTo("0.1.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n").isEqualTo("0.1.0");
+		test("\n## [Unreleased]\nSome change\n**BREAKING**\n").isEqualTo("0.1.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n").isEqualTo("0.1.0");
 	}
 
 	@Test
 	public void ohDotVersions() {
-		test("\n## [Unreleased]\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.2.1");
-		test("\n## [Unreleased]\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.2.6");
-		test("\n## [Unreleased]\n### Added\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
-		test("\n## [Unreleased]\n### Added\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.3.0");
-		test("\n## [Unreleased]\n**BREAKING**\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
-		test("\n## [Unreleased]\n**BREAKING**\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.3.0");
-		test("\n## [Unreleased]\n### Added\n**BREAKING**\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
-		test("\n## [Unreleased]\n### Added\n**BREAKING**\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.3.0");
+		test("\n## [Unreleased]\nSome change\n## [0.2.0] - 2020-10-10").isEqualTo("0.2.1");
+		test("\n## [Unreleased]\nSome change\n## [0.2.5] - 2020-10-10").isEqualTo("0.2.6");
+		test("\n## [Unreleased]\nSome change\n### Added\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.3.0");
+		test("\n## [Unreleased]\nSome change\n**BREAKING**\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
+		test("\n## [Unreleased]\nSome change\n**BREAKING**\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.3.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [0.2.5] - 2020-10-10\n").isEqualTo("0.3.0");
 	}
 
 	@Test
 	public void standardVersions() {
-		test("\n## [Unreleased]\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.2.1");
-		test("\n## [Unreleased]\n## [1.2.5] - 2020-10-10\n").isEqualTo("1.2.6");
-		test("\n## [Unreleased]\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.3.0");
-		test("\n## [Unreleased]\n### Added\n## [1.2.5] - 2020-10-10\n").isEqualTo("1.3.0");
-		test("\n## [Unreleased]\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("2.0.0");
-		test("\n## [Unreleased]\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("2.0.0");
-		test("\n## [Unreleased]\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("2.0.0");
-		test("\n## [Unreleased]\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("2.0.0");
+		test("\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.2.1");
+		test("\n## [Unreleased]\nSome change\n## [1.2.5] - 2020-10-10\n").isEqualTo("1.2.6");
+		test("\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.3.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n## [1.2.5] - 2020-10-10\n").isEqualTo("1.3.0");
+		test("\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("2.0.0");
+		test("\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("2.0.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("2.0.0");
+		test("\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("2.0.0");
 	}
 
 	@Test
 	public void forceVersions() {
 		NextVersionCfg cfg = new NextVersionCfg();
 		cfg.forceNextVersion = "shoopty";
-		test(cfg, "\n## [Unreleased]\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n### Added\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
 	}
 }

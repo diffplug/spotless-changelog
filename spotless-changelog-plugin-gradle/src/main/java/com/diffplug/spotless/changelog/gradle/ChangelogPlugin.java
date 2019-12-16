@@ -38,6 +38,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		project.getTasks().register(PrintTask.NAME, PrintTask.class, extension);
 
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
+
 		project.afterEvaluate(unused -> {
 			if (extension.enforceCheck) {
 				project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME).configure(t -> t.dependsOn(check));
@@ -91,7 +92,11 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void print() {
-			System.out.println(getProject().getName() + " " + extension.getVersionLast() + " -> " + extension.getVersionNext());
+			if (extension.getVersionNext().equals(extension.getVersionLast())) {
+				System.out.println(getProject().getName() + " " + extension.getVersionLast() + " (no unreleased changes)");
+			} else {
+				System.out.println(getProject().getName() + " " + extension.getVersionLast() + " -> " + extension.getVersionNext());
+			}
 		}
 	}
 }

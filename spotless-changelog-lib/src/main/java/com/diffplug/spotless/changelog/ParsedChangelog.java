@@ -128,12 +128,17 @@ public class ParsedChangelog {
 		}
 	}
 
-	/** Returns the string describing unreleased changes - starts with a newline. */
+	/** Returns the string describing unreleased changes - starts with a newline, and has unix newlines. */
 	public String unreleasedChanges() {
 		if (versionsRaw.isEmpty()) {
 			return "";
 		}
 		return versionsRaw.get(0).changes.toString();
+	}
+
+	/** Returns true if there are no unreleased changes. */
+	public boolean noUnreleasedChanges() {
+		return unreleasedChanges().replace("\n", "").trim().isEmpty();
 	}
 
 	private void addError(int lineNumber, String message) {
