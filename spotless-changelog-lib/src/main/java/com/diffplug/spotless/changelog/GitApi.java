@@ -19,6 +19,8 @@ package com.diffplug.spotless.changelog;
 import com.diffplug.common.collect.Iterables;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.eclipse.jgit.api.Git;
@@ -53,14 +55,18 @@ public class GitApi implements AutoCloseable {
 
 	/** Confirms that we can push a branch. */
 	public void checkCanPush() throws GitAPIException, IOException {
-		Ref ref = repository.getRefDatabase().exactRef(Constants.R_HEADS + cfg.branch);
-		Objects.requireNonNull(ref, "Expected ref " + Constants.R_HEADS + cfg.branch);
-		Ref remoteRef = repository.getRefDatabase().exactRef(Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
-		Objects.requireNonNull(ref, "Expected ref " + Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
-		if (!ref.getObjectId().equals(remoteRef.getObjectId())) {
-			throw new IllegalStateException("Local branch " + cfg.branch + " is out of sync with " + cfg.remote + ", so we can't safely push it automatically.");
+		try {
+			Ref ref = repository.getRefDatabase().exactRef(Constants.R_HEADS + cfg.branch);
+			Objects.requireNonNull(ref, "Expected ref " + Constants.R_HEADS + cfg.branch);
+			Ref remoteRef = repository.getRefDatabase().exactRef(Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
+			Objects.requireNonNull(ref, "Expected ref " + Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
+			if (!ref.getObjectId().equals(remoteRef.getObjectId())) {
+				throw new IllegalStateException("Local branch " + cfg.branch + " is out of sync with " + cfg.remote + ", so we can't safely push it automatically.");
+			}
+			push(cfg.branch);
+		} catch (GitAPIException e) {
+			throw new IllegalArgumentException("You can set user/pass with any of these environment variables: " + envVars(), e);
 		}
-		push(cfg.branch);
 	}
 
 	/** Asserts that there is no tag with the expected name. */
@@ -125,14 +131,6 @@ public class GitApi implements AutoCloseable {
 			}
 			return new UsernamePasswordCredentialsProvider(username, password);
 		}
-		username = System.getProperty(GRGIT_USERNAME_SYS_PROP);
-		if (username != null) {
-			String password = System.getenv(GRGIT_PASSWORD_SYS_PROP);
-			if (password == null) {
-				password = "";
-			}
-			return new UsernamePasswordCredentialsProvider(username, password);
-		}
 		username = System.getProperty(GH_TOKEN_ENV_VAR);
 		if (username != null) {
 			return new UsernamePasswordCredentialsProvider(username, "");
@@ -140,9 +138,11 @@ public class GitApi implements AutoCloseable {
 		return null;
 	}
 
-	private static final String GH_TOKEN_ENV_VAR = "gh_token";
 	private static final String GRGIT_USERNAME_ENV_VAR = "GRGIT_USER";
 	private static final String GRGIT_PASSWORD_ENV_VAR = "GRGIT_PASS";
-	private static final String GRGIT_USERNAME_SYS_PROP = "org.ajoberstar.grgit.auth.username";
-	private static final String GRGIT_PASSWORD_SYS_PROP = "org.ajoberstar.grgit.auth.password";
+	private static final String GH_TOKEN_ENV_VAR = "gh_token";
+
+	private static List<String> envVars() {
+		return Arrays.asList(GRGIT_USERNAME_ENV_VAR, GRGIT_PASSWORD_ENV_VAR, GH_TOKEN_ENV_VAR);
+	}
 }
