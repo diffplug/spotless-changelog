@@ -103,8 +103,18 @@ spotlessChangelog {  // defaults
 }
 ```
 
+If `publish` is the task that publishes your library, then we recommend that you use `changelogPush` as your deploy command, and wire your dependencies like so:
 
-If `release` is the task that publishes your library, then `tasks.release.finalizedBy tasks.changelogPush` will tag and push after a successful publish.
+```gradle
+// ensures that nothing will be built if changelogPush will end up failing
+tasks.named('jar').configure {
+  dependsOn tasks.named('changelogCheck')
+}
+// ensures that changelog bump and push only happens if the publish was successful
+tasks.named('changelogBump').configure {
+  dependsOn tasks.named('publish')
+}
+```
 
 ## Reference
 
@@ -129,14 +139,15 @@ spotlessChangelog { // all defaults
 
 ### Tasks
 
-- `changelogCheck` - throws an error if the changelog is not formatted according to your rules
-  - if `enforceCheck true` (default) then `check.dependsOn changelogCheck`
 - `changelogPrint` - prints the last published version and calculated next version
   - `myproj 1.0.4 -> 1.1.0`
-- `changelogBump` - updates the changelog on disk with the next version and the current date
+- `changelogCheck` - throws an error if the changelog is not formatted according to your rules
+  - if `enforceCheck true` (default) then `check.dependsOn changelogCheck`
+- `changelogBump` - updates the changelog on disk with the next version and the current UTC date
   - applying `changelogBump` multiple times in a row is fine, an empty section under `[Unreleased]` is enough to know that it has already been applied.
 - `changelogPush` - commits the changelog, tags, and pushes
-  - `changelogPush.dependsOn changelogBump`
+  - `changelogPush` depends on `changelogBump` depends on `changelogCheck`
+  - If `changelogPush` is in the task graph, then `changelogCheck` will fail if the git auth fails.  Assuming `
 
 ## Acknowledgments
 
