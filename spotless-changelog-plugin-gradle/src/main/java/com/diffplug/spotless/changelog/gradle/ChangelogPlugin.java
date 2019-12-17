@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import javax.inject.Inject;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gradle.api.DefaultTask;
@@ -47,9 +48,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
 		TaskProvider<BumpTask> bump = project.getTasks().register(BumpTask.NAME, BumpTask.class, extension);
-		bump.configure(b -> b.dependsOn(check));
+		bump.configure(t -> t.dependsOn(check));
 		TaskProvider<PushTask> push = project.getTasks().register(PushTask.NAME, PushTask.class, extension);
-		push.configure(p -> p.dependsOn(bump));
+		push.configure(t -> t.dependsOn(bump));
 
 		project.afterEvaluate(unused -> {
 			if (extension.enforceCheck) {
@@ -75,14 +76,23 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 
 		@TaskAction
-		public void check() {
-			ChangelogModel model = extension.model();
-			if (model.parsed().errors().isEmpty()) {
+		public void check() throws IOException, GitAPIException {
+			String pushTaskPath = getProject().absoluteProjectPath(PushTask.NAME);
+			// if we're going to push later, let's first make sure that will work
+			if (getProject().getGradle().getTaskGraph().hasTask(pushTaskPath)) {
+				GitApi api = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+				api.assertNoTag();
+				api.checkCanPush();
+			}
+
+			LinkedHashMap<Integer, String> errors = extension.model().parsed().errors();
+			if (errors.isEmpty()) {
 				return;
 			}
+
 			String path = getProject().getRootDir().toPath().relativize(extension.changelogFile.toPath()).toString();
 			String allErrors = StringPrinter.buildString(printer -> {
-				model.parsed().errors().forEach((idx, error) -> {
+				errors.forEach((idx, error) -> {
 					if (idx == -1) {
 						printer.println(path + ": " + error);
 					} else {
@@ -143,9 +153,8 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 
 		@TaskAction
-		public void bump() throws IOException, GitAPIException {
+		public void push() throws IOException, GitAPIException {
 			GitApi api = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
-			api.assertNoTag();
 			api.addAndCommit();
 			api.tagBranchPush();
 		}
