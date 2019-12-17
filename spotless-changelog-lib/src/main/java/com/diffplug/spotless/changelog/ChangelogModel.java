@@ -43,6 +43,10 @@ public class ChangelogModel {
 		public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
 		public String remote = "origin";
 		public String branch = "master";
+
+		public GitApi withChangelog(File changelogFile, ChangelogModel model) throws IOException {
+			return new GitApi(changelogFile, model, this);
+		}
 	}
 
 	public static String validateCommitMessage(String commitMessage) {

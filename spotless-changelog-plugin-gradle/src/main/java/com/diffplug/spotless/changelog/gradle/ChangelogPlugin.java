@@ -19,12 +19,14 @@ package com.diffplug.spotless.changelog.gradle;
 import com.diffplug.common.base.StringPrinter;
 import com.diffplug.common.globals.Time;
 import com.diffplug.spotless.changelog.ChangelogModel;
+import com.diffplug.spotless.changelog.GitApi;
 import com.diffplug.spotless.changelog.ParsedChangelog;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import javax.inject.Inject;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -46,6 +48,8 @@ public class ChangelogPlugin implements Plugin<Project> {
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
 		TaskProvider<BumpTask> bump = project.getTasks().register(BumpTask.NAME, BumpTask.class, extension);
 		bump.configure(b -> b.dependsOn(check));
+		TaskProvider<PushTask> push = project.getTasks().register(PushTask.NAME, PushTask.class, extension);
+		push.configure(p -> p.dependsOn(bump));
 
 		project.afterEvaluate(unused -> {
 			if (extension.enforceCheck) {
@@ -118,7 +122,6 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void bump() throws IOException {
-			System.out.println("BUMP SUCKAS");
 			if (extension.getVersionNext().equals(extension.getVersionLast())) {
 				// if there are no unreleased changes, then the changelog on disk has already been bumped
 				return;
@@ -128,6 +131,23 @@ public class ChangelogPlugin implements Plugin<Project> {
 			LocalDate localDate = LocalDate.now(Time.clockUtc());
 			ParsedChangelog bumped = model.parsed().releaseUnreleased(model.versionNext(), localDate.toString());
 			Files.write(extension.changelogFile.toPath(), bumped.toString().getBytes(StandardCharsets.UTF_8));
+		}
+	}
+
+	public static abstract class PushTask extends ChangelogTask {
+		public static final String NAME = "changelogPush";
+
+		@Inject
+		public PushTask(ChangelogExtension extension) {
+			super(extension);
+		}
+
+		@TaskAction
+		public void bump() throws IOException, GitAPIException {
+			GitApi api = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+			api.assertNoTag();
+			api.addAndCommit();
+			api.tagBranchPush();
 		}
 	}
 }
