@@ -53,6 +53,10 @@ public class ResourceHarness {
 		return new File(rootFolder(), subpath);
 	}
 
+	protected String read(String path) throws IOException {
+		return new String(Files.readAllBytes(file(path).toPath()), StandardCharsets.UTF_8);
+	}
+
 	/** Returns a File (in a temporary folder) which has the given contents. */
 	protected File write(String subpath, byte[] content) throws IOException {
 		File file = file(subpath);

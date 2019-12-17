@@ -96,4 +96,45 @@ public class ChangelogPluginTest extends GradleHarness {
 		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
 				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
 	}
+
+	@Test
+	public void changelogBump() throws IOException {
+		write("build.gradle",
+				"plugins {",
+				"  id 'com.diffplug.spotless-changelog'",
+				"}",
+				"",
+				"try {",
+				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('2019-01-30'))",
+				"} catch (Exception e) {",
+				"  // this will fail the second time, which is fine",
+				"}",
+				"spotlessChangelog {",
+				"}");
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		String noUnreleasedChanges = read("CHANGELOG.md");
+		gradleRunner().withArguments("changelogBump").build();
+		assertFile("CHANGELOG.md").hasContent(noUnreleasedChanges);
+
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"### Added",
+				"- Some change",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		gradleRunner().withArguments("changelogBump").build();
+		assertFile("CHANGELOG.md").hasContent("\n" +
+				"## [Unreleased]\n" +
+				"\n" +
+				"## [1.1.0] - 2019-01-30\n" +
+				"### Added\n" +
+				"- Some change\n" +
+				"\n" +
+				"## [1.0.0] - 2020-10-10");
+	}
 }
