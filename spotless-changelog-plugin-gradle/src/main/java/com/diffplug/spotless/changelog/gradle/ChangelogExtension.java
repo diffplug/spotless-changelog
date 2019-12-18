@@ -116,7 +116,7 @@ public class ChangelogExtension {
 	}
 
 	public void commitMessage(String commitMessage) {
-		pushCfg.commitMessage = ChangelogModel.validateCommitMessage(commitMessage);
+		pushCfg.commitMessage = ChangelogModel.PushCfg.validateCommitMessage(commitMessage);
 	}
 
 	public void remote(String remote) {

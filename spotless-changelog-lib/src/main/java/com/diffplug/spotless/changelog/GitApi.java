@@ -34,7 +34,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-/** API for doing the commit, tag, and push operations. */
+/** API for doing the commit, tag, and push operations.  See {@link ChangelogModel.PushCfg#withChangelog(File, ChangelogModel)}. */
 public class GitApi implements AutoCloseable {
 	private final Repository repository;
 	private final Git git;
@@ -53,7 +53,7 @@ public class GitApi implements AutoCloseable {
 		git = new Git(repository);
 	}
 
-	/** Confirms that we can push a branch. */
+	/** Confirms that we can update the target branch on the target remote. */
 	public void checkCanPush() throws GitAPIException, IOException {
 		try {
 			Ref ref = repository.getRefDatabase().exactRef(Constants.R_HEADS + cfg.branch);
@@ -118,7 +118,7 @@ public class GitApi implements AutoCloseable {
 		PushCommand push = git.push().setCredentialsProvider(creds()).setRemote(cfg.remote);
 		cmd.accept(push);
 		PushResult result = Iterables.getOnlyElement(push.call());
-		System.out.println("push: " + result.getMessages());
+		System.out.println("push: " + result);
 	}
 
 	// same https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy
