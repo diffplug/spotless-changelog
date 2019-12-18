@@ -74,8 +74,8 @@ When computing the next version, Spotless Changelog always starts with the most 
 
 ```gradle
 spotlessChangelog {  // defaults, but setting them explicitly is good documentation for your buildscript users
-  ifFoundBumpMinor ['### Added']
-  ifFoundBumpMajor ['**BREAKING**']
+  ifFoundBumpMinor '### Added'
+  ifFoundBumpMajor '**BREAKING**'
 }
 ```
 
@@ -86,7 +86,13 @@ cmd> gradlew changelogPrint
 myproj 1.0.4 -> 1.1.0
 ```
 
-### First release, betas, release-candidates, etc.
+You can use these versions in your buildscript as `spotlessChangelog.versionNext` and `spotlessChangelog.versionLast`:
+
+```gradle
+project.version = project.spotlessChangelog.versionNext
+```
+
+### Alphas, betas, release-candidates, etc.
 
 If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.
 
@@ -103,9 +109,13 @@ spotlessChangelog {  // defaults
 }
 ```
 
-If `publish` is the task that publishes your library, then we recommend that you use `changelogPush` as your deploy command, and wire your dependencies like so:
+We recommend that you use `changelogPush` as your deploy task, and wire your tasks like so:
+
+### Single-project
 
 ```gradle
+// set the project version for POM, jar manifest, etc.
+version = spotlessChangelog.versionNext
 // ensures that nothing will be built if changelogPush will end up failing
 tasks.named('jar').configure {
   dependsOn tasks.named('changelogCheck')
@@ -116,9 +126,39 @@ tasks.named('changelogBump').configure {
 }
 ```
 
+### Multi-project
+
+Configure the `spotlessChangelog` block in the parent project, and each subproject should have:
+
+```gradle
+version = parent.spotlessChangelog.versionNext
+tasks.named('jar').configure {
+  dependsOn parent.tasks.named('changelogCheck')
+}
+parent.tasks.named('changelogBump').configure {
+  dependsOn tasks.named('publish')
+}
+```
+
+### Multiple changelogs per project
+
+That's fine too!  If you apply `com.diffplug.spotless-changelog` to multiple projects, just be sure to set the `tagPrefix` and `commitMessage` properties so that you have unique tags and commit messages for each project.  You also might want to use the snippet below in your root project to ensure that you only release one of the changelogs at a time.
+
+```gradle
+gradle.taskGraph.whenReady { taskGraph ->
+  def changelogPushTasks = taskGraph.allTasks.stream()
+    .filter { t -> t.name == 'changelogPush' }
+    .map { t -> t.path }
+    .toList()
+  if (changelogPushTasks.size() > 1) {
+    throw new IllegalArgumentException("Run changelogPush one at a time:\n" + changelogPushTasks.join('\n'))
+  }
+}
+```
+
 ## Reference
 
-### Plugin DSL
+### Plugin DSL // TODO: javadoc
 
 ```gradle
 spotlessChangelog { // all defaults
@@ -126,8 +166,8 @@ spotlessChangelog { // all defaults
   changelogFile 'CHANGELOG.md'
   enforceCheck true
   // calculate next version
-  ifFoundBumpMinor ['### Added']
-  ifFoundBumpMajor ['**BREAKING**']
+  ifFoundBumpMinor '### Added']
+  ifFoundBumpMajor '**BREAKING**']
   forceNextVersion null
   // tag and push
   tagPrefix 'release/'
@@ -137,7 +177,7 @@ spotlessChangelog { // all defaults
 }
 ```
 
-### Tasks
+### Tasks // TODO: code
 
 - `changelogPrint` - prints the last published version and calculated next version
   - `myproj 1.0.4 -> 1.1.0`
@@ -147,7 +187,7 @@ spotlessChangelog { // all defaults
   - applying `changelogBump` multiple times in a row is fine, an empty section under `[Unreleased]` is enough to know that it has already been applied.
 - `changelogPush` - commits the changelog, tags, and pushes
   - `changelogPush` depends on `changelogBump` depends on `changelogCheck`
-  - If `changelogPush` is in the task graph, then `changelogCheck` will fail if the git auth fails.  Assuming `
+  - If `changelogPush` is in the task graph, then `changelogCheck` will do an extra check to make sure that the git push will succeed.  The `changelogBump` section above shows how you wire `changelogCheck` into your `jar` task so that your build will fail early if you haven't correctly setup the git credentials.
 
 ## Acknowledgments
 
