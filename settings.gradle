@@ -2,8 +2,8 @@ plugins {
 	id 'com.diffplug.blowdryerSetup' version '0.1.1'
 }
 blowdryerSetup {
-	//github 'diffplug/blowdryer-diffplug', 'tag', '1.0.0'
-	devLocal '../blowdryer-diffplug'
+	github 'diffplug/blowdryer-diffplug', 'commit', 'f70a1f61ef9e5af7264430393a1217de7a6fac7c'
+	//devLocal '../blowdryer-diffplug'
 }
 
 rootProject.name = 'spotless-changelog'
