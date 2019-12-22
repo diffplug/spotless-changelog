@@ -80,9 +80,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 			String pushTaskPath = getProject().absoluteProjectPath(PushTask.NAME);
 			// if we're going to push later, let's first make sure that will work
 			if (getProject().getGradle().getTaskGraph().hasTask(pushTaskPath)) {
-				GitApi api = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
-				api.assertNoTag();
-				api.checkCanPush();
+				GitApi git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+				git.assertNoTag();
+				git.checkCanPush();
 			}
 
 			LinkedHashMap<Integer, String> errors = extension.model().parsed().errors();
@@ -154,9 +154,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void push() throws IOException, GitAPIException {
-			GitApi api = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
-			api.addAndCommit();
-			api.tagBranchPush();
+			GitApi git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+			git.addAndCommit();
+			git.tagBranchPush();
 		}
 	}
 }
