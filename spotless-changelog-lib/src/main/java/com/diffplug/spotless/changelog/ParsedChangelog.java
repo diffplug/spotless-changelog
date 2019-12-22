@@ -34,7 +34,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 public class ParsedChangelog {
 	private static final String VERSION_BEGIN = "\n## [";
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
-	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- do not parse below here -->";
+	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- END CHANGELOG -->";
 
 	private final boolean windowsNewlines;
 	private final PoolString dontParse, beforeUnreleased;

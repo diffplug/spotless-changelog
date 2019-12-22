@@ -66,7 +66,7 @@ It *does not* enforce the entire keepachangelog format, only the `## [x.y.z] yyy
 
 If you have a big long legacy changelog that's not in the [keepachangelog](https://keepachangelog.com/) format, good job!  Changelogs are good!
 
-You don't have to convert the whole thing.  Just stick `<!-- do not parse below here -->` on its own line into your changelog, and it will stop parsing as soon as this line is encountered.  The goal isn't perfection, just better.
+You don't have to convert the whole thing.  Just stick `<!-- END CHANGELOG -->` on its own line into your changelog, and it will stop parsing as soon as this line is encountered.  The goal isn't perfection, just better.
 
 ## Compute the next version
 
