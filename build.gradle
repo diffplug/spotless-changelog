@@ -7,13 +7,5 @@ plugins {
 
 apply from: 干.file('spotless/freshmark.gradle')
 subprojects {
-	repositories {
-		maven {
-			url 'https://jitpack.io'
-			content {
-				includeModule 'com.diffplug.durian-globals', 'durian-globals'
-				includeModule 'com.diffplug.durian-globals', 'durian-globals.dev'
-			}
-		}
-	}
+	version = '0.1.0-SNAPSHOT'
 }

@@ -13,6 +13,10 @@ sourceSets {
 	}
 }
 
+repositories {
+	jcenter()
+}
+
 dependencies {
 	implementation project(':spotless-changelog-lib')
 	implementation 'com.diffplug.durian:durian-core:1.2.0'
@@ -22,8 +26,8 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.assertj:assertj-core:3.14.0'
 	// mock out the time
-	implementation               'com.diffplug.durian-globals:durian-globals:d603888a67fc105e6476c7ac8b17f6a79d1cba1e'
-	functionalTestImplementation 'com.diffplug.durian-globals:durian-globals.dev:d603888a67fc105e6476c7ac8b17f6a79d1cba1e'
+	implementation               'com.diffplug.durian-globals:durian-globals:0.1.1'
+	functionalTestImplementation 'com.diffplug.durian-globals:durian-globals.dev:0.1.1'
 }
 
 gradlePlugin {
