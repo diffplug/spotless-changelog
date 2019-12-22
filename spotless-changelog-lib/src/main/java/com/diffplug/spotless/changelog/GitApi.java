@@ -85,7 +85,6 @@ public class GitApi implements AutoCloseable {
 				.addFilepattern(path)
 				.call();
 		git.commit()
-				.setOnly(path)
 				.setMessage(commitMsg)
 				.call();
 	}
