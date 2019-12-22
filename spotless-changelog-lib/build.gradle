@@ -3,6 +3,7 @@ ext.maven_desc='Utilities for parsing and updating a changelog'
 
 apply from: 干.file('base/java8.gradle')
 apply from: 干.file('base/maven.gradle')
+apply from: 干.file('base/bintray.gradle')
 apply from: 干.file('spotless/java.gradle')
 
 dependencies {

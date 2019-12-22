@@ -4,6 +4,7 @@ ext.maven_desc='Gradle plugin for parsing and updating a changelog'
 apply from: 干.file('base/java8.gradle')
 apply from: 干.file('base/gradle-plugin.gradle')
 apply from: 干.file('base/maven.gradle')
+apply from: 干.file('base/bintray.gradle')
 apply from: 干.file('spotless/java.gradle')
 
 sourceSets {
@@ -33,3 +34,4 @@ dependencies {
 gradlePlugin {
 	pluginSourceSet project.sourceSets.functionalTest
 }
+
