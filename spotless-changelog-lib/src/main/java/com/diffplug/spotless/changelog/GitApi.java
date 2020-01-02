@@ -123,7 +123,7 @@ public class GitApi implements AutoCloseable {
 		}
 	}
 
-	// same https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy
+	// similar to https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy
 	private static CredentialsProvider creds() {
 		String username = System.getenv(GRGIT_USERNAME_ENV_VAR);
 		if (username != null) {
@@ -133,7 +133,7 @@ public class GitApi implements AutoCloseable {
 			}
 			return new UsernamePasswordCredentialsProvider(username, password);
 		}
-		username = System.getProperty(GH_TOKEN_ENV_VAR);
+		username = System.getenv(GH_TOKEN_ENV_VAR);
 		if (username != null) {
 			return new UsernamePasswordCredentialsProvider(username, "");
 		}
