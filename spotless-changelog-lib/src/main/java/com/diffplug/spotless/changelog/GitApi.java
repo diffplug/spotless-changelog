@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 DiffPlug
+ * Copyright 2020 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /** API for doing the commit, tag, and push operations.  See {@link ChangelogModel.PushCfg#withChangelog(File, ChangelogModel)}. */
@@ -117,7 +118,9 @@ public class GitApi implements AutoCloseable {
 		PushCommand push = git.push().setCredentialsProvider(creds()).setRemote(cfg.remote);
 		cmd.accept(push);
 		PushResult result = Iterables.getOnlyElement(push.call());
-		System.out.println("push: " + result);
+		for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+			System.out.println("push: " + update);
+		}
 	}
 
 	// same https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy
