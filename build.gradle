@@ -10,6 +10,8 @@ apply from: 干.file('spotless/freshmark.gradle')
 
 subprojects {
 	apply from: 干.file('base/java8.gradle')
+	apply from: 干.file('spotless/java.gradle')
+
 	if (it.name == 'spotless-changelog-lib') {
 		ext.maven_name='Spotless Changelog Lib'
 		ext.maven_desc='Utilities for parsing and updating a changelog'
@@ -52,9 +54,9 @@ subprojects {
 			pluginSourceSet project.sourceSets.functionalTest
 		}
 	}
+	// it all needs to get published and formatted
 	apply from: 干.file('base/maven.gradle')
 	apply from: 干.file('base/bintray.gradle')
-	apply from: 干.file('spotless/java.gradle')
 }
 
 ext.javadoc_agg='spotless-changelog-lib spotless-changelog-plugin-gradle'
