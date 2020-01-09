@@ -21,6 +21,6 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 /** Configuration for computing next version. */
 public class NextVersionCfg implements Serializable {
-	public VersionBumpFunction bump = new VersionBumpFunction.Semver();
+	public VersionBumpFunction next = new VersionBumpFunction.Semver();
 	public @NullOr String forceNextVersion = null;
 }

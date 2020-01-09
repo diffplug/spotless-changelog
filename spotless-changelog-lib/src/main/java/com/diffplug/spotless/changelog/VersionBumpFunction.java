@@ -100,7 +100,7 @@ public abstract class VersionBumpFunction implements Serializable {
 	 * automatic method of bumping the `brand` number, it is assumed that those will be handled
 	 * using `forceNextVersion`, and then this can maintain semver from there.
 	 */
-	public static class BrandPrefix extends Semver {
+	public static class SemverBrandPrefix extends Semver {
 		protected int brand = -1;
 
 		@Override

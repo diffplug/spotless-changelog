@@ -88,11 +88,11 @@ public class ChangelogExtension {
 
 	// calculate next version
 	public VersionBumpFunction getNext() {
-		return nextVersionCfg.bump;
+		return nextVersionCfg.next;
 	}
 
 	public void setNext(VersionBumpFunction next) {
-		nextVersionCfg.bump = next;
+		nextVersionCfg.next = next;
 	}
 
 	public void forceNextVersion(String forceNextVersion) {

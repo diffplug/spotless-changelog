@@ -69,7 +69,7 @@ public class ChangelogModel {
 			// we bumped, but don't have any new changes, so the next version is still "this" version
 			nextVersion = parsed.versionLast();
 		} else {
-			nextVersion = cfg.bump.nextVersion(parsed.unreleasedChanges(), parsed.versionLast());
+			nextVersion = cfg.next.nextVersion(parsed.unreleasedChanges(), parsed.versionLast());
 		}
 		return new ChangelogModel(parsed, nextVersion);
 	}

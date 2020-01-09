@@ -20,7 +20,7 @@ import org.assertj.core.api.AbstractStringAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class NextVersionTest {
+public class VersionBumpFunctionTest {
 	private AbstractStringAssert<?> test(String changelog) {
 		return test(new NextVersionCfg(), changelog);
 	}
@@ -43,7 +43,21 @@ public class NextVersionTest {
 	}
 
 	@Test
-	public void ohDotVersions() {
+	public void forceNextVersoin() {
+		NextVersionCfg cfg = new NextVersionCfg();
+		cfg.forceNextVersion = "shoopty";
+		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+	}
+
+	@Test
+	public void semverOhDot() {
 		test("\n## [Unreleased]\nSome change\n## [0.2.0] - 2020-10-10").isEqualTo("0.2.1");
 		test("\n## [Unreleased]\nSome change\n## [0.2.5] - 2020-10-10").isEqualTo("0.2.6");
 		test("\n## [Unreleased]\nSome change\n### Added\n## [0.2.0] - 2020-10-10\n").isEqualTo("0.3.0");
@@ -55,7 +69,7 @@ public class NextVersionTest {
 	}
 
 	@Test
-	public void standardVersions() {
+	public void semverStandard() {
 		test("\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.2.1");
 		test("\n## [Unreleased]\nSome change\n## [1.2.5] - 2020-10-10\n").isEqualTo("1.2.6");
 		test("\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.3.0");
@@ -67,16 +81,11 @@ public class NextVersionTest {
 	}
 
 	@Test
-	public void forceVersions() {
+	public void semverBrand() {
 		NextVersionCfg cfg = new NextVersionCfg();
-		cfg.forceNextVersion = "shoopty";
-		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
-		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		cfg.next = new VersionBumpFunction.SemverBrandPrefix();
+		test(cfg, "\n## [Unreleased]\nSome change\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.1.2.1");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.1.3.0");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.2.0.0");
 	}
 }
