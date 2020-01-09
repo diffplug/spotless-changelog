@@ -16,7 +16,6 @@
 package com.diffplug.spotless.changelog;
 
 
-import com.diffplug.spotless.changelog.ChangelogModel.NextVersionCfg;
 import org.assertj.core.api.AbstractStringAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;

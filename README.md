@@ -69,12 +69,13 @@ You don't have to convert the whole thing.  Just stick `<!-- END CHANGELOG -->` 
 
 ## Compute the next version
 
-When computing the next version, Spotless Changelog always starts with the most recent version from your changelog.  From there, the only decision Spotless Changelog has to make is which position to bump: `major`, `minor`, or `patch`.  By default, Spotless Changelog will bump `patch`.  All you need to do is set the rules for escalating to a `minor` or `major` bump:
+By default, Spotless Changelog uses the names `breaking.added.fixed` for `x.y.z`. When computing the next version, Spotless Changelog always starts with the most recent version from your changelog.  From there, the only decision we have to make is which position to bump: `breaking`, `added`, or `fixed`.  By default, Spotless Changelog will bump `fixed`.  All you need to do is set the rules for escalating to an `added` or `breaking` bump:
 
 ```gradle
 spotlessChangelog {  // defaults, but setting them explicitly is good documentation for your buildscript users
-  ifFoundBumpMinor '### Added'
-  ifFoundBumpMajor '**BREAKING**'
+  // breaking.added.fixed
+  next.ifFoundBumpBreaking '**BREAKING**'
+  next.ifFoundBumpAdded    '### Added'
 }
 ```
 
@@ -94,9 +95,22 @@ dependencies {
 }
 ```
 
+We also support other version schemas, like `2.0` instead of `2.0.0`, or `brand.major.minor.patch`, or `Ryyyy.SRx`, or any custom function you want.  See [ALTERNATE_VERSION_SCHEMAS.md](ALTERNATE_VERSION_SCHEMAS.md) for details.
+
 ### Alphas, betas, release-candidates, etc.
 
 If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.
+
+We
+### Alternative version schemas
+
+Our main thesis is:
+- changelogs are more important than versions
+- making the version a pure f(changelog) would be a big improvement for a lot of projects
+- haggling over the exact semantics is probably not worth it
+
+But, if you want to, you are more than welcome to!  If you want `2.0` instead of `2.0.0`, or `brand.major.minor.patch`, or `Ryyyy.SRx` or whatever scheme you want, all you need to do is implement `
+
 
 ## Update the changelog, commit, push
 
@@ -167,9 +181,9 @@ spotlessChangelog { // all defaults
   // keep changelog formatted
   changelogFile 'CHANGELOG.md'
   enforceCheck true
-  // calculate next version
-  ifFoundBumpMinor '### Added']
-  ifFoundBumpMajor '**BREAKING**']
+  // calculate next version (breaking.added.fixed)
+  next.ifFoundBumpBreaking ['**BREAKING**']
+  next.ifFoundBumpAdded    ['### Added']
   forceNextVersion null
   // tag and push
   tagPrefix 'release/'

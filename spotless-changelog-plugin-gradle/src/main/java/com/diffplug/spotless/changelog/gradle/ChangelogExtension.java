@@ -19,10 +19,10 @@ package com.diffplug.spotless.changelog.gradle;
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
 import com.diffplug.spotless.changelog.ChangelogModel;
+import com.diffplug.spotless.changelog.NextVersionCfg;
+import com.diffplug.spotless.changelog.VersionBumpFunction;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import org.gradle.api.Project;
 
@@ -33,14 +33,14 @@ public class ChangelogExtension {
 	private final Project project;
 
 	File changelogFile;
-	ChangelogModel.NextVersionCfg nextVersionCfg;
+	NextVersionCfg nextVersionCfg;
 	ChangelogModel.PushCfg pushCfg;
 	boolean enforceCheck;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
 		this.changelogFile = project.file(ChangelogModel.DEFAULT_FILE);
-		this.nextVersionCfg = new ChangelogModel.NextVersionCfg();
+		this.nextVersionCfg = new NextVersionCfg();
 		this.pushCfg = new ChangelogModel.PushCfg();
 		changelogFile(ChangelogModel.DEFAULT_FILE);
 	}
@@ -87,22 +87,12 @@ public class ChangelogExtension {
 	}
 
 	// calculate next version
-	public void ifFoundBumpMinor(String... types) {
-		ifFoundBumpMajor(Arrays.asList(types));
+	public VersionBumpFunction getNext() {
+		return nextVersionCfg.bump;
 	}
 
-	public void ifFoundBumpMinor(List<String> types) {
-		assertNotCalculatedYet();
-		nextVersionCfg.ifFoundBumpMinor = types;
-	}
-
-	public void ifFoundBumpMajor(String... types) {
-		ifFoundBumpMajor(Arrays.asList(types));
-	}
-
-	public void ifFoundBumpMajor(List<String> types) {
-		assertNotCalculatedYet();
-		nextVersionCfg.ifFoundBumpMajor = types;
+	public void setNext(VersionBumpFunction next) {
+		nextVersionCfg.bump = next;
 	}
 
 	public void forceNextVersion(String forceNextVersion) {

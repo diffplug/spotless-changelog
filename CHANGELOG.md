@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Now possible to set the version bump function.
+- **BREAKING** changed `ifFoundBumpMinor` to `next.ifFoundBumpMinor` to enable the improvement above.
 ### Fixed
 - We now respect the `gh_pages` env variable as a way to do GitHub auth, as we intended to all along.
 

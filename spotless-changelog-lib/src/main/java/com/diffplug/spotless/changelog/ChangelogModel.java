@@ -18,13 +18,8 @@ package com.diffplug.spotless.changelog;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.List;
-import org.osgi.framework.Version;
-import pl.tlinkowski.annotation.basic.NullOr;
 
 /** Models the Changelog and its computed next version. */
 public class ChangelogModel {
@@ -32,13 +27,6 @@ public class ChangelogModel {
 	public static final String COMMIT_MESSAGE_VERSION = "{version}";
 	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
 	public static final String FIRST_VERSION = "0.1.0";
-
-	/** Configuration for computing next version. */
-	public static class NextVersionCfg implements Serializable {
-		public List<String> ifFoundBumpMinor = Arrays.asList("### Added");
-		public List<String> ifFoundBumpMajor = Arrays.asList("**BREAKING**");
-		public @NullOr String forceNextVersion = null;
-	}
 
 	/** Configuration for committing, tagging, and pushing the next version. */
 	public static class PushCfg {
@@ -81,31 +69,9 @@ public class ChangelogModel {
 			// we bumped, but don't have any new changes, so the next version is still "this" version
 			nextVersion = parsed.versionLast();
 		} else {
-			nextVersion = nextVersion(parsed.unreleasedChanges(), Version.parseVersion(parsed.versionLast()), cfg).toString();
+			nextVersion = cfg.bump.nextVersion(parsed.unreleasedChanges(), parsed.versionLast());
 		}
 		return new ChangelogModel(parsed, nextVersion);
-	}
-
-	private static Version nextVersion(String unreleasedChanges, Version last, NextVersionCfg cfg) {
-		if (last.getMajor() == 0) {
-			boolean bumpMinor = cfg.ifFoundBumpMajor.stream().anyMatch(unreleasedChanges::contains) ||
-					cfg.ifFoundBumpMinor.stream().anyMatch(unreleasedChanges::contains);
-			if (bumpMinor) {
-				return new Version(0, last.getMinor() + 1, 0);
-			} else {
-				return new Version(0, last.getMinor(), last.getMicro() + 1);
-			}
-		} else {
-			boolean bumpMajor = cfg.ifFoundBumpMajor.stream().anyMatch(unreleasedChanges::contains);
-			if (bumpMajor) {
-				return new Version(last.getMajor() + 1, 0, 0);
-			}
-			boolean bumpMinor = cfg.ifFoundBumpMinor.stream().anyMatch(unreleasedChanges::contains);
-			if (bumpMinor) {
-				return new Version(last.getMajor(), last.getMinor() + 1, 0);
-			}
-			return new Version(last.getMajor(), last.getMinor(), last.getMicro() + 1);
-		}
 	}
 
 	private final ParsedChangelog parsed;
