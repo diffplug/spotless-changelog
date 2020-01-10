@@ -80,8 +80,8 @@ By default, Spotless Changelog uses the names `breaking.added.fixed` for `x.y.z`
 ```gradle
 spotlessChangelog {  // defaults
   // breaking.added.fixed
-  next.ifFoundBumpBreaking '**BREAKING**'
-  next.ifFoundBumpAdded    '### Added'
+  ifFoundBumpBreaking '**BREAKING**'
+  ifFoundBumpAdded    '### Added'
 }
 ```
 
@@ -148,9 +148,11 @@ spotlessChangelog { // all defaults
   changelogFile 'CHANGELOG.md'
   enforceCheck true
   // calculate next version (breaking.added.fixed)
-  next.ifFoundBumpBreaking ['**BREAKING**']
-  next.ifFoundBumpAdded    ['### Added']
+  ifFoundBumpBreaking ['**BREAKING**']
+  ifFoundBumpAdded    ['### Added']
   forceNextVersion null
+  // see ALTERNATE_VERSION_SCHEMAS.md
+  versionBumpFunction = new VersionBumpFunction.Semver()
   // tag and push
   tagPrefix 'release/'
   commitMessage 'Published release/{version}' // {version} will be replaced

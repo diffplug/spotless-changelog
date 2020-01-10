@@ -23,6 +23,8 @@ import com.diffplug.spotless.changelog.NextVersionCfg;
 import com.diffplug.spotless.changelog.VersionBumpFunction;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import org.gradle.api.Project;
 
@@ -76,25 +78,57 @@ public class ChangelogExtension {
 		return model().versionNext();
 	}
 
-	// keep changelog formatted
+	/** Sets the changelog file using {@link Project#file(Object)}. */
 	public void changelogFile(Object file) {
 		assertNotCalculatedYet();
 		changelogFile = project.file(file);
 	}
 
+	/** Determines whether `changelogCheck` will be a dependency of `check`. */
 	public void enforceCheck(boolean enforceCheck) {
 		this.enforceCheck = enforceCheck;
 	}
 
-	// calculate next version
-	public VersionBumpFunction getNext() {
-		return nextVersionCfg.next;
-	}
-
-	public void setNext(VersionBumpFunction next) {
+	/** Sets a custom version bump function.  The default value is {@link VersionBumpFunction.Semver}. */
+	public void setVersionBumpFunction(VersionBumpFunction next) {
+		assertNotCalculatedYet();
 		nextVersionCfg.next = next;
 	}
 
+	/**
+	 * If any of these strings are found in the `## [Unreleased]` section, then the
+	 * next version will bump the `added` place in `breaking.added.fixed` (unless
+	 * overruled by `ifFoundBumpBreaking`).
+	 * 
+	 * Default value is `['### Added']`
+	 */
+	public void ifFoundBumpAdded(List<String> toFind) {
+		assertNotCalculatedYet();
+		nextVersionCfg.next.ifFoundBumpAdded(toFind);
+	}
+
+	/** @see {@link #ifFoundBumpAdded(List)}. */
+	public void ifFoundBumpAdded(String... toFind) {
+		ifFoundBumpAdded(Arrays.asList(toFind));
+	}
+
+	/**
+	 * If any of these strings are found in the `## [Unreleased]` section, then the
+	 * next version will bump the `breaking` place in `breaking.added.fixed`.
+	 * 
+	 * Default value is `['**BREAKING**']`.
+	 */
+	public void ifFoundBumpBreaking(List<String> toFind) {
+		assertNotCalculatedYet();
+		nextVersionCfg.next.ifFoundBumpBreaking(toFind);
+	}
+
+	/** @see {@link #ifFoundBumpBreaking(List)}. */
+	public void ifFoundBumpBreaking(String... toFind) {
+		ifFoundBumpBreaking(Arrays.asList(toFind));
+	}
+
+	/** Short-circuits the next-version calculation and just uses this string. */
 	public void forceNextVersion(String forceNextVersion) {
 		assertNotCalculatedYet();
 		nextVersionCfg.forceNextVersion = forceNextVersion;
