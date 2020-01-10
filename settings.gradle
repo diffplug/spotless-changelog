@@ -1,7 +1,7 @@
 pluginManagement {
 	plugins {
-		id 'com.diffplug.blowdryer' version '0.1.0'
-		id 'com.diffplug.blowdryerSetup' version '0.1.0'
+		id 'com.diffplug.blowdryer' version '1.0.0'
+		id 'com.diffplug.blowdryerSetup' version '1.0.0'
 		id 'com.diffplug.gradle.spotless' version '3.27.0'
 		id 'com.diffplug.spotless-changelog' version '0.1.1'
 		id 'com.github.ben-manes.versions' version '0.27.0'
