@@ -18,9 +18,9 @@ package com.diffplug.spotless.changelog.gradle;
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
+import com.diffplug.spotless.changelog.CfgNextVersion;
+import com.diffplug.spotless.changelog.CfgPush;
 import com.diffplug.spotless.changelog.ChangelogModel;
-import com.diffplug.spotless.changelog.NextVersionCfg;
-import com.diffplug.spotless.changelog.PushCfg;
 import com.diffplug.spotless.changelog.VersionBumpFunction;
 import java.io.File;
 import java.io.IOException;
@@ -36,15 +36,15 @@ public class ChangelogExtension {
 	private final Project project;
 
 	File changelogFile;
-	NextVersionCfg nextVersionCfg;
-	PushCfg pushCfg;
+	CfgNextVersion nextVersionCfg;
+	CfgPush pushCfg;
 	boolean enforceCheck;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
 		this.changelogFile = project.file(ChangelogModel.DEFAULT_FILE);
-		this.nextVersionCfg = new NextVersionCfg();
-		this.pushCfg = new PushCfg();
+		this.nextVersionCfg = new CfgNextVersion();
+		this.pushCfg = new CfgPush();
 		changelogFile(ChangelogModel.DEFAULT_FILE);
 	}
 
@@ -141,7 +141,7 @@ public class ChangelogExtension {
 	}
 
 	public void commitMessage(String commitMessage) {
-		pushCfg.commitMessage = PushCfg.validateCommitMessage(commitMessage);
+		pushCfg.commitMessage = CfgPush.validateCommitMessage(commitMessage);
 	}
 
 	public void remote(String remote) {

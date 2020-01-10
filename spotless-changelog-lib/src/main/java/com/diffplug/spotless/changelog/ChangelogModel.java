@@ -24,12 +24,12 @@ import java.nio.file.Files;
 /** Models the Changelog and its computed next version. */
 public class ChangelogModel {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
-	public static final String COMMIT_MESSAGE_VERSION = "{version}";
+	public static final String COMMIT_MESSAGE_VERSION = "{{version}}";
 	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
 	public static final String FIRST_VERSION = "0.1.0";
 
 	/** Computes a ChangelogModel from the given changelogFile. */
-	public static ChangelogModel calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
+	public static ChangelogModel calculate(File changelogFile, CfgNextVersion cfg) throws IOException {
 		if (!(changelogFile.exists() && changelogFile.isFile())) {
 			throw new IllegalArgumentException("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
 		}
@@ -37,7 +37,7 @@ public class ChangelogModel {
 		return calculate(content, cfg);
 	}
 
-	static ChangelogModel calculate(String content, NextVersionCfg cfg) {
+	static ChangelogModel calculate(String content, CfgNextVersion cfg) {
 		ParsedChangelog parsed = new ParsedChangelog(content);
 
 		String nextVersion;

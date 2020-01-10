@@ -114,7 +114,7 @@ If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will st
 ```gradle
 spotlessChangelog {  // defaults
   tagPrefix 'release/'
-  commitMessage 'Published release/{version}' // {version} will be replaced
+  commitMessage 'Published release/{{version}}' // {{version}} will be replaced
   remote 'origin'
   branch 'master'
 }

@@ -20,12 +20,15 @@ import java.io.File;
 import java.io.IOException;
 
 /** Configuration for committing, tagging, and pushing the next version. */
-public class PushCfg {
+public class CfgPush {
+	/** Prefix used for release tags, default is `release/`. */
 	public String tagPrefix = "release/";
+	/** Message used for release commits, default is `Published release/{{version}}`. */
 	public String commitMessage = "Published release/" + ChangelogModel.COMMIT_MESSAGE_VERSION;
 	public String remote = "origin";
 	public String branch = "master";
 
+	/** Returns an api configured with this config. */
 	public GitApi withChangelog(File changelogFile, ChangelogModel model) throws IOException {
 		return new GitApi(changelogFile, model, this);
 	}

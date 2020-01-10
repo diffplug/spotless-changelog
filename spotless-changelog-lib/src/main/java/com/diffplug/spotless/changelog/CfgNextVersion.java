@@ -16,11 +16,12 @@
 package com.diffplug.spotless.changelog;
 
 
-import java.io.Serializable;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 /** Configuration for computing next version. */
-public class NextVersionCfg implements Serializable {
+public class CfgNextVersion {
+	/** The function which will compute the next verison. */
 	public VersionBumpFunction next = new VersionBumpFunction.Semver();
+	/** Overrides the bump function. */
 	public @NullOr String forceNextVersion = null;
 }

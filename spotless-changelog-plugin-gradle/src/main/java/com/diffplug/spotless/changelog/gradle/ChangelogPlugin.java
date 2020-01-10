@@ -37,6 +37,7 @@ import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskProvider;
 
+/** @see ChangelogExtension */
 public class ChangelogPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
@@ -59,7 +60,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		});
 	}
 
-	public static abstract class ChangelogTask extends DefaultTask {
+	private static abstract class ChangelogTask extends DefaultTask {
 		protected final ChangelogExtension extension;
 
 		protected ChangelogTask(ChangelogExtension extension) {
@@ -67,6 +68,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 	}
 
+	/** `changelogCheck` - throws an error if the changelog is not formatted according to your rules */
 	public static abstract class CheckTask extends ChangelogTask {
 		public static final String NAME = "changelogCheck";
 
@@ -104,6 +106,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 	}
 
+	/** `changelogPrint` - prints the last published version and calculated next version, e.g. `myproj 1.0.4 -> 1.1.0` */
 	public static abstract class PrintTask extends ChangelogTask {
 		public static final String NAME = "changelogPrint";
 
@@ -122,6 +125,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 	}
 
+	/** `changelogBump` - updates the changelog on disk with the next version and the current UTC date */
 	public static abstract class BumpTask extends ChangelogTask {
 		public static final String NAME = "changelogBump";
 
@@ -144,6 +148,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 	}
 
+	/** `changelogPush` - commits the changelog, tags, and pushes */
 	public static abstract class PushTask extends ChangelogTask {
 		public static final String NAME = "changelogPush";
 
