@@ -80,7 +80,7 @@ public class GitApi implements AutoCloseable {
 
 	/** Adds and commits the changelog. */
 	public void addAndCommit() throws GitAPIException {
-		String commitMsg = cfg.commitMessage.replace(ChangelogModel.COMMIT_MESSAGE_VERSION, model.versionNext());
+		String commitMsg = cfg.commitMessage.replace(ChangelogModel.COMMIT_MESSAGE_VERSION, model.versions().next());
 		String path = repository.getWorkTree().toPath().relativize(changelogFile.toPath()).toString();
 		git.add()
 				.addFilepattern(path)
@@ -98,7 +98,7 @@ public class GitApi implements AutoCloseable {
 	}
 
 	private String tagName() {
-		return cfg.tagPrefix + model.versionNext();
+		return cfg.tagPrefix + model.versions().next();
 	}
 
 	@Override

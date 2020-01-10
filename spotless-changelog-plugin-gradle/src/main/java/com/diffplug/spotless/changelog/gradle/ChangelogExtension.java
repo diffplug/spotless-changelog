@@ -71,12 +71,12 @@ public class ChangelogExtension {
 
 	/** Reads the last-published version - you can't change the configuration after calling this method. */
 	public String getVersionLast() {
-		return model().parsed().versionLast();
+		return model().changelog().versionLast();
 	}
 
 	/** Calculates the next-to-publish version - you can't change the configuration after calling this method. */
 	public String getVersionNext() {
-		return model().versionNext();
+		return model().versions().next();
 	}
 
 	/** Sets the changelog file using {@link Project#file(Object)}. */

@@ -87,7 +87,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 				git.checkCanPush();
 			}
 
-			LinkedHashMap<Integer, String> errors = extension.model().parsed().errors();
+			LinkedHashMap<Integer, String> errors = extension.model().changelog().errors();
 			if (errors.isEmpty()) {
 				return;
 			}
@@ -143,7 +143,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 			// time to bump!
 			ChangelogModel model = extension.model();
 			LocalDate localDate = LocalDate.now(Time.clockUtc());
-			ParsedChangelog bumped = model.parsed().releaseUnreleased(model.versionNext(), localDate.toString());
+			ParsedChangelog bumped = model.changelog().releaseUnreleased(model.versions().next(), localDate.toString());
 			Files.write(extension.changelogFile.toPath(), bumped.toString().getBytes(StandardCharsets.UTF_8));
 		}
 	}

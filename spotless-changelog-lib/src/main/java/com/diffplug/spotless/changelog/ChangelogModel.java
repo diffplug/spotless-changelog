@@ -38,35 +38,70 @@ public class ChangelogModel {
 	}
 
 	static ChangelogModel calculate(String content, CfgNextVersion cfg) {
-		ParsedChangelog parsed = new ParsedChangelog(content);
+		ParsedChangelog changelog = new ParsedChangelog(content);
 
 		String nextVersion;
 		if (cfg.forceNextVersion != null) {
 			nextVersion = cfg.forceNextVersion;
-		} else if (parsed.versionLast() == null) {
+		} else if (changelog.versionLast() == null) {
 			nextVersion = FIRST_VERSION;
-		} else if (parsed.noUnreleasedChanges()) {
+		} else if (changelog.noUnreleasedChanges()) {
 			// we bumped, but don't have any new changes, so the next version is still "this" version
-			nextVersion = parsed.versionLast();
+			nextVersion = changelog.versionLast();
 		} else {
-			nextVersion = cfg.next.nextVersion(parsed.unreleasedChanges(), parsed.versionLast());
+			nextVersion = cfg.next.nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
 		}
-		return new ChangelogModel(parsed, nextVersion);
+		return new ChangelogModel(changelog, nextVersion);
 	}
 
-	private final ParsedChangelog parsed;
-	private final String nextVersion;
+	private final ParsedChangelog changelog;
+	private final Versions versions;
 
-	private ChangelogModel(ParsedChangelog parsed, String nextVersion) {
-		this.parsed = parsed;
-		this.nextVersion = nextVersion;
+	private ChangelogModel(ParsedChangelog changelog, String nextVersion) {
+		this.changelog = changelog;
+		this.versions = new Versions(nextVersion, changelog);
 	}
 
-	public String versionNext() {
-		return nextVersion;
+	public ParsedChangelog changelog() {
+		return changelog;
 	}
 
-	public ParsedChangelog parsed() {
-		return parsed;
+	public Versions versions() {
+		return versions;
+	}
+
+	/** The next and previously published versions. */
+	public static class Versions implements java.io.Serializable {
+		private final String next, last;
+
+		private Versions(String next, ParsedChangelog changelog) {
+			this.next = next;
+			this.last = changelog.versionLast();
+		}
+
+		public String next() {
+			return next;
+		}
+
+		public String last() {
+			return last;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (other == this) {
+				return true;
+			} else if (other instanceof Versions) {
+				Versions o = (Versions) other;
+				return next.equals(o.next) && last.equals(o.last);
+			} else {
+				return false;
+			}
+		}
+
+		@Override
+		public int hashCode() {
+			return 31 * next.hashCode() + last.hashCode();
+		}
 	}
 }
