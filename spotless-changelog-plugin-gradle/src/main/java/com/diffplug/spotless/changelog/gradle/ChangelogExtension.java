@@ -89,7 +89,7 @@ public class ChangelogExtension {
 		this.enforceCheck = enforceCheck;
 	}
 
-	/** Sets a custom version bump function.  The default value is {@link VersionBumpFunction.Semver}. */
+	/** Sets a custom version bump function.  The default value is {@link com.diffplug.spotless.changelog.VersionBumpFunction.Semver}. */
 	public void setVersionBumpFunction(VersionBumpFunction next) {
 		assertNotCalculatedYet();
 		nextVersionCfg.next = next;
@@ -107,7 +107,7 @@ public class ChangelogExtension {
 		nextVersionCfg.next.ifFoundBumpAdded(toFind);
 	}
 
-	/** @see {@link #ifFoundBumpAdded(List)}. */
+	/** @see #ifFoundBumpAdded(List) */
 	public void ifFoundBumpAdded(String... toFind) {
 		ifFoundBumpAdded(Arrays.asList(toFind));
 	}
@@ -123,7 +123,7 @@ public class ChangelogExtension {
 		nextVersionCfg.next.ifFoundBumpBreaking(toFind);
 	}
 
-	/** @see {@link #ifFoundBumpBreaking(List)}. */
+	/** @see #ifFoundBumpBreaking(List) */
 	public void ifFoundBumpBreaking(String... toFind) {
 		ifFoundBumpBreaking(Arrays.asList(toFind));
 	}
