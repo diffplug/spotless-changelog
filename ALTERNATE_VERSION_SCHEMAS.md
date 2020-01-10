@@ -30,4 +30,4 @@ TODO: link to code
 * `VersionBumpFunction.Semver (breaking.added.fixed)` - the highly-recommended default
 * `VersionBumpFunction.BrandPrefix (brand.breaking.added.fixed)` - allows a leading `brand` digit, with no automatic way to bump it, but the rest bumps the same as semver
 
-We don't want to host a debate about "which scheme is best".  If you make a new `VersionBumpFunction`, you can let it live in your buildscript, and we would love to link to it from the section above.  If you want to centralize your function across your builds, you can use [blowdryer](https://github.com/diffplug/blowdryer) for that.  If you think it should be a built-in, open up an issue or PR and we can talk :)
+We don't want to host a debate about "which scheme is best".  If you make a new `VersionBumpFunction`, you can let it live in your buildscript, and we would love to link to it from the section above.  If you want to centralize your function across your builds, you can use [blowdryer](https://github.com/diffplug/blowdryer) for that.  If you think it should be a built-in, open up an issue or PR.  As long as it's not too project-specific, we'll probably merge it in.

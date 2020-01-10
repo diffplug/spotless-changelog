@@ -1,5 +1,5 @@
 # <img align="left" src="logo.png"> Spotless Changelog
-
+***The changelog is cast, let the versions fall where they may.***
 <!---freshmark shields
 output = [
     link(shield('Gradle plugin', 'plugins.gradle.org', 'com.diffplug.spotless-changelog', 'blue'), 'https://plugins.gradle.org/plugin/com.diffplug.spotless-changelog'),
@@ -27,9 +27,14 @@ Spotless Changelog checks that your changelog complies with the format of [keepa
 
 There are [many plugins](https://plugins.gradle.org/search?term=version) that compute your next version using a variety of configurable rules based on git tags, commit message standards, class file comparison, and other methods.  They tend to require a lot of documentation.
 
-If your changelog doesn't already have information about breaking changes and new features, then you should fix that first, whether you end up adopting this plugin or not!  But once your changelog has that information, why not make things simple and use it as the source-of-truth?  If you want, there are also plugins which can generate your changelog automatically from your [git commits](https://plugins.gradle.org/search?term=git+changelog) or [github issues](https://plugins.gradle.org/search?term=github+changelog) (although we tend to think that's overkill).
+If your changelog doesn't already have information about breaking changes and new features, then you should fix that first, whether you end up adopting this plugin or not!  But once your changelog has that information, why not make things simple and use it as the source-of-truth?  If you want, there are also plugins which can generate your changelog automatically from your [git commits](https://plugins.gradle.org/search?term=git+changelog) or [github issues](https://plugins.gradle.org/search?term=github+changelog) (although we tend to think it's better to be a bit more human about it).
 
 Currently Spotless Changelog only has a gradle plugin, but the logic lives in a separate library, and we welcome contributions for other build systems, just [as happened with the Spotless code formatter](https://github.com/diffplug/spotless/issues/102).
+
+<!---freshmark version
+output = prefixDelimiterReplace(input, "id 'com.diffplug.spotless-changelog' version '", "'", versionLast)
+output = prefixDelimiterReplace(output, 'https://github.com/diffplug/spotless-changelog/blob/', '/spotless', versionLast)
+-->
 
 ## Keep your changelog clean
 
@@ -48,7 +53,7 @@ In your `build.gradle`, you do this:
 
 ```gradle
 plugins {
-  id 'com.diffplug.spotless-changelog' version 'TODO'
+  id 'com.diffplug.spotless-changelog' version '0.1.1'
 }
 
 spotlessChangelog { // only necessary if you need to change the defaults below
@@ -72,7 +77,7 @@ You don't have to convert the whole thing.  Just stick `<!-- END CHANGELOG -->` 
 By default, Spotless Changelog uses the names `breaking.added.fixed` for `x.y.z`. When computing the next version, Spotless Changelog always starts with the most recent version from your changelog.  From there, the only decision we have to make is which position to bump: `breaking`, `added`, or `fixed`.  By default, Spotless Changelog will bump `fixed`.  All you need to do is set the rules for escalating to an `added` or `breaking` bump:
 
 ```gradle
-spotlessChangelog {  // defaults, but setting them explicitly is good documentation for your buildscript users
+spotlessChangelog {  // defaults
   // breaking.added.fixed
   next.ifFoundBumpBreaking '**BREAKING**'
   next.ifFoundBumpAdded    '### Added'
@@ -99,18 +104,7 @@ We also support other version schemas, like `2.0` instead of `2.0.0`, or `brand.
 
 ### Alphas, betas, release-candidates, etc.
 
-If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.
-
-We
-### Alternative version schemas
-
-Our main thesis is:
-- changelogs are more important than versions
-- making the version a pure f(changelog) would be a big improvement for a lot of projects
-- haggling over the exact semantics is probably not worth it
-
-But, if you want to, you are more than welcome to!  If you want `2.0` instead of `2.0.0`, or `brand.major.minor.patch`, or `Ryyyy.SRx` or whatever scheme you want, all you need to do is implement `
-
+If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.  This is also how to go from `0.x` to `1.0`.
 
 ## Update the changelog, commit, push
 
@@ -125,36 +119,7 @@ spotlessChangelog {  // defaults
 }
 ```
 
-We recommend that you use `changelogPush` as your deploy task, and wire your tasks like so:
-
-### Single-project
-
-```gradle
-// set the project version for POM, jar manifest, etc.
-version = spotlessChangelog.versionNext
-// ensures that nothing will be built if changelogPush will end up failing
-tasks.named('jar').configure {
-  dependsOn tasks.named('changelogCheck')
-}
-// ensures that changelog bump and push only happens if the publish was successful
-tasks.named('changelogBump').configure {
-  dependsOn tasks.named('publish')
-}
-```
-
-### Multi-project
-
-Configure the `spotlessChangelog` block in the parent project, and each subproject should have:
-
-```gradle
-version = parent.spotlessChangelog.versionNext
-tasks.named('jar').configure {
-  dependsOn parent.tasks.named('changelogCheck')
-}
-parent.tasks.named('changelogBump').configure {
-  dependsOn tasks.named('publish')
-}
-```
+We recommend that you use `changelogPush` as your deploy task, and wire your tasks so that it will only happen if the publish was successful.  Here is a [battle-tested wiring plan](https://github.com/diffplug/blowdryer-diffplug/blob/master/src/main/resources/base/changelog.gradle) which can even [update your README.md with the latest version number](https://github.com/diffplug/blowdryer-diffplug/blob/2.0.0/src/main/resources/spotless/freshmark.gradle#L35-L61).  A simpler scheme is presented below:
 
 ### Multiple changelogs per project
 
@@ -193,7 +158,7 @@ spotlessChangelog { // all defaults
 }
 ```
 
-### Tasks // TODO: code
+### Tasks ([code](https://github.com/diffplug/spotless-changelog/blob/0.1.1/spotless-changelog-plugin-gradle/src/main/java/com/diffplug/spotless/changelog/gradle/ChangelogPlugin.java))
 
 - `changelogPrint` - prints the last published version and calculated next version
   - `myproj 1.0.4 -> 1.1.0`
@@ -204,6 +169,8 @@ spotlessChangelog { // all defaults
 - `changelogPush` - commits the changelog, tags, and pushes
   - `changelogPush` depends on `changelogBump` depends on `changelogCheck`
   - If `changelogPush` is in the task graph, then `changelogCheck` will do an extra check to make sure that the git push will succeed.  The `changelogBump` section above shows how you wire `changelogCheck` into your `jar` task so that your build will fail early if you haven't correctly setup the git credentials.
+
+<!---freshmark /version -->
 
 ## Acknowledgments
 
