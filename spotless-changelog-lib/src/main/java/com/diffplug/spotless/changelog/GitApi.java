@@ -35,15 +35,15 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-/** API for doing the commit, tag, and push operations.  See {@link ChangelogModel.PushCfg#withChangelog(File, ChangelogModel)}. */
+/** API for doing the commit, tag, and push operations.  See {@link PushCfg#withChangelog(File, ChangelogModel)}. */
 public class GitApi implements AutoCloseable {
 	private final Repository repository;
 	private final Git git;
 	private final File changelogFile;
 	private final ChangelogModel model;
-	private final ChangelogModel.PushCfg cfg;
+	private final PushCfg cfg;
 
-	GitApi(File changelogFile, ChangelogModel model, ChangelogModel.PushCfg cfg) throws IOException {
+	GitApi(File changelogFile, ChangelogModel model, PushCfg cfg) throws IOException {
 		this.changelogFile = changelogFile;
 		this.model = model;
 		this.cfg = cfg;

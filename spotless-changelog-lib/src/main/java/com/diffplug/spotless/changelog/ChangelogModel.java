@@ -28,26 +28,6 @@ public class ChangelogModel {
 	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
 	public static final String FIRST_VERSION = "0.1.0";
 
-	/** Configuration for committing, tagging, and pushing the next version. */
-	public static class PushCfg {
-		public String tagPrefix = "release/";
-		public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
-		public String remote = "origin";
-		public String branch = "master";
-
-		public GitApi withChangelog(File changelogFile, ChangelogModel model) throws IOException {
-			return new GitApi(changelogFile, model, this);
-		}
-
-		/** Validates that the commit message is in the correct format. */
-		public static String validateCommitMessage(String commitMessage) {
-			if (!commitMessage.contains(COMMIT_MESSAGE_VERSION)) {
-				throw new IllegalArgumentException("The commit message must contain '" + COMMIT_MESSAGE_VERSION + "' to be replaced with the real version.");
-			}
-			return commitMessage;
-		}
-	}
-
 	/** Computes a ChangelogModel from the given changelogFile. */
 	public static ChangelogModel calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
 		if (!(changelogFile.exists() && changelogFile.isFile())) {
