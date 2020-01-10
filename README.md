@@ -33,7 +33,8 @@ Currently Spotless Changelog only has a gradle plugin, but the logic lives in a 
 
 <!---freshmark version
 output = prefixDelimiterReplace(input, "id 'com.diffplug.spotless-changelog' version '", "'", versionLast)
-output = prefixDelimiterReplace(output, 'https://github.com/diffplug/spotless-changelog/blob/', '/spotless', versionLast)
+output = prefixDelimiterReplace(output, 'https://github.com/diffplug/spotless-changelog/blob/release/', '/spotless', versionLast)
+output = prefixDelimiterReplace(output, 'https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/', '/', versionLast)
 -->
 
 ## Keep your changelog clean
@@ -64,7 +65,7 @@ spotlessChangelog { // only necessary if you need to change the defaults below
 
 The `changelogCheck` task will now run every time `gradlew check` runs, and it will verify that the changelog versions and dates conform to the format.
 
-It *does not* enforce the entire keepachangelog format, only the `## [x.y.z] yyyy-mm-dd` lines.  We're happy to take a PR to support a stricter format, but it will be optional.
+It does not enforce the entire keepachangelog format, only the `## [x.y.z] yyyy-mm-dd` lines.  We're happy to take a PR to support a stricter format, but it will be optional.
 
 ### Legacy changelogs
 
@@ -139,7 +140,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 
 ## Reference
 
-### Plugin DSL // TODO: javadoc
+### Plugin DSL ([javadoc](https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/0.1.1/com/diffplug/spotless/changelog/gradle/ChangelogExtension.html))
 
 ```gradle
 spotlessChangelog { // all defaults
@@ -158,7 +159,7 @@ spotlessChangelog { // all defaults
 }
 ```
 
-### Tasks ([code](https://github.com/diffplug/spotless-changelog/blob/0.1.1/spotless-changelog-plugin-gradle/src/main/java/com/diffplug/spotless/changelog/gradle/ChangelogPlugin.java))
+### Tasks ([code](https://github.com/diffplug/spotless-changelog/blob/release/0.1.1/spotless-changelog-plugin-gradle/src/main/java/com/diffplug/spotless/changelog/gradle/ChangelogPlugin.java))
 
 - `changelogPrint` - prints the last published version and calculated next version
   - `myproj 1.0.4 -> 1.1.0`
