@@ -18,11 +18,15 @@ package com.diffplug.spotless.changelog;
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Suppliers;
+import com.diffplug.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
 import pl.tlinkowski.annotation.basic.NullOr;
 
@@ -98,38 +102,50 @@ public class ChangelogModel {
 		}
 	}
 
-	/** Computes a ChangelogModel from the given changelogFile. */
-	public static ChangelogModel calculateCacheable(File changelogFile, CfgNextVersion cfg, File cacheInput, File cacheOutput) throws IOException, ClassNotFoundException {
-		assertChangelogFileExists(changelogFile);
-
-		Input input = new Input();
-		input.changelogFile = FileSignature.signAsList(changelogFile);
-		input.cfgNextVersion = cfg;
-
-		Serialized<Input> inputActual = Serialized.fromValue(input);
-		Serialized<Input> inputCached = Serialized.fromFile(cacheInput, Input.class);
-		Serialized<Versions> outputCached = Serialized.fromFile(cacheOutput, Versions.class);
-
-		if (inputActual.equals(inputCached) && outputCached.value() != null) {
-			// if the cache is successful, then we can use the cached versions, and in the unlikely event that they want the changelog, we'll parse that on demand 
-			return new ChangelogModel(Suppliers.memoize(Errors.rethrow().wrap(() -> {
-				return new ParsedChangelog(new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8));
-			})), outputCached.value());
-		} else {
-			ChangelogModel model = calculate(changelogFile, cfg);
-			inputActual.writeTo(cacheInput);
-			Serialized<Versions> outputActual = Serialized.fromValue(model.versions());
-			if (!outputActual.equals(outputCached)) {
-				outputActual.writeTo(cacheOutput);
-			}
-			return model;
-		}
-	}
-
 	/** The input to the next-version calculation. */
 	static class Input implements Serializable {
 		FileSignature changelogFile;
 		@NullOr
 		CfgNextVersion cfgNextVersion;
 	}
+
+	/** Computes a ChangelogModel from the given changelogFile. */
+	public static ChangelogModel calculateUsingCache(File changelogFile, CfgNextVersion cfg) throws IOException {
+		assertChangelogFileExists(changelogFile);
+
+		Input input = new Input();
+		input.changelogFile = FileSignature.sign(changelogFile);
+		input.cfgNextVersion = cfg;
+		Serialized<Input> inputActual = Serialized.fromValue(input);
+
+		Versions cachedVersions = cacheRead(inputActual);
+		if (cachedVersions == null) {
+			ChangelogModel model = calculate(changelogFile, cfg);
+			cacheStore(inputActual, model.versions());
+			return model;
+		} else {
+			return new ChangelogModel(Suppliers.memoize(Errors.rethrow().wrap(() -> {
+				return new ParsedChangelog(new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8));
+			})), cachedVersions);
+		}
+	}
+
+	private static Versions cacheRead(Serialized<Input> inputActual) {
+		synchronized (cache) {
+			Entry<Serialized<Input>, Versions> cached = cache.get(inputActual.value().changelogFile.canonicalPath());
+			if (cached != null && cached.getKey().equals(inputActual)) {
+				return cached.getValue();
+			} else {
+				return null;
+			}
+		}
+	}
+
+	private static void cacheStore(Serialized<Input> inputActual, Versions versions) {
+		synchronized (cache) {
+			cache.put(inputActual.value().changelogFile.canonicalPath(), Maps.immutableEntry(inputActual, versions));
+		}
+	}
+
+	static final Map<String, Entry<Serialized<Input>, Versions>> cache = new HashMap<>();
 }

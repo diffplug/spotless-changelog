@@ -87,7 +87,7 @@ class Serialized<T extends Serializable> {
 		}
 	}
 
-	public static <T extends Serializable> Serialized<T> fromValue(T value) throws IOException, ClassNotFoundException {
+	public static <T extends Serializable> Serialized<T> fromValue(T value) throws IOException {
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		try (ObjectOutputStream output = new ObjectOutputStream(byteStream)) {
 			output.writeObject(value);

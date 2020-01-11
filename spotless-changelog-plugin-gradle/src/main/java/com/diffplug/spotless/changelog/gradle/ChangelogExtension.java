@@ -55,10 +55,8 @@ public class ChangelogExtension {
 			synchronized (this) {
 				if (model == null) {
 					try {
-						File changelogCacheInput = new File(project.getBuildDir(), "tmp/changelog-input");
-						File changelogCacheOutput = new File(project.getBuildDir(), "tmp/changelog-output");
-						model = ChangelogModel.calculateCacheable(changelogFile, nextVersionCfg, changelogCacheInput, changelogCacheOutput);
-					} catch (IOException | ClassNotFoundException e) {
+						model = ChangelogModel.calculateUsingCache(changelogFile, nextVersionCfg);
+					} catch (IOException e) {
 						throw Errors.asRuntime(e);
 					}
 				}
