@@ -26,12 +26,14 @@ import java.util.function.Consumer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -117,10 +119,21 @@ public class GitActions implements AutoCloseable {
 	private void push(Consumer<PushCommand> cmd) throws GitAPIException {
 		PushCommand push = git.push().setCredentialsProvider(creds()).setRemote(cfg.remote);
 		cmd.accept(push);
+
+		String remoteUrl = git.getRepository().getConfig().getString(ConfigConstants.CONFIG_REMOTE_SECTION, cfg.remote, ConfigConstants.CONFIG_KEY_URL);
+		RefSpec spec = Iterables.getOnlyElement(push.getRefSpecs());
+		System.out.println("push " + spec.getSource() + " to " + cfg.remote + " " + remoteUrl);
+
 		PushResult result = Iterables.getOnlyElement(push.call());
-		for (RemoteRefUpdate update : result.getRemoteUpdates()) {
-			System.out.println("push: " + update);
-		}
+		RemoteRefUpdate update = Iterables.getOnlyElement(result.getRemoteUpdates());
+		System.out.println("  " + update.getStatus() + " "
+				+ (update.getExpectedOldObjectId() != null ? update.getExpectedOldObjectId().name()
+						: "(null)")
+				+ "..."
+				+ (update.getNewObjectId() != null ? update.getNewObjectId().name() : "(null)")
+				+ (update.isFastForward() ? " fastForward" : "")
+				+ (update.getMessage() != null ? " " + update.getMessage() : ""));
+
 	}
 
 	// similar to https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy
