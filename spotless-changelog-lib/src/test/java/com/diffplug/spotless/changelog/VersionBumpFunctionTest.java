@@ -27,7 +27,7 @@ public class VersionBumpFunctionTest {
 
 	private AbstractStringAssert<?> test(CfgNextVersion cfg, String changelog) {
 		ChangelogModel result = ChangelogModel.calculate(changelog, cfg);
-		return Assertions.assertThat(result.versionNext());
+		return Assertions.assertThat(result.versions().next());
 	}
 
 	@Test
