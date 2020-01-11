@@ -34,7 +34,7 @@ public class CacheTest extends ResourceHarness {
 				"## [1.2.3] - 2020-01-01",
 				"");
 		// responds to changes in forceNextVersion
-		CfgNextVersion cfg = new CfgNextVersion();
+		NextVersionCfg cfg = new NextVersionCfg();
 		cfg.forceNextVersion = "5.6.7";
 		assertNextLast(cfg, "5.6.7", "1.2.3");
 
@@ -58,7 +58,7 @@ public class CacheTest extends ResourceHarness {
 		Assertions.assertThat(at130.versions()).isSameAs(at130_2.versions());
 
 		// and it responds to bumps
-		cfg.next.ifFoundBumpBreaking("### Added");
+		cfg.function.ifFoundBumpBreaking("### Added");
 		ChangelogModel at200 = assertNextLast(cfg, "2.0.0", "1.2.3");
 
 		// and gets cached
@@ -68,7 +68,7 @@ public class CacheTest extends ResourceHarness {
 		Assertions.assertThat(at200.versions()).isSameAs(at200_2.versions());
 	}
 
-	private ChangelogModel assertNextLast(CfgNextVersion cfg, String next, String last) throws IOException {
+	private ChangelogModel assertNextLast(NextVersionCfg cfg, String next, String last) throws IOException {
 		ChangelogModel model = ChangelogModel.calculateUsingCache(changelogFile, cfg);
 		Assertions.assertThat(model.versions().next()).isEqualTo(next);
 		Assertions.assertThat(model.versions().last()).isEqualTo(last);

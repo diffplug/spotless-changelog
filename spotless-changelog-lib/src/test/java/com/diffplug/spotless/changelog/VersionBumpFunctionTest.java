@@ -22,10 +22,10 @@ import org.junit.Test;
 
 public class VersionBumpFunctionTest {
 	private AbstractStringAssert<?> test(String changelog) {
-		return test(new CfgNextVersion(), changelog);
+		return test(new NextVersionCfg(), changelog);
 	}
 
-	private AbstractStringAssert<?> test(CfgNextVersion cfg, String changelog) {
+	private AbstractStringAssert<?> test(NextVersionCfg cfg, String changelog) {
 		ChangelogModel result = ChangelogModel.calculate(changelog, cfg);
 		return Assertions.assertThat(result.versions().next());
 	}
@@ -44,7 +44,7 @@ public class VersionBumpFunctionTest {
 
 	@Test
 	public void forceNextVersoin() {
-		CfgNextVersion cfg = new CfgNextVersion();
+		NextVersionCfg cfg = new NextVersionCfg();
 		cfg.forceNextVersion = "shoopty";
 		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty");
 		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
@@ -82,8 +82,8 @@ public class VersionBumpFunctionTest {
 
 	@Test
 	public void semverBrand() {
-		CfgNextVersion cfg = new CfgNextVersion();
-		cfg.next = new VersionBumpFunction.SemverBrandPrefix();
+		NextVersionCfg cfg = new NextVersionCfg();
+		cfg.function = new NextVersionFunction.SemverBrandPrefix();
 		test(cfg, "\n## [Unreleased]\nSome change\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.1.2.1");
 		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.1.3.0");
 		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.2.0.0");

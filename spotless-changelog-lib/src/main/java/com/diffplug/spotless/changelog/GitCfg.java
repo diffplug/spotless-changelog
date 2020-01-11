@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 /** Configuration for committing, tagging, and pushing the next version. */
-public class CfgPush {
+public class GitCfg {
 	public static final String COMMIT_MESSAGE_VERSION = "{{version}}";
 
 	/** Prefix used for release tags, default is `release/`. */
@@ -31,8 +31,8 @@ public class CfgPush {
 	public String branch = "master";
 
 	/** Returns an api configured with this config. */
-	public GitApi withChangelog(File changelogFile, ChangelogModel model) throws IOException {
-		return new GitApi(changelogFile, model, this);
+	public GitActions withChangelog(File changelogFile, ChangelogModel model) throws IOException {
+		return new GitActions(changelogFile, model, this);
 	}
 
 	/** Validates that the commit message is in the correct format. */

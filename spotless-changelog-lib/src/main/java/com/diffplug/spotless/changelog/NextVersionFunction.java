@@ -34,8 +34,8 @@ import org.osgi.framework.Version;
  * because it will be copied-by-value (via serialization) to ensure that
  * it is not mutated after the version has been computed.
  */
-public abstract class VersionBumpFunction implements Serializable {
-	private VersionBumpFunction() {}
+public abstract class NextVersionFunction implements Serializable {
+	private NextVersionFunction() {}
 
 	/**
 	 * Given a string containing all the unreleased changes and the last published
@@ -60,10 +60,10 @@ public abstract class VersionBumpFunction implements Serializable {
 	}
 
 	/**
-	 * Base class for {@link VersionBumpFunction} for the unusual case that 
+	 * Base class for {@link NextVersionFunction} for the unusual case that 
 	 * {@link #ifFoundBumpAdded(List)} and {@link #ifFoundBumpBreaking(List)} are not supported.
 	 */
-	public static abstract class NonSemver extends VersionBumpFunction {
+	public static abstract class NonSemver extends NextVersionFunction {
 		@Override
 		@Deprecated
 		public void ifFoundBumpBreaking(List<String> toFind) {
@@ -78,7 +78,7 @@ public abstract class VersionBumpFunction implements Serializable {
 	}
 
 	/** Standard semver behavior. */
-	public static class Semver extends VersionBumpFunction {
+	public static class Semver extends NextVersionFunction {
 		protected List<String> ifFoundBumpBreaking = Arrays.asList("**BREAKING**");
 		protected List<String> ifFoundBumpAdded = Arrays.asList("### Added");
 

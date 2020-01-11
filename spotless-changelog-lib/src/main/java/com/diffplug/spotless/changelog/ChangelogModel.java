@@ -31,18 +31,18 @@ import java.util.function.Supplier;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 /**
- * {@link #calculate(File, CfgNextVersion)} will
+ * {@link #calculate(File, NextVersionCfg)} will
  * return a `ChangelogModel` which contains the parsed changelog ({@link #changelog() changelog()} and {@link #versions() versions()} (which
  * in turn has {@link Versions#last() last()} and {@link Versions#next() next()}.
  * 
- * You can speed this calculation up using {@link #calculateUsingCache(File, CfgNextVersion)}.
+ * You can speed this calculation up using {@link #calculateUsingCache(File, NextVersionCfg)}.
  */
 public class ChangelogModel {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
 	public static final String FIRST_VERSION = "0.1.0";
 
 	/** Computes a ChangelogModel from the given changelogFile. */
-	public static ChangelogModel calculate(File changelogFile, CfgNextVersion cfg) throws IOException {
+	public static ChangelogModel calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
 		assertChangelogFileExists(changelogFile);
 		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
 		return calculate(content, cfg);
@@ -54,7 +54,7 @@ public class ChangelogModel {
 		}
 	}
 
-	static ChangelogModel calculate(String content, CfgNextVersion cfg) {
+	static ChangelogModel calculate(String content, NextVersionCfg cfg) {
 		ParsedChangelog changelog = new ParsedChangelog(content);
 
 		String nextVersion;
@@ -66,7 +66,7 @@ public class ChangelogModel {
 			// we bumped, but don't have any new changes, so the next version is still "this" version
 			nextVersion = changelog.versionLast();
 		} else {
-			nextVersion = cfg.next.nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
+			nextVersion = cfg.function.nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
 		}
 		return new ChangelogModel(() -> changelog, new Versions(nextVersion, changelog));
 	}
@@ -110,11 +110,11 @@ public class ChangelogModel {
 	static class Input implements Serializable {
 		FileSignature changelogFile;
 		@NullOr
-		CfgNextVersion cfgNextVersion;
+		NextVersionCfg cfgNextVersion;
 	}
 
 	/** Computes a ChangelogModel from the given changelogFile. */
-	public static ChangelogModel calculateUsingCache(File changelogFile, CfgNextVersion cfg) throws IOException {
+	public static ChangelogModel calculateUsingCache(File changelogFile, NextVersionCfg cfg) throws IOException {
 		assertChangelogFileExists(changelogFile);
 
 		Input input = new Input();

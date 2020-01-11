@@ -35,15 +35,15 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
-/** API for doing the commit, tag, and push operations.  See {@link CfgPush#withChangelog(File, ChangelogModel)}. */
-public class GitApi implements AutoCloseable {
+/** API for doing the commit, tag, and push operations.  See {@link GitCfg#withChangelog(File, ChangelogModel)}. */
+public class GitActions implements AutoCloseable {
 	private final Repository repository;
 	private final Git git;
 	private final File changelogFile;
 	private final ChangelogModel model;
-	private final CfgPush cfg;
+	private final GitCfg cfg;
 
-	GitApi(File changelogFile, ChangelogModel model, CfgPush cfg) throws IOException {
+	GitActions(File changelogFile, ChangelogModel model, GitCfg cfg) throws IOException {
 		this.changelogFile = changelogFile;
 		this.model = model;
 		this.cfg = cfg;
@@ -80,7 +80,7 @@ public class GitApi implements AutoCloseable {
 
 	/** Adds and commits the changelog. */
 	public void addAndCommit() throws GitAPIException {
-		String commitMsg = cfg.commitMessage.replace(CfgPush.COMMIT_MESSAGE_VERSION, model.versions().next());
+		String commitMsg = cfg.commitMessage.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
 		String path = repository.getWorkTree().toPath().relativize(changelogFile.toPath()).toString();
 		git.add()
 				.addFilepattern(path)

@@ -18,11 +18,12 @@ package com.diffplug.spotless.changelog.gradle;
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
-import com.diffplug.spotless.changelog.CfgNextVersion;
-import com.diffplug.spotless.changelog.CfgPush;
 import com.diffplug.spotless.changelog.ChangelogModel;
+import com.diffplug.spotless.changelog.GitCfg;
 import com.diffplug.spotless.changelog.Misc;
-import com.diffplug.spotless.changelog.VersionBumpFunction;
+import com.diffplug.spotless.changelog.NextVersionCfg;
+import com.diffplug.spotless.changelog.NextVersionFunction;
+import com.diffplug.spotless.changelog.ParsedChangelog;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,15 +38,15 @@ public class ChangelogExtension {
 	private final Project project;
 
 	File changelogFile;
-	CfgNextVersion nextVersionCfg;
-	CfgPush pushCfg;
+	NextVersionCfg nextVersionCfg;
+	GitCfg pushCfg;
 	boolean enforceCheck;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
 		this.changelogFile = project.file(ChangelogModel.DEFAULT_FILE);
-		this.nextVersionCfg = new CfgNextVersion();
-		this.pushCfg = new CfgPush();
+		this.nextVersionCfg = new NextVersionCfg();
+		this.pushCfg = new GitCfg();
 		changelogFile(ChangelogModel.DEFAULT_FILE);
 	}
 
@@ -73,7 +74,7 @@ public class ChangelogExtension {
 
 	/** Ensures that we haven't locked the next version calculation already. */
 	private synchronized void assertNotCalculatedYet() {
-		Preconditions.checkState(model == null, "You can't change the config after calling versionNext or versionLast");
+		Preconditions.checkState(model == null, "You can't change the next version calculation after calling `versionNext`, `versionLast`, or `parsedChangelog`.");
 	}
 
 	/** Reads the last-published version - you can't change the configuration after calling this method. */
@@ -84,6 +85,16 @@ public class ChangelogExtension {
 	/** Calculates the next-to-publish version - you can't change the configuration after calling this method. */
 	public String getVersionNext() {
 		return model().versions().next();
+	}
+
+	/**
+	 * Returns the fully-parsed changelog.  You probably won't need this method unless you're
+	 * building on top of this plugin, perhaps to make a new plugin that creates GitHub releases
+	 * for old tags or something like that.  If you do anything interesting with it, send us a PR so we can
+	 * link back to you from here.
+	 */
+	public ParsedChangelog getParsedChangelog() {
+		return model().changelog();
 	}
 
 	/** Sets the changelog file using {@link Project#file(Object)}. */
@@ -98,16 +109,16 @@ public class ChangelogExtension {
 	}
 
 	/**
-	 * Sets a custom version bump function.  The default value is {@link com.diffplug.spotless.changelog.VersionBumpFunction.Semver}.
+	 * Sets a custom version bump function.  The default value is {@link com.diffplug.spotless.changelog.NextVersionFunction.Semver}.
 	 * 
 	 * The value that you pass in will be copied (using serialization) to ensure that it is not modified
 	 * after calling {@link #getVersionLast() versionLast} or {@link #getVersionNext() versionNext}. So you
 	 * can't change it after you have passed it, except by calling `ifFoundBumpXXX`, which will delegate
 	 * to those methods on your function.
 	 */
-	public void setVersionBumpFunction(VersionBumpFunction next) throws ClassNotFoundException, IOException {
+	public void setNextVersionFunction(NextVersionFunction next) throws ClassNotFoundException, IOException {
 		assertNotCalculatedYet();
-		nextVersionCfg.next = Misc.copy(next);
+		nextVersionCfg.function = Misc.copy(next);
 	}
 
 	/**
@@ -119,7 +130,7 @@ public class ChangelogExtension {
 	 */
 	public void ifFoundBumpAdded(List<String> toFind) {
 		assertNotCalculatedYet();
-		nextVersionCfg.next.ifFoundBumpAdded(toFind);
+		nextVersionCfg.function.ifFoundBumpAdded(toFind);
 	}
 
 	/** @see #ifFoundBumpAdded(List) */
@@ -135,7 +146,7 @@ public class ChangelogExtension {
 	 */
 	public void ifFoundBumpBreaking(List<String> toFind) {
 		assertNotCalculatedYet();
-		nextVersionCfg.next.ifFoundBumpBreaking(toFind);
+		nextVersionCfg.function.ifFoundBumpBreaking(toFind);
 	}
 
 	/** @see #ifFoundBumpBreaking(List) */
@@ -157,7 +168,7 @@ public class ChangelogExtension {
 
 	/** Default value is `Published release/{{version}}` - the {{version}} will be replaced. */
 	public void commitMessage(String commitMessage) {
-		pushCfg.commitMessage = CfgPush.validateCommitMessage(commitMessage);
+		pushCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
 	}
 
 	/** Default value is 'origin' */

@@ -19,7 +19,7 @@ package com.diffplug.spotless.changelog.gradle;
 import com.diffplug.common.base.StringPrinter;
 import com.diffplug.common.globals.Time;
 import com.diffplug.spotless.changelog.ChangelogModel;
-import com.diffplug.spotless.changelog.GitApi;
+import com.diffplug.spotless.changelog.GitActions;
 import com.diffplug.spotless.changelog.ParsedChangelog;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -82,7 +82,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 			String pushTaskPath = getProject().absoluteProjectPath(PushTask.NAME);
 			// if we're going to push later, let's first make sure that will work
 			if (getProject().getGradle().getTaskGraph().hasTask(pushTaskPath)) {
-				GitApi git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+				GitActions git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
 				git.assertNoTag();
 				git.checkCanPush();
 			}
@@ -159,7 +159,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void push() throws IOException, GitAPIException {
-			GitApi git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+			GitActions git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
 			git.addAndCommit();
 			git.tagBranchPush();
 		}

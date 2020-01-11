@@ -20,9 +20,9 @@ import java.io.Serializable;
 import pl.tlinkowski.annotation.basic.NullOr;
 
 /** Configuration for computing the next version. */
-public class CfgNextVersion implements Serializable {
+public class NextVersionCfg implements Serializable {
 	/** The function which will compute the next verison. */
-	public VersionBumpFunction next = new VersionBumpFunction.Semver();
+	public NextVersionFunction function = new NextVersionFunction.Semver();
 	/** Overrides the bump function. */
 	public @NullOr String forceNextVersion = null;
 }
