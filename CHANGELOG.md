@@ -6,10 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Now possible to set the version bump function.
-- **BREAKING** api changes to support
-  - changed `ifFoundBumpMajor` to `next.ifFoundBumpBreaking` to enable the improvement above
-  - changed `ifFoundBumpMinor` to `next.ifFoundBumpAdded` to enable the improvement above
+- Version calculation is cacheable in-memory
+- Third-party version calculation is now possible
+- **BREAKING** misc to make the above work
 ### Fixed
 - We now respect the `gh_pages` env variable as a way to do GitHub auth, as we intended to all along.
 
