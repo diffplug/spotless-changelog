@@ -113,7 +113,11 @@ public class ChangelogModel {
 		NextVersionCfg cfgNextVersion;
 	}
 
-	/** Computes a ChangelogModel from the given changelogFile. */
+	/**
+	 * Exact same behavior as {@link #calculate(File, NextVersionCfg) calculate()}, but it uses an in-memory
+	 * per-changelogfile cache to optimize performance and delay parsing the changelog if possible.  Only
+	 * downside is that you will leak a teensy-teensy bit of memory since there's no way to clear the cache.
+	 */
 	public static ChangelogModel calculateUsingCache(File changelogFile, NextVersionCfg cfg) throws IOException {
 		assertChangelogFileExists(changelogFile);
 
