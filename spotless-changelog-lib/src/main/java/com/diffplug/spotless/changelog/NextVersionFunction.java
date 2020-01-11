@@ -27,7 +27,7 @@ import org.osgi.framework.Version;
  * If you want to make a custom function, you can either override
  * {@link Semver}, or you can override {@link NonSemver}.  The advantage
  * of {@link Semver} is that you can use the `ifFoundBumpXXX` methods.
- * See {@link SemverBrandPrefix} or {@link SemverCondense__X_Y_0__to__X_Y} for a simple example.
+ * See {@link SemverBrandPrefix} or {@link SemverCondense_XY0_to_XY} for a simple example.
  * 
  * If you have any methods for configuring your function besides those, you
  * will have to set it up *before* passing it to the gradle extension,
@@ -142,7 +142,7 @@ public abstract class NextVersionFunction implements Serializable {
 	/**
 	 * Modifies {@link Semver} to turn `2.1.0` into `2.1`.
 	 */
-	public static class SemverCondense__X_Y_0__to__X_Y extends Semver {
+	public static class SemverCondense_XY0_to_XY extends Semver {
 		protected int brand = -1;
 
 		@Override

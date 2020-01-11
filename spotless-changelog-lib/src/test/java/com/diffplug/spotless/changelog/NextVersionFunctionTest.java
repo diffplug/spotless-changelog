@@ -92,7 +92,7 @@ public class NextVersionFunctionTest {
 	@Test
 	public void semverCondensed() {
 		NextVersionCfg cfg = new NextVersionCfg();
-		cfg.function = new NextVersionFunction.SemverCondense__X_Y_0__to__X_Y();
+		cfg.function = new NextVersionFunction.SemverCondense_XY0_to_XY();
 		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.2.1");
 		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.3");
 		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("2.0");

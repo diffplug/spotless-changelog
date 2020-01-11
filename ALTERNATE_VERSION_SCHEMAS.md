@@ -27,9 +27,9 @@ public abstract class NextVersionFunction implements Serializable {
 Once you've done that, you can enable it in your buildscript like so.
 
 ```gradle
-import com.diffplug.spotless.changelog.NextVersionFunction.SemverCondense__X_Y_0__to__X_Y
+import com.diffplug.spotless.changelog.NextVersionFunction.SemverCondense_XY0_to_XY
 spotlessChangelog {
-  versionSchema SemverCondense__X_Y_0__to__X_Y.class
+  versionSchema SemverCondense_XY0_to_XY.class
 }
 ```
 
@@ -38,7 +38,7 @@ spotlessChangelog {
 ### Built-in
 * [`Semver`](https://github.com/diffplug/spotless-changelog/blob/8cc570f9ea2049ecc3d4f997b4bc609148f7fa74/spotless-changelog-lib/src/main/java/com/diffplug/spotless/changelog/NextVersionFunction.java#L80-L118) - the highly-recommended default `breaking.added.fixed`
 * [`SemverBrandPrefix`](https://github.com/diffplug/spotless-changelog/blob/8cc570f9ea2049ecc3d4f997b4bc609148f7fa74/spotless-changelog-lib/src/main/java/com/diffplug/spotless/changelog/NextVersionFunction.java#L120-L135) - allows a leading `brand` digit (`brand.breaking.added.fixed`), with no automatic way to bump it (use `forceNextVersion`), but the rest bumps the same as semver
-* [`SemverCondense__X_Y_0__to__X_Y`](https://github.com/diffplug/spotless-changelog/blob/8cc570f9ea2049ecc3d4f997b4bc609148f7fa74/spotless-changelog-lib/src/main/java/com/diffplug/spotless/changelog/NextVersionFunction.java#L137-L152) - condenses `1.0.0` to `1.0` and `1.2.0` to `1.2`, but leaves `1.2.3` unchanged.
+* [`SemverCondense_XY0_to_XY`](https://github.com/diffplug/spotless-changelog/blob/8cc570f9ea2049ecc3d4f997b4bc609148f7fa74/spotless-changelog-lib/src/main/java/com/diffplug/spotless/changelog/NextVersionFunction.java#L137-L152) - condenses `1.0.0` to `1.0` and `1.2.0` to `1.2`, but leaves `1.2.3` unchanged.
 
 ### In user buildscripts
 
