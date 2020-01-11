@@ -66,7 +66,7 @@ public class ChangelogModel {
 			// we bumped, but don't have any new changes, so the next version is still "this" version
 			nextVersion = changelog.versionLast();
 		} else {
-			nextVersion = cfg.function.nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
+			nextVersion = cfg.function.nextVersion(changelog);
 		}
 		return new ChangelogModel(() -> changelog, new Versions(nextVersion, changelog));
 	}

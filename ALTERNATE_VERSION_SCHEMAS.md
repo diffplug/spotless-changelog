@@ -11,7 +11,16 @@ All you have to do is implement the function below:
 
 ```java
 public abstract class NextVersionFunction implements Serializable {
-  public abstract String nextVersion(String unreleasedChanges, String lastVersion);
+  /** version = f(changelog) */
+  public String nextVersion(ParsedChangelog changelog) {
+    return nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
+  }
+
+  /**
+   * Given a string containing all the unreleased changes and the last published
+   * version, this function computes the next version number.
+   */
+  protected abstract String nextVersion(String unreleasedChanges, String lastVersion);
 }
 ```
 
@@ -37,4 +46,4 @@ spotlessChangelog {
 
 ### Contributing a schema
 
-We don't care which scheme is best.  If you make a new `NextVersionFunction`, you can let it live in your buildscript, and we would love to link to it from the section above.  If you want to centralize your function across your builds, you can use [blowdryer](https://github.com/diffplug/blowdryer) for that.  If you think it should be a built-in, open up an issue or PR.  As long as it's not too project-specific, we'll probably merge it in.
+We don't care which scheme is "best".  If you make a new `NextVersionFunction`, you can let it live in your buildscript, and we would love to link to it from the section above.  If you want to centralize your function across your builds, you can use [blowdryer](https://github.com/diffplug/blowdryer) for that.  If you think it should be a built-in, open up an issue or PR.  As long as it's not too project-specific, we'll probably merge it in.

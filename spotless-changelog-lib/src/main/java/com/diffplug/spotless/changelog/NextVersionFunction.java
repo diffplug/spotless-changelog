@@ -37,11 +37,16 @@ import org.osgi.framework.Version;
 public abstract class NextVersionFunction implements Serializable {
 	private NextVersionFunction() {}
 
+	/** version = f(changelog) */
+	public String nextVersion(ParsedChangelog changelog) {
+		return nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
+	}
+
 	/**
 	 * Given a string containing all the unreleased changes and the last published
 	 * version, this function computes the next version number.
 	 */
-	public abstract String nextVersion(String unreleasedChanges, String lastVersion);
+	protected abstract String nextVersion(String unreleasedChanges, String lastVersion);
 
 	/** Optional API, used for subclasses of {@link Semver}, throws runtime error for subclasses of {@link NonSemver}. */
 	public abstract void ifFoundBumpAdded(List<String> toFind);
@@ -93,7 +98,7 @@ public abstract class NextVersionFunction implements Serializable {
 		}
 
 		@Override
-		public String nextVersion(String unreleasedChanges, String lastVersion) {
+		protected String nextVersion(String unreleasedChanges, String lastVersion) {
 			Version last = Version.parseVersion(lastVersion);
 			if (last.getMajor() == 0) {
 				boolean bumpMinor = ifFoundBumpBreaking.stream().anyMatch(unreleasedChanges::contains) ||
@@ -126,7 +131,7 @@ public abstract class NextVersionFunction implements Serializable {
 		protected int brand = -1;
 
 		@Override
-		public String nextVersion(String unreleasedChanges, String lastVersion) {
+		protected String nextVersion(String unreleasedChanges, String lastVersion) {
 			int brandDot = lastVersion.indexOf('.');
 			brand = Integer.parseInt(lastVersion.substring(0, brandDot));
 			String result = super.nextVersion(unreleasedChanges, lastVersion.substring(brandDot + 1));
@@ -141,7 +146,7 @@ public abstract class NextVersionFunction implements Serializable {
 		protected int brand = -1;
 
 		@Override
-		public String nextVersion(String unreleasedChanges, String lastVersion) {
+		protected String nextVersion(String unreleasedChanges, String lastVersion) {
 			String semver = super.nextVersion(unreleasedChanges, lastVersion);
 			if (semver.endsWith(".0")) {
 				return semver.substring(0, semver.length() - 2);
