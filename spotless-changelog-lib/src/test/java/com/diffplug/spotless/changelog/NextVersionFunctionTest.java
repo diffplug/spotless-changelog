@@ -20,7 +20,7 @@ import org.assertj.core.api.AbstractStringAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class VersionBumpFunctionTest {
+public class NextVersionFunctionTest {
 	private AbstractStringAssert<?> test(String changelog) {
 		return test(new NextVersionCfg(), changelog);
 	}
@@ -87,5 +87,14 @@ public class VersionBumpFunctionTest {
 		test(cfg, "\n## [Unreleased]\nSome change\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.1.2.1");
 		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.1.3.0");
 		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [7.1.2.0] - 2020-10-10\n").isEqualTo("7.2.0.0");
+	}
+
+	@Test
+	public void semverCondensed() {
+		NextVersionCfg cfg = new NextVersionCfg();
+		cfg.function = new NextVersionFunction.SemverCondense__X_Y_0__to__X_Y();
+		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.2.1");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n## [1.2.0] - 2020-10-10\n").isEqualTo("1.3");
+		test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.0] - 2020-10-10\n").isEqualTo("2.0");
 	}
 }
