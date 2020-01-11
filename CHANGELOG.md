@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+![Peeling off the wrapper](raw-peel.jpg)
+*[Gear Live](http://www.gearlive.com/gallery/image_full/142268).  Gear Live Inc.  [CC Public Domain](https://creativecommons.org/share-your-work/public-domain/).*
+
+### Changed
+- **BREAKING** Renamed `SemverCondense__X_Y_0__to__X_Y` to `SemverCondense_XY0_to_XY`.
 ### Fixed
 - The project URL was accidentally set to [blowdryer](https://github.com/diffplug/blowdryer).
 
