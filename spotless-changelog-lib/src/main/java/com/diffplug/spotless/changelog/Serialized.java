@@ -16,6 +16,7 @@
 package com.diffplug.spotless.changelog;
 
 
+import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -77,5 +78,17 @@ class Serialized<T extends Serializable> {
 			output.writeObject(value);
 		}
 		return new Serialized<>(byteStream.toByteArray(), value);
+	}
+
+	/** Copies the given value using serialization. */
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable> T copy(T input) {
+		try {
+			Serialized<T> serialized = Serialized.fromValue(input);
+			Serialized<?> copy = Serialized.fromBytes(serialized.bytes(), input.getClass());
+			return (T) copy.value();
+		} catch (IOException | ClassNotFoundException e) {
+			throw Errors.asRuntime(e);
+		}
 	}
 }

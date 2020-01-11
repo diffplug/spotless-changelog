@@ -20,7 +20,6 @@ import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
 import com.diffplug.spotless.changelog.ChangelogModel;
 import com.diffplug.spotless.changelog.GitCfg;
-import com.diffplug.spotless.changelog.Misc;
 import com.diffplug.spotless.changelog.NextVersionCfg;
 import com.diffplug.spotless.changelog.NextVersionFunction;
 import com.diffplug.spotless.changelog.ParsedChangelog;
@@ -109,16 +108,13 @@ public class ChangelogExtension {
 	}
 
 	/**
-	 * Sets a custom version bump function.  The default value is {@link com.diffplug.spotless.changelog.NextVersionFunction.Semver}.
-	 * 
-	 * The value that you pass in will be copied (using serialization) to ensure that it is not modified
-	 * after calling {@link #getVersionLast() versionLast} or {@link #getVersionNext() versionNext}. So you
-	 * can't change it after you have passed it, except by calling `ifFoundBumpXXX`, which will delegate
-	 * to those methods on your function.
+	 * Sets a custom {@link NextVersionFunction} by calling the public no-arg constructor of the given class.
+	 * Default value is {@link com.diffplug.spotless.changelog.NextVersionFunction.Semver Semver}.
+	 * See [ALTERNATE_VERSION_SCHEMAS.md](https://github.com/diffplug/spotless-changelog/blob/master/ALTERNATE_VERSION_SCHEMAS.md) for more info.
 	 */
-	public void setNextVersionFunctionByCopying(NextVersionFunction next) throws ClassNotFoundException, IOException {
+	public void nextVersionFunction(Class<? extends NextVersionFunction> functionClass) throws InstantiationException, IllegalAccessException {
 		assertNotCalculatedYet();
-		nextVersionCfg.function = Misc.copy(next);
+		nextVersionCfg.function = functionClass.newInstance();
 	}
 
 	/**

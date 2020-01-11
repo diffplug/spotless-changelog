@@ -151,7 +151,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"  // this will fail the second time, which is fine",
 				"}",
 				"spotlessChangelog {",
-				"  setNextVersionFunctionByCopying(new com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix())",
+				"  nextVersionFunction com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix",
 				"}");
 		write("CHANGELOG.md",
 				"",
