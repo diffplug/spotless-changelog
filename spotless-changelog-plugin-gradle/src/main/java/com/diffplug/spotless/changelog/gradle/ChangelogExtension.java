@@ -50,6 +50,11 @@ public class ChangelogExtension {
 
 	private volatile ChangelogModel model;
 
+	/**
+	 * Parses the changelog and calculates the next version.  Once this
+	 * has been done, the user can't change the configuration at all.
+	 * Use {@link #assertNotCalculatedYet()} on every mutation to check for this. 
+	 */
 	ChangelogModel model() {
 		if (model == null) {
 			synchronized (this) {
@@ -65,6 +70,7 @@ public class ChangelogExtension {
 		return model;
 	}
 
+	/** Ensures that we haven't locked the next version calculation already. */
 	private synchronized void assertNotCalculatedYet() {
 		Preconditions.checkState(model == null, "You can't change the config after calling versionNext or versionLast");
 	}
@@ -85,7 +91,7 @@ public class ChangelogExtension {
 		changelogFile = project.file(file);
 	}
 
-	/** Determines whether `changelogCheck` will be a dependency of `check`. */
+	/** Determines whether `changelogCheck` will be a dependency of `check`.  Default is true. */
 	public void enforceCheck(boolean enforceCheck) {
 		this.enforceCheck = enforceCheck;
 	}
@@ -136,18 +142,22 @@ public class ChangelogExtension {
 	}
 
 	// tag and push
+	/** Default value is `release/` */
 	public void tagPrefix(String tagPrefix) {
 		pushCfg.tagPrefix = tagPrefix;
 	}
 
+	/** Default value is `Published release/{{version}}` - the {{version}} will be replaced. */
 	public void commitMessage(String commitMessage) {
 		pushCfg.commitMessage = CfgPush.validateCommitMessage(commitMessage);
 	}
 
+	/** Default value is 'origin' */
 	public void remote(String remote) {
 		pushCfg.remote = remote;
 	}
 
+	/** Default value is 'master' */
 	public void branch(String branch) {
 		pushCfg.branch = branch;
 	}

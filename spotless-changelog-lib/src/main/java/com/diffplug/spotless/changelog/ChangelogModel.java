@@ -30,11 +30,15 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-/** Models the Changelog and its computed next version. */
+/**
+ * {@link #calculate(File, CfgNextVersion)} will
+ * return a `ChangelogModel` which contains the parsed changelog ({@link #changelog() changelog()} and {@link #versions() versions()} (which
+ * in turn has {@link Versions#last() last()} and {@link Versions#next() next()}.
+ * 
+ * You can speed this calculation up using {@link #calculateUsingCache(File, CfgNextVersion)}.
+ */
 public class ChangelogModel {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
-	public static final String COMMIT_MESSAGE_VERSION = "{{version}}";
-	public static final String DONT_PARSE_BELOW_HERE = "<!-- dont parse below here -->";
 	public static final String FIRST_VERSION = "0.1.0";
 
 	/** Computes a ChangelogModel from the given changelogFile. */

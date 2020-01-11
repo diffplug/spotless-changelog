@@ -21,10 +21,12 @@ import java.io.IOException;
 
 /** Configuration for committing, tagging, and pushing the next version. */
 public class CfgPush {
+	public static final String COMMIT_MESSAGE_VERSION = "{{version}}";
+
 	/** Prefix used for release tags, default is `release/`. */
 	public String tagPrefix = "release/";
 	/** Message used for release commits, default is `Published release/{{version}}`. */
-	public String commitMessage = "Published release/" + ChangelogModel.COMMIT_MESSAGE_VERSION;
+	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
 	public String remote = "origin";
 	public String branch = "master";
 
@@ -35,8 +37,8 @@ public class CfgPush {
 
 	/** Validates that the commit message is in the correct format. */
 	public static String validateCommitMessage(String commitMessage) {
-		if (!commitMessage.contains(ChangelogModel.COMMIT_MESSAGE_VERSION)) {
-			throw new IllegalArgumentException("The commit message must contain '" + ChangelogModel.COMMIT_MESSAGE_VERSION + "' to be replaced with the real version.");
+		if (!commitMessage.contains(COMMIT_MESSAGE_VERSION)) {
+			throw new IllegalArgumentException("The commit message must contain " + COMMIT_MESSAGE_VERSION + " to be replaced with the real version.");
 		}
 		return commitMessage;
 	}

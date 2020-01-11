@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-/** Computes the canon. */
+/** Stores the canonical path and file metadata. */
 final class FileSignature implements Serializable {
 	private static final long serialVersionUID = 1L;
 

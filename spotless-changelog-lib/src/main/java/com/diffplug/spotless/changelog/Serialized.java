@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import org.bouncycastle.util.Arrays;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-/** Represents a serialized value and its bytes.  Equality is determined by equal bytes. */
+/** Represents a serialized value and its bytes.  Equality is determined solely by equal bytes. */
 class Serialized<T extends Serializable> {
 	private final @NullOr byte[] bytes;
 	private final @NullOr T value;
@@ -78,7 +78,7 @@ class Serialized<T extends Serializable> {
 			try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
 				@SuppressWarnings("unchecked")
 				T object = (T) input.readObject();
-				Preconditions.checkArgument(clazz.isInstance(object));
+				Preconditions.checkArgument(clazz.isInstance(object), "Expected %s, was %s", clazz, object.getClass());
 				return new Serialized<T>(bytes, object);
 			}
 		} catch (Exception e) {
