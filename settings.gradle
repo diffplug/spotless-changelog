@@ -19,8 +19,8 @@ plugins {
 	id 'com.jfrog.bintray' apply false
 }
 blowdryerSetup {
-	//github 'diffplug/blowdryer-diffplug', 'tag', '2.0.0'
-	devLocal '../blowdryer-diffplug'
+	github 'diffplug/blowdryer-diffplug', 'tag', '3.0.0'
+	//devLocal '../blowdryer-diffplug'
 }
 rootProject.name = 'spotless-changelog-agg'
 include 'spotless-changelog-lib'
