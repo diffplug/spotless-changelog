@@ -116,7 +116,7 @@ public class ChangelogExtension {
 	 * can't change it after you have passed it, except by calling `ifFoundBumpXXX`, which will delegate
 	 * to those methods on your function.
 	 */
-	public void setNextVersionFunction(NextVersionFunction next) throws ClassNotFoundException, IOException {
+	public void setNextVersionFunctionByCopying(NextVersionFunction next) throws ClassNotFoundException, IOException {
 		assertNotCalculatedYet();
 		nextVersionCfg.function = Misc.copy(next);
 	}
