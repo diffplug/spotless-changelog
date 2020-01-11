@@ -19,20 +19,42 @@ package com.diffplug.spotless.changelog;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import org.osgi.framework.Version;
 
-/** Function which defines the logic for implementing a version schema. */
+/**
+ * Function which defines the logic for implementing a version schema.
+ * If you want to make a custom function, you can either override
+ * {@link Semver}, or you can override {@link NonSemver}.  The advantage
+ * of {@link Semver} is that you can use the `ifFoundBumpXXX` methods.
+ * See {@link SemverBrandPrefix} for a simple example.
+ * 
+ * If you have any methods for configuring your function besides those, you
+ * will have to set it up *before* passing it to the gradle extension,
+ * because it will be copied-by-value (via serialization) to ensure that
+ * it is not mutated after the version has been computed.
+ */
 public abstract class VersionBumpFunction implements Serializable {
+	private VersionBumpFunction() {}
+
+	/**
+	 * Given a string containing all the unreleased changes and the last published
+	 * version, this function computes the next version number.
+	 */
 	public abstract String nextVersion(String unreleasedChanges, String lastVersion);
 
+	/** Optional API, used for subclasses of {@link Semver}, throws runtime error for subclasses of {@link NonSemver}. */
 	public abstract void ifFoundBumpAdded(List<String> toFind);
 
+	/** Optional API, used for subclasses of {@link Semver}, throws runtime error for subclasses of {@link NonSemver}. */
 	public abstract void ifFoundBumpBreaking(List<String> toFind);
 
+	/** Optional API, used for subclasses of {@link Semver}, throws runtime error for subclasses of {@link NonSemver}. */
 	public final void ifFoundBumpBreaking(String... toFind) {
 		ifFoundBumpBreaking(Arrays.asList(toFind));
 	}
 
+	/** Optional API, used for subclasses of {@link Semver}, throws runtime error for subclasses of {@link NonSemver}. */
 	public final void ifFoundBumpAdded(String... toFind) {
 		ifFoundBumpAdded(Arrays.asList(toFind));
 	}
@@ -62,12 +84,12 @@ public abstract class VersionBumpFunction implements Serializable {
 
 		@Override
 		public void ifFoundBumpBreaking(List<String> toFind) {
-			ifFoundBumpBreaking = toFind;
+			ifFoundBumpBreaking = Objects.requireNonNull(toFind);
 		}
 
 		@Override
 		public void ifFoundBumpAdded(List<String> toFind) {
-			ifFoundBumpAdded = toFind;
+			ifFoundBumpAdded = Objects.requireNonNull(toFind);
 		}
 
 		@Override

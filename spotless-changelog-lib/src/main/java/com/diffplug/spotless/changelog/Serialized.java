@@ -16,31 +16,30 @@
 package com.diffplug.spotless.changelog;
 
 
-import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import org.bouncycastle.util.Arrays;
-import pl.tlinkowski.annotation.basic.NullOr;
+import java.util.Arrays;
 
-/** Represents a serialized value and its bytes.  Equality is determined solely by equal bytes. */
+/** Represents a serializable value and its serialized bytes.  Equality is determined solely by equal bytes. */
 class Serialized<T extends Serializable> {
-	private final @NullOr byte[] bytes;
-	private final @NullOr T value;
+	private final byte[] bytes;
+	private final T value;
 
 	private Serialized(byte[] bytes, T value) {
 		this.bytes = bytes;
 		this.value = value;
 	}
 
-	public @NullOr T value() {
+	public byte[] bytes() {
+		return bytes;
+	}
+
+	public T value() {
 		return value;
 	}
 
@@ -50,7 +49,7 @@ class Serialized<T extends Serializable> {
 			return false;
 		} else if (other instanceof Serialized) {
 			Serialized<?> o = (Serialized<?>) other;
-			return Arrays.areEqual(bytes, o.bytes);
+			return Arrays.equals(bytes, o.bytes);
 		} else {
 			return false;
 		}
@@ -61,32 +60,17 @@ class Serialized<T extends Serializable> {
 		return Arrays.hashCode(bytes);
 	}
 
-	/** Writes out the serialized value to the given file. */
-	public void writeTo(File cacheOutput) throws IOException {
-		Path path = cacheOutput.toPath();
-		Files.createDirectories(path.getParent());
-		Files.write(path, bytes);
-	}
-
-	/** Reads the value from the file.  No problem if the file doesn't exist or doesn't have the expected value, it will just return a null value. */
-	public static <T extends Serializable> Serialized<T> fromFile(File file, Class<T> clazz) throws IOException, ClassNotFoundException {
-		if (!(file.exists() && file.isFile())) {
-			return new Serialized<T>(null, null);
-		}
-		try {
-			byte[] bytes = Files.readAllBytes(file.toPath());
-			try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
-				@SuppressWarnings("unchecked")
-				T object = (T) input.readObject();
-				Preconditions.checkArgument(clazz.isInstance(object), "Expected %s, was %s", clazz, object.getClass());
-				return new Serialized<T>(bytes, object);
-			}
-		} catch (Exception e) {
-			Errors.log().accept(e);
-			return new Serialized<T>(null, null);
+	/** Extracts a serialized directly from the given bytes. */
+	public static <T extends Serializable> Serialized<T> fromBytes(byte[] bytes, Class<T> clazz) throws IOException, ClassNotFoundException {
+		try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+			@SuppressWarnings("unchecked")
+			T object = (T) input.readObject();
+			Preconditions.checkArgument(clazz.isInstance(object), "Expected %s, was %s", clazz, object.getClass());
+			return new Serialized<T>(bytes, object);
 		}
 	}
 
+	/** Serializes the given value. */
 	public static <T extends Serializable> Serialized<T> fromValue(T value) throws IOException {
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		try (ObjectOutputStream output = new ObjectOutputStream(byteStream)) {

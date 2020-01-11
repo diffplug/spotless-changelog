@@ -21,6 +21,7 @@ import com.diffplug.common.base.Preconditions;
 import com.diffplug.spotless.changelog.CfgNextVersion;
 import com.diffplug.spotless.changelog.CfgPush;
 import com.diffplug.spotless.changelog.ChangelogModel;
+import com.diffplug.spotless.changelog.Misc;
 import com.diffplug.spotless.changelog.VersionBumpFunction;
 import java.io.File;
 import java.io.IOException;
@@ -96,10 +97,17 @@ public class ChangelogExtension {
 		this.enforceCheck = enforceCheck;
 	}
 
-	/** Sets a custom version bump function.  The default value is {@link com.diffplug.spotless.changelog.VersionBumpFunction.Semver}. */
-	public void setVersionBumpFunction(VersionBumpFunction next) {
+	/**
+	 * Sets a custom version bump function.  The default value is {@link com.diffplug.spotless.changelog.VersionBumpFunction.Semver}.
+	 * 
+	 * The value that you pass in will be copied (using serialization) to ensure that it is not modified
+	 * after calling {@link #getVersionLast() versionLast} or {@link #getVersionNext() versionNext}. So you
+	 * can't change it after you have passed it, except by calling `ifFoundBumpXXX`, which will delegate
+	 * to those methods on your function.
+	 */
+	public void setVersionBumpFunction(VersionBumpFunction next) throws ClassNotFoundException, IOException {
 		assertNotCalculatedYet();
-		nextVersionCfg.next = next;
+		nextVersionCfg.next = Misc.copy(next);
 	}
 
 	/**

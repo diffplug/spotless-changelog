@@ -16,13 +16,20 @@
 package com.diffplug.spotless.changelog;
 
 
+import com.diffplug.common.base.Errors;
+import java.io.IOException;
 import java.io.Serializable;
-import pl.tlinkowski.annotation.basic.NullOr;
 
-/** Configuration for computing the next version. */
-public class CfgNextVersion implements Serializable {
-	/** The function which will compute the next verison. */
-	public VersionBumpFunction next = new VersionBumpFunction.Semver();
-	/** Overrides the bump function. */
-	public @NullOr String forceNextVersion = null;
+public class Misc {
+	/** Copies the given value using serialization. */
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable> T copy(T input) {
+		try {
+			Serialized<T> serialized = Serialized.fromValue(input);
+			Serialized<?> copy = Serialized.fromBytes(serialized.bytes(), input.getClass());
+			return (T) copy.value();
+		} catch (IOException | ClassNotFoundException e) {
+			throw Errors.asRuntime(e);
+		}
+	}
 }
