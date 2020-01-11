@@ -103,6 +103,12 @@ dependencies {
 
 We also support other version schemas, like `2.0` instead of `2.0.0`, or `brand.major.minor.patch`, or `Ryyyy.SRx`, or any custom function you want.  See [ALTERNATE_VERSION_SCHEMAS.md](ALTERNATE_VERSION_SCHEMAS.md) for details.
 
+### Pre-1.0, 0.x, and other forms of perfomative insecurity
+
+You might not think that your library is ready yet.  But once someone has decided to use your library as a dependency, who cares how good *you* think it is.  *Your users* think that it's good!  Or at least *good enough*.  The terrible thing about `0.x` is that *the more unstable a codebase is, the more valuable **(concise compatibility guarantee).(new feature advertisement).(lowest downside risk to upgrade)** would be!*
+
+But habits are what they are, and you're going to keep publishing things with `0.x`.  I will judge you for that, but Spotless Changelog won't.  It will just increment the `ADDED` version (`0.1.0`, `0.2.0`, `0.3.0`, etc) whether your changelog has `**BREAKING**` or just `### Added`.  See how the information is getting lost?
+
 ### Alphas, betas, release-candidates, etc.
 
 If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.  This is also how to go from `0.x` to `1.0`.
@@ -151,8 +157,8 @@ spotlessChangelog { // all defaults
   ifFoundBumpBreaking ['**BREAKING**']
   ifFoundBumpAdded    ['### Added']
   forceNextVersion null
-  // see ALTERNATE_VERSION_SCHEMAS.md
-  versionBumpFunction = new VersionBumpFunction.Semver()
+  // rare to change this, see ALTERNATE_VERSION_SCHEMAS.md
+  versionSchema Semver.class
   // tag and push
   tagPrefix 'release/'
   commitMessage 'Published release/{version}' // {version} will be replaced
