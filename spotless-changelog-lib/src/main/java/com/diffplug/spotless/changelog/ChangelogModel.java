@@ -16,10 +16,15 @@
 package com.diffplug.spotless.changelog;
 
 
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Suppliers;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.function.Supplier;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 /** Models the Changelog and its computed next version. */
 public class ChangelogModel {
@@ -30,11 +35,15 @@ public class ChangelogModel {
 
 	/** Computes a ChangelogModel from the given changelogFile. */
 	public static ChangelogModel calculate(File changelogFile, CfgNextVersion cfg) throws IOException {
+		assertChangelogFileExists(changelogFile);
+		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
+		return calculate(content, cfg);
+	}
+
+	private static void assertChangelogFileExists(File changelogFile) {
 		if (!(changelogFile.exists() && changelogFile.isFile())) {
 			throw new IllegalArgumentException("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
 		}
-		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
-		return calculate(content, cfg);
 	}
 
 	static ChangelogModel calculate(String content, CfgNextVersion cfg) {
@@ -51,19 +60,20 @@ public class ChangelogModel {
 		} else {
 			nextVersion = cfg.next.nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
 		}
-		return new ChangelogModel(changelog, nextVersion);
+		return new ChangelogModel(() -> changelog, new Versions(nextVersion, changelog));
 	}
 
-	private final ParsedChangelog changelog;
+	/** Internally lazy to facilitate easy caching of the versions, without having to cache the whole changelog. */
+	private final Supplier<ParsedChangelog> changelog;
 	private final Versions versions;
 
-	private ChangelogModel(ParsedChangelog changelog, String nextVersion) {
+	private ChangelogModel(Supplier<ParsedChangelog> changelog, Versions versions) {
 		this.changelog = changelog;
-		this.versions = new Versions(nextVersion, changelog);
+		this.versions = versions;
 	}
 
 	public ParsedChangelog changelog() {
-		return changelog;
+		return changelog.get();
 	}
 
 	public Versions versions() {
@@ -71,7 +81,7 @@ public class ChangelogModel {
 	}
 
 	/** The next and previously published versions. */
-	public static class Versions implements java.io.Serializable {
+	public static class Versions implements Serializable {
 		private final String next, last;
 
 		private Versions(String next, ParsedChangelog changelog) {
@@ -86,22 +96,40 @@ public class ChangelogModel {
 		public String last() {
 			return last;
 		}
+	}
 
-		@Override
-		public boolean equals(Object other) {
-			if (other == this) {
-				return true;
-			} else if (other instanceof Versions) {
-				Versions o = (Versions) other;
-				return next.equals(o.next) && last.equals(o.last);
-			} else {
-				return false;
+	/** Computes a ChangelogModel from the given changelogFile. */
+	public static ChangelogModel calculateCacheable(File changelogFile, CfgNextVersion cfg, File cacheInput, File cacheOutput) throws IOException, ClassNotFoundException {
+		assertChangelogFileExists(changelogFile);
+
+		Input input = new Input();
+		input.changelogFile = FileSignature.signAsList(changelogFile);
+		input.cfgNextVersion = cfg;
+
+		Serialized<Input> inputActual = Serialized.fromValue(input);
+		Serialized<Input> inputCached = Serialized.fromFile(cacheInput, Input.class);
+		Serialized<Versions> outputCached = Serialized.fromFile(cacheOutput, Versions.class);
+
+		if (inputActual.equals(inputCached) && outputCached.value() != null) {
+			// if the cache is successful, then we can use the cached versions, and in the unlikely event that they want the changelog, we'll parse that on demand 
+			return new ChangelogModel(Suppliers.memoize(Errors.rethrow().wrap(() -> {
+				return new ParsedChangelog(new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8));
+			})), outputCached.value());
+		} else {
+			ChangelogModel model = calculate(changelogFile, cfg);
+			inputActual.writeTo(cacheInput);
+			Serialized<Versions> outputActual = Serialized.fromValue(model.versions());
+			if (!outputActual.equals(outputCached)) {
+				outputActual.writeTo(cacheOutput);
 			}
+			return model;
 		}
+	}
 
-		@Override
-		public int hashCode() {
-			return 31 * next.hashCode() + last.hashCode();
-		}
+	/** The input to the next-version calculation. */
+	static class Input implements Serializable {
+		FileSignature changelogFile;
+		@NullOr
+		CfgNextVersion cfgNextVersion;
 	}
 }
