@@ -12,7 +12,7 @@ All you have to do is implement the function below:
 ```java
 public abstract class NextVersionFunction implements Serializable {
   /** version = f(changelog) */
-  public String nextVersion(ParsedChangelog changelog) {
+  public String nextVersion(Changelog changelog) {
     return nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
   }
 

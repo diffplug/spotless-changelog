@@ -18,11 +18,11 @@ package com.diffplug.spotless.changelog.gradle;
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
-import com.diffplug.spotless.changelog.ChangelogModel;
+import com.diffplug.spotless.changelog.Changelog;
+import com.diffplug.spotless.changelog.ChangelogAndNext;
 import com.diffplug.spotless.changelog.GitCfg;
 import com.diffplug.spotless.changelog.NextVersionCfg;
 import com.diffplug.spotless.changelog.NextVersionFunction;
-import com.diffplug.spotless.changelog.ParsedChangelog;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,25 +43,25 @@ public class ChangelogExtension {
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
-		this.changelogFile = project.file(ChangelogModel.DEFAULT_FILE);
+		this.changelogFile = project.file(ChangelogAndNext.DEFAULT_FILE);
 		this.nextVersionCfg = new NextVersionCfg();
 		this.pushCfg = new GitCfg();
-		changelogFile(ChangelogModel.DEFAULT_FILE);
+		changelogFile(ChangelogAndNext.DEFAULT_FILE);
 	}
 
-	private volatile ChangelogModel model;
+	private volatile ChangelogAndNext model;
 
 	/**
 	 * Parses the changelog and calculates the next version.  Once this
 	 * has been done, the user can't change the configuration at all.
 	 * Use {@link #assertNotCalculatedYet()} on every mutation to check for this. 
 	 */
-	ChangelogModel model() {
+	ChangelogAndNext model() {
 		if (model == null) {
 			synchronized (this) {
 				if (model == null) {
 					try {
-						model = ChangelogModel.calculateUsingCache(changelogFile, nextVersionCfg);
+						model = ChangelogAndNext.calculateUsingCache(changelogFile, nextVersionCfg);
 					} catch (IOException e) {
 						throw Errors.asRuntime(e);
 					}
@@ -92,7 +92,7 @@ public class ChangelogExtension {
 	 * for old tags or something like that.  If you do anything interesting with it, send us a PR so we can
 	 * link back to you from here.
 	 */
-	public ParsedChangelog getParsedChangelog() {
+	public Changelog getParsedChangelog() {
 		return model().changelog();
 	}
 

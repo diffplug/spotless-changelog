@@ -26,7 +26,7 @@ public class NextVersionFunctionTest {
 	}
 
 	private AbstractStringAssert<?> test(NextVersionCfg cfg, String changelog) {
-		ChangelogModel result = ChangelogModel.calculate(changelog, cfg);
+		ChangelogAndNext result = ChangelogAndNext.calculate(changelog, cfg);
 		return Assertions.assertThat(result.versions().next());
 	}
 

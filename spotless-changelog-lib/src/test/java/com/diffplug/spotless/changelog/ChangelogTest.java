@@ -24,7 +24,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import pl.tlinkowski.annotation.basic.NullOr;
 
-public class ParsedChangelogTest {
+public class ChangelogTest {
 	@Test
 	public void empty() {
 		Consumer<String> test = str -> {
@@ -96,15 +96,15 @@ public class ParsedChangelogTest {
 	}
 
 	static class ChangelogAssertions {
-		ParsedChangelog unix, win;
+		Changelog unix, win;
 
 		ChangelogAssertions(String contentUnix) {
 			Preconditions.checkArgument(contentUnix.indexOf("\r\n") == -1);
-			this.unix = new ParsedChangelog(contentUnix);
+			this.unix = new Changelog(contentUnix);
 			Assertions.assertThat(unix.toString()).isEqualTo(contentUnix);
 
 			String contentWin = contentUnix.replace("\n", "\r\n");
-			this.win = new ParsedChangelog(contentWin);
+			this.win = new Changelog(contentWin);
 			Assertions.assertThat(win.toString()).isEqualTo(contentWin);
 		}
 

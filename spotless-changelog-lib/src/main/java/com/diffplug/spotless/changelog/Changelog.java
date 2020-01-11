@@ -31,7 +31,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
  * a new changelog with new content, while preserving all formatting and non-changelog content in
  * the string. 
  */
-public class ParsedChangelog {
+public class Changelog {
 	private static final String VERSION_BEGIN = "\n## [";
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
 	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- END CHANGELOG -->";
@@ -43,7 +43,7 @@ public class ParsedChangelog {
 	private final LinkedHashMap<Integer, String> parseErrors = new LinkedHashMap<>();
 
 	/** Takes a changelog string as its argument. */
-	public ParsedChangelog(String contentRaw) {
+	public Changelog(String contentRaw) {
 		versionsRaw = new ArrayList<>();
 		PoolString contentUnix = PoolString.of(contentRaw.replace("\r\n", "\n"));
 		windowsNewlines = contentUnix.length() < contentRaw.length();
@@ -88,7 +88,7 @@ public class ParsedChangelog {
 	}
 
 	/** Copy-constructor. */
-	private ParsedChangelog(boolean windowsNewlines,
+	private Changelog(boolean windowsNewlines,
 			PoolString dontParse, PoolString beforeUnreleased,
 			List<VersionEntry> versionsRaw,
 			@NullOr PoolString unparseableAfterError) {
@@ -242,7 +242,7 @@ public class ParsedChangelog {
 			return change;
 		}
 
-		private static @NullOr VersionEntry parse(PoolString line, ParsedChangelog parser) {
+		private static @NullOr VersionEntry parse(PoolString line, Changelog parser) {
 			VersionEntry header = new VersionEntry();
 			if (parser.versionsRaw.isEmpty()) {
 				Preconditions.checkArgument(line.startsWith(UNRELEASED));
@@ -286,7 +286,7 @@ public class ParsedChangelog {
 		PoolString toStringUnix() {
 			if (version == null) {
 				// {{beforeUnreleased includes '## [Unreleased]'}}{{misc}}
-				return PoolString.concat(ParsedChangelog.UNRELEASED, headerMisc, changes);
+				return PoolString.concat(Changelog.UNRELEASED, headerMisc, changes);
 			} else if (headerMisc == null) {
 				return PoolString.concat("\n## [", version, "] - ", date, changes);
 			} else {
@@ -296,17 +296,17 @@ public class ParsedChangelog {
 	}
 
 	/** Returns a ParsedChangelog where the version list has been mutated by the given mutator. */
-	private ParsedChangelog withMutatedVersions(Consumer<List<VersionEntry>> mutator) {
+	private Changelog withMutatedVersions(Consumer<List<VersionEntry>> mutator) {
 		List<VersionEntry> copy = new ArrayList<>(versionsRaw);
 		mutator.accept(copy);
-		return new ParsedChangelog(windowsNewlines,
+		return new Changelog(windowsNewlines,
 				dontParse, beforeUnreleased,
 				copy,
 				unparseableAfterError);
 	}
 
 	/** Returns a new changelog where the [Unreleased] section has been released with the given version and date. */
-	public ParsedChangelog releaseUnreleased(String version, String date) {
+	public Changelog releaseUnreleased(String version, String date) {
 		return withMutatedVersions(list -> {
 			VersionEntry unreleased = list.get(0);
 			Preconditions.checkArgument(unreleased.isUnreleased());

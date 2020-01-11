@@ -31,7 +31,7 @@ public class GitCfg {
 	public String branch = "master";
 
 	/** Returns an api configured with this config. */
-	public GitActions withChangelog(File changelogFile, ChangelogModel model) throws IOException {
+	public GitActions withChangelog(File changelogFile, ChangelogAndNext model) throws IOException {
 		return new GitActions(changelogFile, model, this);
 	}
 

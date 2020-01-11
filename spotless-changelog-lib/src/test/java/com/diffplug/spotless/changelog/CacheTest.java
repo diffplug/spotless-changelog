@@ -39,37 +39,37 @@ public class CacheTest extends ResourceHarness {
 		assertNextLast(cfg, "5.6.7", "1.2.3");
 
 		cfg.forceNextVersion = "8.9";
-		ChangelogModel at89 = assertNextLast(cfg, "8.9", "1.2.3");
+		ChangelogAndNext at89 = assertNextLast(cfg, "8.9", "1.2.3");
 
 		// caching is happening
-		ChangelogModel at89_2 = assertNextLast(cfg, "8.9", "1.2.3");
+		ChangelogAndNext at89_2 = assertNextLast(cfg, "8.9", "1.2.3");
 		Assertions.assertThat(at89).isNotSameAs(at89_2);
 		Assertions.assertThat(at89.changelog()).isNotSameAs(at89_2.changelog());
 		Assertions.assertThat(at89.versions()).isSameAs(at89_2.versions());
 
 		// and for regular value caching
 		cfg.forceNextVersion = null;
-		ChangelogModel at130 = assertNextLast(cfg, "1.3.0", "1.2.3");
+		ChangelogAndNext at130 = assertNextLast(cfg, "1.3.0", "1.2.3");
 
 		// caching is happening
-		ChangelogModel at130_2 = assertNextLast(cfg, "1.3.0", "1.2.3");
+		ChangelogAndNext at130_2 = assertNextLast(cfg, "1.3.0", "1.2.3");
 		Assertions.assertThat(at130).isNotSameAs(at130_2);
 		Assertions.assertThat(at130.changelog()).isNotSameAs(at130_2.changelog());
 		Assertions.assertThat(at130.versions()).isSameAs(at130_2.versions());
 
 		// and it responds to bumps
 		cfg.function.ifFoundBumpBreaking("### Added");
-		ChangelogModel at200 = assertNextLast(cfg, "2.0.0", "1.2.3");
+		ChangelogAndNext at200 = assertNextLast(cfg, "2.0.0", "1.2.3");
 
 		// and gets cached
-		ChangelogModel at200_2 = assertNextLast(cfg, "2.0.0", "1.2.3");
+		ChangelogAndNext at200_2 = assertNextLast(cfg, "2.0.0", "1.2.3");
 		Assertions.assertThat(at200).isNotSameAs(at200_2);
 		Assertions.assertThat(at200.changelog()).isNotSameAs(at200_2.changelog());
 		Assertions.assertThat(at200.versions()).isSameAs(at200_2.versions());
 	}
 
-	private ChangelogModel assertNextLast(NextVersionCfg cfg, String next, String last) throws IOException {
-		ChangelogModel model = ChangelogModel.calculateUsingCache(changelogFile, cfg);
+	private ChangelogAndNext assertNextLast(NextVersionCfg cfg, String next, String last) throws IOException {
+		ChangelogAndNext model = ChangelogAndNext.calculateUsingCache(changelogFile, cfg);
 		Assertions.assertThat(model.versions().next()).isEqualTo(next);
 		Assertions.assertThat(model.versions().last()).isEqualTo(last);
 		return model;

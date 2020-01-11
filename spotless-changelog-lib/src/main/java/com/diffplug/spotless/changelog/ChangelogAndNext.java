@@ -32,17 +32,17 @@ import pl.tlinkowski.annotation.basic.NullOr;
 
 /**
  * {@link #calculate(File, NextVersionCfg)} will
- * return a `ChangelogModel` which contains the parsed changelog ({@link #changelog() changelog()} and {@link #versions() versions()} (which
+ * return a `ChangelogAndNext` which contains the parsed ({@link #changelog() changelog()} and {@link #versions() versions()} (which
  * in turn has {@link Versions#last() last()} and {@link Versions#next() next()}.
  * 
  * You can speed this calculation up using {@link #calculateUsingCache(File, NextVersionCfg)}.
  */
-public class ChangelogModel {
+public class ChangelogAndNext {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
 	public static final String FIRST_VERSION = "0.1.0";
 
 	/** Computes a ChangelogModel from the given changelogFile. */
-	public static ChangelogModel calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
+	public static ChangelogAndNext calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
 		assertChangelogFileExists(changelogFile);
 		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
 		return calculate(content, cfg);
@@ -54,8 +54,8 @@ public class ChangelogModel {
 		}
 	}
 
-	static ChangelogModel calculate(String content, NextVersionCfg cfg) {
-		ParsedChangelog changelog = new ParsedChangelog(content);
+	static ChangelogAndNext calculate(String content, NextVersionCfg cfg) {
+		Changelog changelog = new Changelog(content);
 
 		String nextVersion;
 		if (cfg.forceNextVersion != null) {
@@ -68,19 +68,19 @@ public class ChangelogModel {
 		} else {
 			nextVersion = cfg.function.nextVersion(changelog);
 		}
-		return new ChangelogModel(() -> changelog, new Versions(nextVersion, changelog));
+		return new ChangelogAndNext(() -> changelog, new Versions(nextVersion, changelog));
 	}
 
 	/** Internally lazy to facilitate easy caching of the versions, without having to cache the whole changelog. */
-	private final Supplier<ParsedChangelog> changelog;
+	private final Supplier<Changelog> changelog;
 	private final Versions versions;
 
-	private ChangelogModel(Supplier<ParsedChangelog> changelog, Versions versions) {
+	private ChangelogAndNext(Supplier<Changelog> changelog, Versions versions) {
 		this.changelog = changelog;
 		this.versions = versions;
 	}
 
-	public ParsedChangelog changelog() {
+	public Changelog changelog() {
 		return changelog.get();
 	}
 
@@ -92,7 +92,7 @@ public class ChangelogModel {
 	public static class Versions implements Serializable {
 		private final String next, last;
 
-		private Versions(String next, ParsedChangelog changelog) {
+		private Versions(String next, Changelog changelog) {
 			this.next = next;
 			this.last = changelog.versionLast();
 		}
@@ -117,8 +117,11 @@ public class ChangelogModel {
 	 * Exact same behavior as {@link #calculate(File, NextVersionCfg) calculate()}, but it uses an in-memory
 	 * per-changelogfile cache to optimize performance and delay parsing the changelog if possible.  Only
 	 * downside is that you will leak a teensy-teensy bit of memory since there's no way to clear the cache.
+	 * 
+	 * It doesn't cache the parsed changelog, only the versions, since those are usually all the user needs.
+	 * The changelog is parsed lazily when it is asked for. 
 	 */
-	public static ChangelogModel calculateUsingCache(File changelogFile, NextVersionCfg cfg) throws IOException {
+	public static ChangelogAndNext calculateUsingCache(File changelogFile, NextVersionCfg cfg) throws IOException {
 		assertChangelogFileExists(changelogFile);
 
 		Input input = new Input();
@@ -128,12 +131,12 @@ public class ChangelogModel {
 
 		Versions cachedVersions = cacheRead(inputActual);
 		if (cachedVersions == null) {
-			ChangelogModel model = calculate(changelogFile, cfg);
+			ChangelogAndNext model = calculate(changelogFile, cfg);
 			cacheStore(inputActual, model.versions());
 			return model;
 		} else {
-			return new ChangelogModel(Suppliers.memoize(Errors.rethrow().wrap(() -> {
-				return new ParsedChangelog(new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8));
+			return new ChangelogAndNext(Suppliers.memoize(Errors.rethrow().wrap(() -> {
+				return new Changelog(new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8));
 			})), cachedVersions);
 		}
 	}

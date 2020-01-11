@@ -38,7 +38,7 @@ public abstract class NextVersionFunction implements Serializable {
 	private NextVersionFunction() {}
 
 	/** version = f(changelog) */
-	public String nextVersion(ParsedChangelog changelog) {
+	public String nextVersion(Changelog changelog) {
 		return nextVersion(changelog.unreleasedChanges(), changelog.versionLast());
 	}
 

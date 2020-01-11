@@ -18,9 +18,9 @@ package com.diffplug.spotless.changelog.gradle;
 
 import com.diffplug.common.base.StringPrinter;
 import com.diffplug.common.globals.Time;
-import com.diffplug.spotless.changelog.ChangelogModel;
+import com.diffplug.spotless.changelog.Changelog;
+import com.diffplug.spotless.changelog.ChangelogAndNext;
 import com.diffplug.spotless.changelog.GitActions;
-import com.diffplug.spotless.changelog.ParsedChangelog;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -141,9 +141,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 				return;
 			}
 			// time to bump!
-			ChangelogModel model = extension.model();
+			ChangelogAndNext model = extension.model();
 			LocalDate localDate = LocalDate.now(Time.clockUtc());
-			ParsedChangelog bumped = model.changelog().releaseUnreleased(model.versions().next(), localDate.toString());
+			Changelog bumped = model.changelog().releaseUnreleased(model.versions().next(), localDate.toString());
 			Files.write(extension.changelogFile.toPath(), bumped.toString().getBytes(StandardCharsets.UTF_8));
 		}
 	}
