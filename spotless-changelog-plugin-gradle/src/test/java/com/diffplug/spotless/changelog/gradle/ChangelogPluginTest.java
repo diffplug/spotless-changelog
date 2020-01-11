@@ -23,6 +23,18 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class ChangelogPluginTest extends GradleHarness {
+	@Test
+	public void tasks() throws IOException {
+		writeSpotlessChangelog();
+		Assertions.assertThat(gradleRunner().withArguments("tasks").build().getOutput().replace("\r", ""))
+				.contains("Changelog tasks\n" +
+						"---------------\n" +
+						"changelogBump - updates the changelog on disk with the next version and the current UTC date\n" +
+						"changelogCheck - checks that the changelog is formatted according to your rules\n" +
+						"changelogPrint - prints the last published version and the calculated next version, e.g. `myproj 1.0.4 -> 1.1.0`\n" +
+						"changelogPush - commits the bumped changelog, tags it, and pushes (recommend wiring to your publish task)");
+	}
+
 	private void writeSpotlessChangelog(String... lines) throws IOException {
 		write("build.gradle",
 				"plugins {",

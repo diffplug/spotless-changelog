@@ -65,6 +65,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		protected ChangelogTask(ChangelogExtension extension) {
 			this.extension = extension;
+			setGroup("changelog");
 		}
 	}
 
@@ -75,6 +76,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@Inject
 		public CheckTask(ChangelogExtension extension) {
 			super(extension);
+			setDescription("checks that the changelog is formatted according to your rules");
 		}
 
 		@TaskAction
@@ -113,6 +115,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@Inject
 		public PrintTask(ChangelogExtension extension) {
 			super(extension);
+			setDescription("prints the last published version and the calculated next version, e.g. `myproj 1.0.4 -> 1.1.0`");
 		}
 
 		@TaskAction
@@ -132,6 +135,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@Inject
 		public BumpTask(ChangelogExtension extension) {
 			super(extension);
+			setDescription("updates the changelog on disk with the next version and the current UTC date");
 		}
 
 		@TaskAction
@@ -155,6 +159,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@Inject
 		public PushTask(ChangelogExtension extension) {
 			super(extension);
+			setDescription("commits the bumped changelog, tags it, and pushes (recommend wiring to your publish task)");
 		}
 
 		@TaskAction
