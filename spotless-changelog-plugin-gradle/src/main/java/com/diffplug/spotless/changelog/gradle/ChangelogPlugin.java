@@ -67,6 +67,12 @@ public class ChangelogPlugin implements Plugin<Project> {
 			this.extension = extension;
 			setGroup("changelog");
 		}
+
+		protected void assertNotSnapshot() {
+			if (extension.nextVersionCfg.appendSnapshot) {
+				throw new GradleException("You must add `-Prelease=true` to remove the -SNAPSHOT from " + extension.getVersionNext());
+			}
+		}
 	}
 
 	/** `changelogCheck` - throws an error if the changelog is not formatted according to your rules */
@@ -140,6 +146,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void bump() throws IOException {
+			assertNotSnapshot();
 			if (extension.getVersionNext().equals(extension.getVersionLast())) {
 				// if there are no unreleased changes, then the changelog on disk has already been bumped
 				return;
@@ -164,6 +171,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void push() throws IOException, GitAPIException {
+			assertNotSnapshot();
 			GitActions git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
 			git.addAndCommit();
 			git.tagBranchPush();

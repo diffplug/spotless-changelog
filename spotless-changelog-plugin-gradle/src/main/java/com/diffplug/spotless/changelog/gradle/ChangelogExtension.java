@@ -156,6 +156,20 @@ public class ChangelogExtension {
 		nextVersionCfg.forceNextVersion = forceNextVersion;
 	}
 
+	/**
+	 * If you set this to true, then the calculated version will always have `-SNAPSHOT`
+	 * appended to the end, unless you add `-Prelease=true` to the gradle command line.
+	 * Essentially, it asks like a gun safety where all versions are nerfed to `-SNAPSHOT`,
+	 * until you allow a release by adding `-Prelease`.
+	 * 
+	 * Enabling this mode should look like this in your buildscript: `appendDashSnapshotUnless_dashPrelease=true`
+	 */
+	public void setAppendDashSnapshotUnless_dashPrelease(boolean appendSnapshot) {
+		if (appendSnapshot && !"true".equals(project.getRootProject().findProperty("release"))) {
+			nextVersionCfg.appendSnapshot = true;
+		}
+	}
+
 	// tag and push
 	/** Default value is `release/` */
 	public void tagPrefix(String tagPrefix) {
