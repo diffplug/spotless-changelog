@@ -105,9 +105,9 @@ We also support other version schemas, like `2.0` instead of `2.0.0`, or `brand.
 
 ### Pre-1.0, 0.x, and other forms of perfomative insecurity
 
-You might not think that your library is ready yet.  But once someone has decided to use your library as a dependency, who cares how good *you* think it is.  *Your users* think that it's good!  Or at least *good enough*.  The terrible thing about `0.x` is that *the more unstable a codebase is, the more valuable **(concise compatibility guarantee).(new feature advertisement).(lowest downside risk to upgrade)** would be!*
+The terrible thing about `0.x` is that *the more unstable a codebase is, the more valuable **(concise compatibility guarantee).(new feature advertisement).(lowest downside risk to upgrade)** would be!*
 
-But habits are what they are, and you're going to keep publishing things with `0.x`.  I will judge you for that, but Spotless Changelog won't.  It will just increment the `added` version (`0.1.0`, `0.2.0`, `0.3.0`, etc) whether your changelog has `**BREAKING**` or just `### Added`.  See how the information is getting lost?
+But habits are what they are, and you're going to keep publishing things with `0.x`.  I will judge you for that, but Spotless Changelog won't.  It will just increment the `added` version (`0.1.0`, `0.2.0`, `0.3.0`, etc) whether your changelog has `**BREAKING**` or just `### Added`.  See how the information is getting lost?  If you really want to stick with `0.x`, you can convey a lot more information with [`0.breaking.added.fixed`](https://github.com/diffplug/spotless-changelog/blob/master/ALTERNATE_VERSION_SCHEMAS.md#available-schemas).
 
 ### Alphas, betas, release-candidates, etc.
 
