@@ -165,6 +165,13 @@ spotlessChangelog { // all defaults
   remote 'origin'
   branch 'master'
 }
+
+// last version parsed from changelog
+String versionLast = spotlessChangelog.versionLast
+// calculated next version
+String versionNext = spotlessChangelog.versionNext
+// NOTE: Once you call either of these, you can't modify the spotlessChangelog configuration.
+//       Don't worry about doing this accidentally, you'll get a loud error if you do.
 ```
 
 ### Tasks ([code](https://github.com/diffplug/spotless-changelog/blob/release/1.0.0/spotless-changelog-plugin-gradle/src/main/java/com/diffplug/spotless/changelog/gradle/ChangelogPlugin.java))
