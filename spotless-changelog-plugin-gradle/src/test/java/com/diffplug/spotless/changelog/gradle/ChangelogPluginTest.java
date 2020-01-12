@@ -19,26 +19,20 @@ package com.diffplug.spotless.changelog.gradle;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class ChangelogPluginTest extends GradleHarness {
-	@Test
-	public void tasks() throws IOException {
-		writeSpotlessChangelog();
-		Assertions.assertThat(gradleRunner().withArguments("tasks").build().getOutput().replace("\r", ""))
-				.contains("Changelog tasks\n" +
-						"---------------\n" +
-						"changelogBump - updates the changelog on disk with the next version and the current UTC date\n" +
-						"changelogCheck - checks that the changelog is formatted according to your rules\n" +
-						"changelogPrint - prints the last published version and the calculated next version, e.g. `myproj 1.0.4 -> 1.1.0`\n" +
-						"changelogPush - commits the bumped changelog, tags it, and pushes (recommend wiring to your publish task)");
-	}
+	private static final String DATE_NOW = "2019-01-30";
 
 	private void writeSpotlessChangelog(String... lines) throws IOException {
 		write("build.gradle",
 				"plugins {",
 				"  id 'com.diffplug.spotless-changelog'",
+				"}",
+				"try {",
+				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('" + DATE_NOW + "'))",
+				"} catch (Exception e) {",
+				"  // this will fail the second time, which is fine",
 				"}",
 				"",
 				"spotlessChangelog {",
@@ -47,9 +41,20 @@ public class ChangelogPluginTest extends GradleHarness {
 	}
 
 	@Test
+	public void tasks() throws IOException {
+		writeSpotlessChangelog();
+		assertOutput("tasks").contains("Changelog tasks\n" +
+				"---------------\n" +
+				"changelogBump - updates the changelog on disk with the next version and the current UTC date\n" +
+				"changelogCheck - checks that the changelog is formatted according to your rules\n" +
+				"changelogPrint - prints the last published version and the calculated next version, e.g. `myproj 1.0.4 -> 1.1.0`\n" +
+				"changelogPush - commits the bumped changelog, tags it, and pushes (recommend wiring to your publish task)");
+	}
+
+	@Test
 	public void missingChangelog() throws IOException {
 		writeSpotlessChangelog();
-		Assertions.assertThat(gradleRunner().withArguments("changelogCheck").buildAndFail().getOutput())
+		assertFailOutput("changelogCheck")
 				.contains("Looked for changelog at '", "', but it was not present.");
 	}
 
@@ -61,7 +66,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"## [Unreleased]",
 				"",
 				"## [1.0.0]");
-		Assertions.assertThat(gradleRunner().withArguments("changelogCheck").buildAndFail().getOutput())
+		assertFailOutput("changelogCheck")
 				.contains("CHANGELOG.md:5: '] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd");
 
 		write("CHANGELOG.md",
@@ -81,7 +86,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"## [Unreleased]",
 				"",
 				"## [1.0.0] - 2020-10-10");
-		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+		assertOutput("changelogPrint")
 				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
 		write("CHANGELOG.md",
 				"",
@@ -89,7 +94,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"Some minor change",
 				"",
 				"## [1.0.0] - 2020-10-10");
-		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+		assertOutput("changelogPrint")
 				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
 		write("CHANGELOG.md",
 				"",
@@ -97,7 +102,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"### Added",
 				"",
 				"## [1.0.0] - 2020-10-10");
-		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+		assertOutput("changelogPrint")
 				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
 		write("CHANGELOG.md",
 				"",
@@ -105,24 +110,13 @@ public class ChangelogPluginTest extends GradleHarness {
 				"**BREAKING**",
 				"",
 				"## [1.0.0] - 2020-10-10");
-		Assertions.assertThat(gradleRunner().withArguments("changelogPrint").build().getOutput().replace("\r\n", "\n"))
+		assertOutput("changelogPrint")
 				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
 	}
 
 	@Test
 	public void changelogBump() throws IOException {
-		write("build.gradle",
-				"plugins {",
-				"  id 'com.diffplug.spotless-changelog'",
-				"}",
-				"",
-				"try {",
-				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('2019-01-30'))",
-				"} catch (Exception e) {",
-				"  // this will fail the second time, which is fine",
-				"}",
-				"spotlessChangelog {",
-				"}");
+		writeSpotlessChangelog();
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -152,19 +146,7 @@ public class ChangelogPluginTest extends GradleHarness {
 
 	@Test
 	public void changelogBumpCustomNextVersionFunction() throws IOException {
-		write("build.gradle",
-				"plugins {",
-				"  id 'com.diffplug.spotless-changelog'",
-				"}",
-				"",
-				"try {",
-				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('2019-01-30'))",
-				"} catch (Exception e) {",
-				"  // this will fail the second time, which is fine",
-				"}",
-				"spotlessChangelog {",
-				"  versionSchema(com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix)",
-				"}");
+		writeSpotlessChangelog("versionSchema(com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix)");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
