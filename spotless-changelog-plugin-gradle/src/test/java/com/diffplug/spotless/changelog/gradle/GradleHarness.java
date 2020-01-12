@@ -17,6 +17,8 @@ package com.diffplug.spotless.changelog.gradle;
 
 
 import java.io.IOException;
+import org.assertj.core.api.AbstractStringAssert;
+import org.assertj.core.api.Assertions;
 import org.gradle.testkit.runner.GradleRunner;
 
 public class GradleHarness extends ResourceHarness {
@@ -24,5 +26,15 @@ public class GradleHarness extends ResourceHarness {
 
 	protected GradleRunner gradleRunner() throws IOException {
 		return GradleRunner.create().withGradleVersion(OLDEST_SUPPORTED_GRADLE).withProjectDir(rootFolder()).withPluginClasspath();
+	}
+
+	protected AbstractStringAssert<?> assertOutput(String... args) throws IOException {
+		String output = gradleRunner().withArguments(args).build().getOutput();
+		return Assertions.assertThat(output.replace("\r", ""));
+	}
+
+	protected AbstractStringAssert<?> assertFailOutput(String... args) throws IOException {
+		String output = gradleRunner().withArguments(args).buildAndFail().getOutput();
+		return Assertions.assertThat(output.replace("\r", ""));
 	}
 }
