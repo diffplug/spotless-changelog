@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2020-01-12
+
 ![Peeling off the wrapper](raw-peel.jpg)
 *[Gear Live](http://www.gearlive.com/gallery/image_full/142268).  Gear Live Inc.  [CC Public Domain](https://creativecommons.org/share-your-work/public-domain/).*
 
