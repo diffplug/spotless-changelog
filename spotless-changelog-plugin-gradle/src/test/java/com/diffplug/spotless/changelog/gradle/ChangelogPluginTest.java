@@ -40,6 +40,11 @@ public class ChangelogPluginTest extends GradleHarness {
 				"plugins {",
 				"  id 'com.diffplug.spotless-changelog'",
 				"}",
+				"try {",
+				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('2019-01-30'))",
+				"} catch (Exception e) {",
+				"  // this will fail the second time, which is fine",
+				"}",
 				"",
 				"spotlessChangelog {",
 				Arrays.stream(lines).collect(Collectors.joining("\n")),
@@ -111,18 +116,7 @@ public class ChangelogPluginTest extends GradleHarness {
 
 	@Test
 	public void changelogBump() throws IOException {
-		write("build.gradle",
-				"plugins {",
-				"  id 'com.diffplug.spotless-changelog'",
-				"}",
-				"",
-				"try {",
-				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('2019-01-30'))",
-				"} catch (Exception e) {",
-				"  // this will fail the second time, which is fine",
-				"}",
-				"spotlessChangelog {",
-				"}");
+		writeSpotlessChangelog();
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -152,19 +146,7 @@ public class ChangelogPluginTest extends GradleHarness {
 
 	@Test
 	public void changelogBumpCustomNextVersionFunction() throws IOException {
-		write("build.gradle",
-				"plugins {",
-				"  id 'com.diffplug.spotless-changelog'",
-				"}",
-				"",
-				"try {",
-				"  com.diffplug.common.globals.TimeDev.install().setUTC(java.time.LocalDate.parse('2019-01-30'))",
-				"} catch (Exception e) {",
-				"  // this will fail the second time, which is fine",
-				"}",
-				"spotlessChangelog {",
-				"  versionSchema(com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix)",
-				"}");
+		writeSpotlessChangelog("versionSchema(com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix)");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
