@@ -20,8 +20,9 @@ import java.io.IOException;
 import org.gradle.testkit.runner.GradleRunner;
 
 public class GradleHarness extends ResourceHarness {
-	/** A gradleRunner(). */
+	private static final String OLDEST_SUPPORTED_GRADLE = "5.2";
+
 	protected GradleRunner gradleRunner() throws IOException {
-		return GradleRunner.create().withProjectDir(rootFolder()).withPluginClasspath();
+		return GradleRunner.create().withGradleVersion(OLDEST_SUPPORTED_GRADLE).withProjectDir(rootFolder()).withPluginClasspath();
 	}
 }

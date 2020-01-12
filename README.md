@@ -179,6 +179,10 @@ spotlessChangelog { // all defaults
   - `changelogPush` depends on `changelogBump` depends on `changelogCheck`
   - If `changelogPush` is in the task graph, then `changelogCheck` will do an extra check to make sure that the git push will succeed.  The `changelogBump` section above shows how you wire `changelogCheck` into your `jar` task so that your build will fail early if you haven't correctly setup the git credentials.
 
+### Requirements
+
+Java 8+ and Gradle 5.2+
+
 <!---freshmark /version -->
 
 ## Acknowledgments
