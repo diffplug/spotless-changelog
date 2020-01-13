@@ -38,14 +38,14 @@ public class ChangelogExtension {
 
 	File changelogFile;
 	NextVersionCfg nextVersionCfg;
-	GitCfg pushCfg;
+	GitCfg gitCfg;
 	boolean enforceCheck;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
 		this.changelogFile = project.file(ChangelogAndNext.DEFAULT_FILE);
 		this.nextVersionCfg = new NextVersionCfg();
-		this.pushCfg = new GitCfg();
+		this.gitCfg = new GitCfg();
 		changelogFile(ChangelogAndNext.DEFAULT_FILE);
 	}
 
@@ -173,21 +173,21 @@ public class ChangelogExtension {
 	// tag and push
 	/** Default value is `release/` */
 	public void tagPrefix(String tagPrefix) {
-		pushCfg.tagPrefix = tagPrefix;
+		gitCfg.tagPrefix = tagPrefix;
 	}
 
 	/** Default value is `Published release/{{version}}` - the {{version}} will be replaced. */
 	public void commitMessage(String commitMessage) {
-		pushCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
+		gitCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
 	}
 
 	/** Default value is 'origin' */
 	public void remote(String remote) {
-		pushCfg.remote = remote;
+		gitCfg.remote = remote;
 	}
 
 	/** Default value is 'master' */
 	public void branch(String branch) {
-		pushCfg.branch = branch;
+		gitCfg.branch = branch;
 	}
 }

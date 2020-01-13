@@ -73,7 +73,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 				if (extension.nextVersionCfg.appendSnapshot) {
 					throw new GradleException("You must add `-Prelease=true` to remove the -SNAPSHOT from " + extension.getVersionNext());
 				} else {
-					throw new GradleException("It doesn't make sense to put a -SNAPSHOT version into the changelog, nor to make a git tag " + extension.pushCfg.tagPrefix + extension.getVersionNext());
+					throw new GradleException("It doesn't make sense to put a -SNAPSHOT version into the changelog, nor to make a git tag " + extension.gitCfg.tagPrefix + extension.getVersionNext());
 				}
 			}
 		}
@@ -94,7 +94,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 			String pushTaskPath = getProject().absoluteProjectPath(PushTask.NAME);
 			// if we're going to push later, let's first make sure that will work
 			if (getProject().getGradle().getTaskGraph().hasTask(pushTaskPath)) {
-				GitActions git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+				GitActions git = extension.gitCfg.withChangelog(extension.changelogFile, extension.model());
 				git.assertNoTag();
 				git.checkCanPush();
 			}
@@ -176,7 +176,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@TaskAction
 		public void push() throws IOException, GitAPIException {
 			assertNotSnapshot();
-			GitActions git = extension.pushCfg.withChangelog(extension.changelogFile, extension.model());
+			GitActions git = extension.gitCfg.withChangelog(extension.changelogFile, extension.model());
 			git.addAndCommit();
 			git.tagBranchPush();
 		}
