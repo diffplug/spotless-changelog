@@ -17,8 +17,8 @@ output = [
 [![Maven central](https://img.shields.io/badge/mavencentral-available-blue.svg)](https://search.maven.org/search?q=g:com.diffplug.spotless-changelog)
 [![Apache 2.0](https://img.shields.io/badge/license-apache--2.0-blue.svg)](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
 
-[![Changelog](https://img.shields.io/badge/changelog-1.0.0-brightgreen.svg)](CHANGELOG.md)
-[![Javadoc](https://img.shields.io/badge/javadoc-yes-brightgreen.svg)](https://javadoc.jitpack.io/com/github/diffplug/spotless-changelog/spotless-changelog-agg/release~1.0.0/javadoc/)
+[![Changelog](https://img.shields.io/badge/changelog-1.1.0-brightgreen.svg)](CHANGELOG.md)
+[![Javadoc](https://img.shields.io/badge/javadoc-yes-brightgreen.svg)](https://javadoc.jitpack.io/com/github/diffplug/spotless-changelog/spotless-changelog-agg/release~1.1.0/javadoc/)
 [![Live chat](https://img.shields.io/badge/gitter-chat-brightgreen.svg)](https://gitter.im/diffplug/spotless-changelog)
 [![JitCI](https://jitci.com/gh/diffplug/spotless-changelog/svg)](https://jitci.com/gh/diffplug/spotless-changelog)
 <!---freshmark /shields -->
@@ -54,7 +54,7 @@ In your `build.gradle`, you do this:
 
 ```gradle
 plugins {
-  id 'com.diffplug.spotless-changelog' version '1.0.0'
+  id 'com.diffplug.spotless-changelog' version '1.1.0'
 }
 
 spotlessChangelog { // only necessary if you need to change the defaults below
@@ -152,7 +152,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 
 ## Reference
 
-### Plugin DSL ([javadoc](https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/1.0.0/com/diffplug/spotless/changelog/gradle/ChangelogExtension.html))
+### Plugin DSL ([javadoc](https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/1.1.0/com/diffplug/spotless/changelog/gradle/ChangelogExtension.html))
 
 ```gradle
 spotlessChangelog { // all defaults
@@ -183,7 +183,7 @@ String versionNext = spotlessChangelog.versionNext
 //       Don't worry about doing this accidentally, you'll get a loud error if you do.
 ```
 
-### Tasks ([code](https://github.com/diffplug/spotless-changelog/blob/release/1.0.0/spotless-changelog-plugin-gradle/src/main/java/com/diffplug/spotless/changelog/gradle/ChangelogPlugin.java))
+### Tasks ([code](https://github.com/diffplug/spotless-changelog/blob/release/1.1.0/spotless-changelog-plugin-gradle/src/main/java/com/diffplug/spotless/changelog/gradle/ChangelogPlugin.java))
 
 - `changelogPrint` - prints the last published version and calculated next version
   - `myproj 1.0.4 -> 1.1.0`
