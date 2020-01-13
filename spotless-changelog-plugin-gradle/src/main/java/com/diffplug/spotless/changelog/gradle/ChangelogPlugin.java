@@ -69,8 +69,12 @@ public class ChangelogPlugin implements Plugin<Project> {
 		}
 
 		protected void assertNotSnapshot() {
-			if (extension.nextVersionCfg.appendSnapshot) {
-				throw new GradleException("You must add `-Prelease=true` to remove the -SNAPSHOT from " + extension.getVersionNext());
+			if (extension.getVersionNext().endsWith(ChangelogAndNext.DASH_SNAPSHOT)) {
+				if (extension.nextVersionCfg.appendSnapshot) {
+					throw new GradleException("You must add `-Prelease=true` to remove the -SNAPSHOT from " + extension.getVersionNext());
+				} else {
+					throw new GradleException("It doesn't make sense to put a -SNAPSHOT version into the changelog, nor to make a git tag " + extension.pushCfg.tagPrefix + extension.getVersionNext());
+				}
 			}
 		}
 	}

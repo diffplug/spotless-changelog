@@ -40,7 +40,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 public class ChangelogAndNext {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
 	public static final String FIRST_VERSION = "0.1.0";
-	private static final String DASH_SNAPSHOT = "-SNAPSHOT";
+	public static final String DASH_SNAPSHOT = "-SNAPSHOT";
 
 	/** Computes a ChangelogModel from the given changelogFile. */
 	public static ChangelogAndNext calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
