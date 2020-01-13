@@ -25,4 +25,6 @@ public class NextVersionCfg implements Serializable {
 	public NextVersionFunction function = new NextVersionFunction.Semver();
 	/** Overrides the bump function. */
 	public @NullOr String forceNextVersion = null;
+	/** Whatever version is calculated (by function or force), append -SNAPSHOT. */
+	public boolean appendSnapshot = false;
 }

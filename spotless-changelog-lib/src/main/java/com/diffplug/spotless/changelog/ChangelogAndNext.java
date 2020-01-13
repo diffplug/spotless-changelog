@@ -40,6 +40,7 @@ import pl.tlinkowski.annotation.basic.NullOr;
 public class ChangelogAndNext {
 	public static final String DEFAULT_FILE = "CHANGELOG.md";
 	public static final String FIRST_VERSION = "0.1.0";
+	public static final String DASH_SNAPSHOT = "-SNAPSHOT";
 
 	/** Computes a ChangelogModel from the given changelogFile. */
 	public static ChangelogAndNext calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
@@ -67,6 +68,13 @@ public class ChangelogAndNext {
 			nextVersion = changelog.versionLast();
 		} else {
 			nextVersion = cfg.function.nextVersion(changelog);
+		}
+		if (cfg.appendSnapshot) {
+			if (nextVersion.endsWith(DASH_SNAPSHOT)) {
+				throw new RuntimeException("Can't append -SNAPSHOT to " + nextVersion + " because it's already there!");
+			} else {
+				nextVersion = nextVersion + DASH_SNAPSHOT;
+			}
 		}
 		return new ChangelogAndNext(() -> changelog, new Versions(nextVersion, changelog));
 	}

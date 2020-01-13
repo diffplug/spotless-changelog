@@ -25,6 +25,7 @@ public class ChangelogPluginTest extends GradleHarness {
 	private static final String DATE_NOW = "2019-01-30";
 
 	private void writeSpotlessChangelog(String... lines) throws IOException {
+		write("settings.gradle", "rootProject.name='undertest'");
 		write("build.gradle",
 				"plugins {",
 				"  id 'com.diffplug.spotless-changelog'",
@@ -80,7 +81,6 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void changelogPrint() throws IOException {
 		writeSpotlessChangelog();
-		write("settings.gradle", "rootProject.name='undertest'");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -172,5 +172,37 @@ public class ChangelogPluginTest extends GradleHarness {
 				"- Some change\n" +
 				"\n" +
 				"## [52.1.0.0] - 2020-10-10");
+	}
+
+	@Test
+	public void snapshot() throws IOException {
+		writeSpotlessChangelog("appendDashSnapshotUnless_dashPrelease=true");
+		write("CHANGELOG.md",
+				"",
+				"## [Unreleased]",
+				"### Added",
+				"- Some change",
+				"",
+				"## [1.0.0] - 2020-10-10");
+		assertOutput("changelogPrint").contains("\nundertest 1.0.0 -> 1.1.0-SNAPSHOT\n");
+		assertOutput("changelogPrint", "-Prelease=true").contains("\nundertest 1.0.0 -> 1.1.0\n");
+
+		// check runs fine either way
+		gradleRunner().withArguments("changelogCheck").build();
+		gradleRunner().withArguments("changelogCheck", "-Prelease=true").build();
+
+		// bump needs -Prelease
+		assertFailOutput("changelogBump").contains("\n> You must add `-Prelease=true` to remove the -SNAPSHOT from 1.1.0-SNAPSHOT");
+		gradleRunner().withArguments("changelogBump", "-Prelease=true").build();
+		assertFile("CHANGELOG.md").hasContent("\n" +
+				"## [Unreleased]\n" +
+				"\n" +
+				"## [1.1.0] - 2019-01-30\n" +
+				"### Added\n" +
+				"- Some change\n" +
+				"\n" +
+				"## [1.0.0] - 2020-10-10");
+
+		// it's hard to test changelogPush because it's hard to mock-out the git part
 	}
 }

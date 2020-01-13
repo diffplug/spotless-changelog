@@ -113,6 +113,12 @@ But habits are what they are, and you're going to keep publishing things with `0
 
 If you want, you can set `forceNextVersion '3.0.0.BETA7-RC1-FINAL'`.  It will still check that your changelog is formatted, but it will short-circuit the next version calculation.  This is also how to go from `0.x` to `1.0`.
 
+### -SNAPSHOT
+
+Integration testing is important, and `-SNAPSHOT` is an easy way to do it.  [JitPack](https://jitpack.io/) is an even better way to do it, because using the git SHA as your version number solves the ambiguity and repeatability problems of `-SNAPSHOT`.
+
+That said,`-SNAPSHOT` is handy and widely used.  One way to get it is `forceNextVersion '1.0.0-SNAPSHOT'`.  Another way is to set `appendDashSnapshotUnless_dashPrelease=true`.  This mode acts like a gun safety where all versions are nerfed to `-SNAPSHOT`, until you allow a release by adding `-Prelease=true` to the gradle command line.
+
 ## Update the changelog, commit, push
 
 `gradlew changelogBump` will turn `[Unreleased]` into `[1.2.3] 2011-11-11` (or whatever) and add a new `[Unreleased]` section in your working copy file.  `gradlew changelogPush` will commit, tag, and push that change.
@@ -159,6 +165,9 @@ spotlessChangelog { // all defaults
   forceNextVersion null
   // rare to change this, see ALTERNATE_VERSION_SCHEMAS.md
   versionSchema Semver.class
+  // default value is false, but if you set it to true, then it will
+  // append -SNAPSHOT to nextVersion unless you add -Prelease=true to the gradle command line
+  appendDashSnapshotUnless_dashPrelease=false
   // tag and push
   tagPrefix 'release/'
   commitMessage 'Published release/{version}' // {version} will be replaced

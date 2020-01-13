@@ -57,6 +57,20 @@ public class NextVersionFunctionTest {
 	}
 
 	@Test
+	public void appendSnapshot() {
+		NextVersionCfg cfg = new NextVersionCfg();
+		cfg.forceNextVersion = "shoopty";
+		cfg.appendSnapshot = true;
+		test(cfg, "\n## [Unreleased]\nSome change\n## [1.2.0] - 2020-10-10\n").isEqualTo("shoopty-SNAPSHOT");
+		cfg.forceNextVersion = "shoopty-SNAPSHOT";
+		try {
+			test(cfg, "\n## [Unreleased]\nSome change\n### Added\n**BREAKING**\n## [1.2.5] - 2020-10-10\n").isEqualTo("shoopty");
+		} catch (RuntimeException e) {
+			Assertions.assertThat(e).hasMessage("Can't append -SNAPSHOT to shoopty-SNAPSHOT because it's already there!");
+		}
+	}
+
+	@Test
 	public void semverOhDot() {
 		test("\n## [Unreleased]\nSome change\n## [0.2.0] - 2020-10-10").isEqualTo("0.2.1");
 		test("\n## [Unreleased]\nSome change\n## [0.2.5] - 2020-10-10").isEqualTo("0.2.6");
