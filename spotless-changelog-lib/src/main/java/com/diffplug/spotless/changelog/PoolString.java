@@ -96,10 +96,10 @@ class PoolString implements CharSequence, java.io.Serializable {
 	}
 
 	public PoolString concat(String other) {
-		if (base instanceof String && (base.length() - endIndex < other.length())) {
+		if (base instanceof String && (endIndex + other.length() <= base.length())) {
 			String base = (String) this.base;
 			for (int i = 0; i < other.length(); ++i) {
-				if (base.charAt(i) != other.charAt(i)) {
+				if (base.charAt(i + endIndex) != other.charAt(i)) {
 					return concat(of(other));
 				}
 			}
