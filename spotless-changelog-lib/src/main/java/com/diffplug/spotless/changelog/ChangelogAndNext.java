@@ -17,6 +17,7 @@ package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.StringPrinter;
 import com.diffplug.common.base.Suppliers;
 import com.diffplug.common.collect.Maps;
 import java.io.File;
@@ -44,14 +45,20 @@ public class ChangelogAndNext {
 
 	/** Computes a ChangelogModel from the given changelogFile. */
 	public static ChangelogAndNext calculate(File changelogFile, NextVersionCfg cfg) throws IOException {
-		assertChangelogFileExists(changelogFile);
+		assertChangelogFileExists(changelogFile, cfg);
 		String content = new String(Files.readAllBytes(changelogFile.toPath()), StandardCharsets.UTF_8);
 		return calculate(content, cfg);
 	}
 
-	private static void assertChangelogFileExists(File changelogFile) {
+	private static void assertChangelogFileExists(File changelogFile, NextVersionCfg cfg) {
 		if (!(changelogFile.exists() && changelogFile.isFile())) {
-			throw new IllegalArgumentException("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
+			throw new IllegalArgumentException(StringPrinter.buildString(printer -> {
+				printer.println("Looked for changelog at '" + changelogFile.getAbsolutePath() + "', but it was not present.");
+				if (changelogFile.getName().equals(DEFAULT_FILE) && Serialized.fromValue(cfg).equals(Serialized.fromValue(new NextVersionCfg()))) {
+					printer.println("Spotless Changelog is set exactly to its defaults.");
+					printer.println("If that is surprising, you need to move your Spotless Changelog configuration closer to the top.");
+				}
+			}).trim());
 		}
 	}
 
@@ -130,7 +137,7 @@ public class ChangelogAndNext {
 	 * The changelog is parsed lazily when it is asked for. 
 	 */
 	public static ChangelogAndNext calculateUsingCache(File changelogFile, NextVersionCfg cfg) throws IOException {
-		assertChangelogFileExists(changelogFile);
+		assertChangelogFileExists(changelogFile, cfg);
 
 		Input input = new Input();
 		input.changelogFile = FileSignature.sign(changelogFile);

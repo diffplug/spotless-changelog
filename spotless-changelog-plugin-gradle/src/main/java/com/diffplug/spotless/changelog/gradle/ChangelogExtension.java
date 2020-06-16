@@ -73,7 +73,9 @@ public class ChangelogExtension {
 
 	/** Ensures that we haven't locked the next version calculation already. */
 	private synchronized void assertNotCalculatedYet() {
-		Preconditions.checkState(model == null, "You can't change the next version calculation after calling `versionNext`, `versionLast`, or `parsedChangelog`.");
+		Preconditions.checkState(model == null,
+				"You have to configure the `spotlessChangelog` block before calling `versionNext`, `versionLast`, or `parsedChangelog`.\n" +
+						"Try moving `spotlessChangelog` higher in your buildscript, and make sure you don't change it after calling `versionNext`, `versionLast`, or `parsedChangelog`.");
 	}
 
 	/** Reads the last-published version - you can't change the configuration after calling this method. */
