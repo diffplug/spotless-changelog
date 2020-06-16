@@ -72,10 +72,12 @@ class Serialized<T extends Serializable> {
 	}
 
 	/** Serializes the given value. */
-	public static <T extends Serializable> Serialized<T> fromValue(T value) throws IOException {
+	public static <T extends Serializable> Serialized<T> fromValue(T value) {
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		try (ObjectOutputStream output = new ObjectOutputStream(byteStream)) {
 			output.writeObject(value);
+		} catch (IOException e) {
+			throw Errors.asRuntime(e);
 		}
 		return new Serialized<>(byteStream.toByteArray(), value);
 	}
