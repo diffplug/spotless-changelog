@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- **BREAKING** Default branch is now assumed to be `main` rather than `master`. ([#13](https://github.com/diffplug/spotless-changelog/pull/13))
 ### Fixed
 - Better error message for cases where the `spotlessChangelog` block is too low. ([#6](https://github.com/diffplug/spotless-changelog/issues/6))
 - Bug in `PoolString.concat(String)` ([1f6da65](https://github.com/diffplug/spotless-changelog/commit/1f6da65b51c5ee7af847dc0e427fe685fbd3d43c)).
