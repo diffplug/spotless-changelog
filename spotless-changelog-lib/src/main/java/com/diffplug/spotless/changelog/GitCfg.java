@@ -28,7 +28,7 @@ public class GitCfg {
 	/** Message used for release commits, default is `Published release/{{version}}`. */
 	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
 	public String remote = "origin";
-	public String branch = "master";
+	public String branch = "main";
 
 	/** Returns an api configured with this config. */
 	public GitActions withChangelog(File changelogFile, ChangelogAndNext model) throws IOException {

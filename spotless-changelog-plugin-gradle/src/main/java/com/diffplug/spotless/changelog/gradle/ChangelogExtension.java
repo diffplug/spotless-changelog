@@ -112,7 +112,7 @@ public class ChangelogExtension {
 	/**
 	 * Sets a custom {@link NextVersionFunction} by calling the public no-arg constructor of the given class.
 	 * Default value is {@link com.diffplug.spotless.changelog.NextVersionFunction.Semver Semver}.
-	 * See [ALTERNATE_VERSION_SCHEMAS.md](https://github.com/diffplug/spotless-changelog/blob/master/ALTERNATE_VERSION_SCHEMAS.md) for more info.
+	 * See [ALTERNATE_VERSION_SCHEMAS.md](https://github.com/diffplug/spotless-changelog/blob/main/ALTERNATE_VERSION_SCHEMAS.md) for more info.
 	 */
 	public void versionSchema(Class<? extends NextVersionFunction> functionClass) throws InstantiationException, IllegalAccessException {
 		assertNotCalculatedYet();
@@ -188,7 +188,7 @@ public class ChangelogExtension {
 		gitCfg.remote = remote;
 	}
 
-	/** Default value is 'master' */
+	/** Default value is 'main' */
 	public void branch(String branch) {
 		gitCfg.branch = branch;
 	}
