@@ -107,7 +107,7 @@ We also support other version schemas, like `2.0` instead of `2.0.0`, or `brand.
 
 The terrible thing about `0.x` is that *the more unstable a codebase is, the more valuable **(concise compatibility guarantee).(new feature advertisement).(lowest downside risk to upgrade)** would be!*
 
-But habits are what they are, and you're going to keep publishing things with `0.x`.  I will judge you for that, but Spotless Changelog won't.  It will just increment the `added` version (`0.1.0`, `0.2.0`, `0.3.0`, etc) whether your changelog has `**BREAKING**` or just `### Added`.  See how the information is getting lost?  If you really want to stick with `0.x`, you can convey a lot more information with [`0.breaking.added.fixed`](https://github.com/diffplug/spotless-changelog/blob/master/ALTERNATE_VERSION_SCHEMAS.md#available-schemas).
+But habits are what they are, and you're going to keep publishing things with `0.x`.  I will judge you for that, but Spotless Changelog won't.  It will just increment the `added` version (`0.1.0`, `0.2.0`, `0.3.0`, etc) whether your changelog has `**BREAKING**` or just `### Added`.  See how the information is getting lost?  If you really want to stick with `0.x`, you can convey a lot more information with [`0.breaking.added.fixed`](https://github.com/diffplug/spotless-changelog/blob/main/ALTERNATE_VERSION_SCHEMAS.md#available-schemas).
 
 ### Alphas, betas, release-candidates, etc.
 
@@ -128,11 +128,11 @@ spotlessChangelog {  // defaults
   tagPrefix 'release/'
   commitMessage 'Published release/{{version}}' // {{version}} will be replaced
   remote 'origin'
-  branch 'master'
+  branch 'main'
 }
 ```
 
-We recommend that you use `changelogPush` as your deploy task, and wire your tasks so that it will only happen if the publish was successful.  Here is a [battle-tested wiring plan](https://github.com/diffplug/blowdryer-diffplug/blob/master/src/main/resources/base/changelog.gradle) which can even [update your README.md with the latest version number](https://github.com/diffplug/blowdryer-diffplug/blob/2.0.0/src/main/resources/spotless/freshmark.gradle#L35-L61).  A simpler scheme is presented below:
+We recommend that you use `changelogPush` as your deploy task, and wire your tasks so that it will only happen if the publish was successful.  Here is a [battle-tested wiring plan](https://github.com/diffplug/blowdryer-diffplug/blob/main/src/main/resources/base/changelog.gradle) which can even [update your README.md with the latest version number](https://github.com/diffplug/blowdryer-diffplug/blob/2.0.0/src/main/resources/spotless/freshmark.gradle#L35-L61).  A simpler scheme is presented below:
 
 ### Multiple changelogs per project
 
@@ -172,7 +172,7 @@ spotlessChangelog { // all defaults
   tagPrefix 'release/'
   commitMessage 'Published release/{version}' // {version} will be replaced
   remote 'origin'
-  branch 'master'
+  branch 'main'
 }
 
 // last version parsed from changelog
