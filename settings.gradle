@@ -4,8 +4,8 @@ pluginManagement {
 		id 'com.diffplug.blowdryerSetup' version '1.0.0'
 		id 'com.diffplug.eclipse.mavencentral' version '3.22.0'
 		id 'com.diffplug.gradle.spotless' version '4.3.0'
-		id 'com.diffplug.spotless-changelog' version '1.0.0'
-		id 'com.gradle.plugin-publish' version '0.10.1'
+		id 'com.diffplug.spotless-changelog' version '2.0.0'
+		id 'com.gradle.plugin-publish' version '0.12.0'
 		id 'com.jfrog.bintray' version '1.8.5'
 		id 'org.jdrupes.mdoclet' version '1.0.10'
 	}
