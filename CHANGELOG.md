@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Bug in `PoolString.concat(String)`.
+- Better error message for cases where the `spotlessChangelog` block is too low. ([#6](https://github.com/diffplug/spotless-changelog/issues/6))
+- Bug in `PoolString.concat(String)` ([1f6da65](https://github.com/diffplug/spotless-changelog/commit/1f6da65b51c5ee7af847dc0e427fe685fbd3d43c)).
+- No longer accepts git failures silently (they were always printed, but did not properly kill the build). ([#11](https://github.com/diffplug/spotless-changelog/issues/11))
 
 ## [1.1.0] - 2020-01-13
 ### Added

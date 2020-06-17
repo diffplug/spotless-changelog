@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
@@ -66,7 +67,7 @@ public class GitActions implements AutoCloseable {
 			if (!ref.getObjectId().equals(remoteRef.getObjectId())) {
 				throw new IllegalStateException("Local branch " + cfg.branch + " is out of sync with " + cfg.remote + ", so we can't safely push it automatically.");
 			}
-			push(cfg.branch);
+			push(cfg.branch, RemoteRefUpdate.Status.UP_TO_DATE);
 		} catch (GitAPIException e) {
 			throw new IllegalArgumentException("You can set user/pass with any of these environment variables: " + envVars(), e);
 		}
@@ -95,8 +96,8 @@ public class GitActions implements AutoCloseable {
 	/** Tags and pushes the tag and the branch. */
 	public void tagBranchPush() throws GitAPIException {
 		Ref tagRef = git.tag().setName(tagName()).setAnnotated(false).call();
-		push(tagRef);
-		push(cfg.branch);
+		push(tagRef, RemoteRefUpdate.Status.OK);
+		push(cfg.branch, RemoteRefUpdate.Status.OK);
 	}
 
 	private String tagName() {
@@ -108,15 +109,15 @@ public class GitActions implements AutoCloseable {
 		repository.close();
 	}
 
-	private void push(String branch) throws GitAPIException {
-		push(cmd -> cmd.add(branch));
+	private void push(String branch, RemoteRefUpdate.Status expected) throws GitAPIException {
+		push(cmd -> cmd.add(branch), expected);
 	}
 
-	private void push(Ref ref) throws GitAPIException {
-		push(cmd -> cmd.add(ref));
+	private void push(Ref ref, RemoteRefUpdate.Status expected) throws GitAPIException {
+		push(cmd -> cmd.add(ref), expected);
 	}
 
-	private void push(Consumer<PushCommand> cmd) throws GitAPIException {
+	private void push(Consumer<PushCommand> cmd, RemoteRefUpdate.Status expected) throws GitAPIException {
 		PushCommand push = git.push().setCredentialsProvider(creds()).setRemote(cfg.remote);
 		cmd.accept(push);
 
@@ -132,8 +133,14 @@ public class GitActions implements AutoCloseable {
 				+ "..."
 				+ (update.getNewObjectId() != null ? update.getNewObjectId().name() : "(null)")
 				+ (update.isFastForward() ? " fastForward" : "")
-				+ (update.getMessage() != null ? " " + update.getMessage() : ""));
-
+				+ (update.getMessage() != null ? update.getMessage() : ""));
+		Optional<RemoteRefUpdate.Status> failure = result.getRemoteUpdates().stream()
+				.map(RemoteRefUpdate::getStatus)
+				.filter(r -> !expected.equals(r))
+				.findAny();
+		if (failure.isPresent()) {
+			throw new IllegalStateException("Error! Expected " + expected + ", got " + failure.get() + ".");
+		}
 	}
 
 	// similar to https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy

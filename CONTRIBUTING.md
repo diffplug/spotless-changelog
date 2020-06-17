@@ -42,12 +42,12 @@ We publish tagged releases to mavenCentral, jcenter, and the gradle plugin porta
 
 ## License
 
-By contributing your code, you agree to license your contribution under the terms of the APLv2: https://github.com/diffplug/blowdryer/blob/master/LICENSE
+By contributing your code, you agree to license your contribution under the terms of the APLv2: https://github.com/diffplug/spotless-changelog/blob/main/LICENSE
 
 All files are released with the Apache 2.0 license as such:
 
 ```
-Copyright 2019 DiffPlug
+Copyright (C) 2019-2020 DiffPlug
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
