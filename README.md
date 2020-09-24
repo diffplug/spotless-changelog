@@ -170,7 +170,7 @@ spotlessChangelog { // all defaults
   appendDashSnapshotUnless_dashPrelease=false
   // tag and push
   tagPrefix 'release/'
-  commitMessage 'Published release/{version}' // {version} will be replaced
+  commitMessage 'Published release/{{version}}' // {{version}} will be replaced
   remote 'origin'
   branch 'main'
 }
