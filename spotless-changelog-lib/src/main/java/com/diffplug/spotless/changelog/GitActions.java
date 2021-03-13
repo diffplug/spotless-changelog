@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class GitActions implements AutoCloseable {
 			Ref ref = repository.getRefDatabase().exactRef(Constants.R_HEADS + cfg.branch);
 			Objects.requireNonNull(ref, "Expected ref " + Constants.R_HEADS + cfg.branch);
 			Ref remoteRef = repository.getRefDatabase().exactRef(Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
-			Objects.requireNonNull(ref, "Expected ref " + Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
+			Objects.requireNonNull(remoteRef, "Expected ref " + Constants.R_REMOTES + cfg.remote + "/" + cfg.branch);
 			if (!ref.getObjectId().equals(remoteRef.getObjectId())) {
 				throw new IllegalStateException("Local branch " + cfg.branch + " is out of sync with " + cfg.remote + ", so we can't safely push it automatically.");
 			}
