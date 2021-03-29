@@ -172,6 +172,20 @@ public class ChangelogExtension {
 		}
 	}
 
+	/**
+	 * If you set this to true, then the ssh host key checking over ssh:// remotes will be disabled.
+	 * By default strict host key checking is enabled. Make sure that there is an entry
+	 * in the know_hosts file for given ssh remote.
+	 * You can add `-PsshDisableStrictHostKeyChecking=true` to the gradle command.
+	 * Note: this command line parameter overrides buildscript setting.
+	 * In your buildscript you can disable checking with `sshDisableStrictHostKeyChecking = true`
+	 */
+	public void setSshDisableStrictHostKeyChecking(boolean disableStrictHostKeyChecking) {
+		gitCfg.disableStrictHostKeyChecking = project.getRootProject().hasProperty("sshDisableStrictHostKeyChecking")
+				? Boolean.parseBoolean((String) project.getRootProject().property("sshDisableStrictHostKeyChecking"))
+		: disableStrictHostKeyChecking;
+	}
+
 	// tag and push
 	/** Default value is `release/` */
 	public void tagPrefix(String tagPrefix) {

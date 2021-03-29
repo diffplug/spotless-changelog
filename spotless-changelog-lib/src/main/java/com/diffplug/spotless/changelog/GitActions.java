@@ -133,7 +133,7 @@ public class GitActions implements AutoCloseable {
 				sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
 					@Override
 					protected void configure(OpenSshConfig.Host host, Session session) {
-						session.setConfig("StrictHostKeyChecking", "no");
+						session.setConfig("StrictHostKeyChecking", cfg.disableStrictHostKeyChecking ? "no" : "yes");
 					}
 				});
 			});
