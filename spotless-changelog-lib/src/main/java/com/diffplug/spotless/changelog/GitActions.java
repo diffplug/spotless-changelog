@@ -73,7 +73,7 @@ public class GitActions implements AutoCloseable {
 			}
 			push(cfg.branch, RemoteRefUpdate.Status.UP_TO_DATE);
 		} catch (GitAPIException e) {
-			throw new IllegalArgumentException("You can set user/pass with any of these environment variables: " + envVars(), e);
+			throw new IllegalArgumentException("You can set user/pass with any of these environment variables: " + envVars() + ", or try -PsshDisableStrictHostKeyChecking on ssh remotes", e);
 		}
 	}
 

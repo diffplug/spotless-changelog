@@ -174,7 +174,8 @@ spotlessChangelog { // all defaults
   remote 'origin'
   branch 'main'
   // default value is false, but if you set it to true, then it will
-  // disable ssh host key checking (.ssh/known_hosts)
+  // disable ssh host key checking (.ssh/known_hosts).
+  // Can also set by command line arg `-PsshDisableStrictHostKeyChecking`.
   sshDisableStrictHostKeyChecking false
 }
 
