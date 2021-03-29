@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for remote url `ssh://`
+- Support for remote url `ssh://` ([#19](https://github.com/diffplug/spotless-changelog/issues/19))
 
 ## [2.0.1] - 2021-03-13
 ### Fixed

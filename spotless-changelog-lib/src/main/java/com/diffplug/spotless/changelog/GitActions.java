@@ -17,6 +17,7 @@ package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.collect.Iterables;
+import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,10 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import com.jcraft.jsch.Session;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
@@ -41,7 +40,6 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /** API for doing the commit, tag, and push operations.  See {@link GitCfg#withChangelog(File, ChangelogAndNext)}. */
@@ -130,16 +128,14 @@ public class GitActions implements AutoCloseable {
 		if (remoteUrl.startsWith("http://") || remoteUrl.startsWith("https://")) {
 			push = push.setCredentialsProvider(creds());
 		} else if (remoteUrl.startsWith("ssh://")) {
-			push.setTransportConfigCallback(new TransportConfigCallback() {
-				@Override
-				public void configure(Transport transport) {
-					SshTransport sshTransport = (SshTransport) transport;
-					sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
-						@Override
-						protected void configure(OpenSshConfig.Host host, Session session ) {
-						}
-					});
-				}
+			push.setTransportConfigCallback(transport -> {
+				SshTransport sshTransport = (SshTransport) transport;
+				sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
+					@Override
+					protected void configure(OpenSshConfig.Host host, Session session) {
+						session.setConfig("StrictHostKeyChecking", "no");
+					}
+				});
 			});
 		}
 
