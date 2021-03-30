@@ -29,7 +29,7 @@ public class GitCfg {
 	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
 	public String remote = "origin";
 	public String branch = "main";
-	public boolean disableStrictHostKeyChecking = false;
+	public String sshStrictHostKeyChecking = "yes";
 
 	/** Returns an api configured with this config. */
 	public GitActions withChangelog(File changelogFile, ChangelogAndNext model) throws IOException {

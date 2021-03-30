@@ -46,7 +46,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		ChangelogExtension extension = project.getExtensions().create(ChangelogExtension.NAME, ChangelogExtension.class, project);
 		project.getTasks().register(PrintTask.NAME, PrintTask.class, extension);
-		extension.gitCfg.disableStrictHostKeyChecking = project.getRootProject().findProperty("sshDisableStrictHostKeyChecking") != null;
+		if (project.getRootProject().hasProperty("sshStrictHostKeyChecking")) {
+			extension.gitCfg.sshStrictHostKeyChecking = (String) project.getRootProject().findProperty("sshStrictHostKeyChecking");
+		}
 
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
 		TaskProvider<BumpTask> bump = project.getTasks().register(BumpTask.NAME, BumpTask.class, extension);
