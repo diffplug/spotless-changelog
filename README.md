@@ -173,6 +173,9 @@ spotlessChangelog { // all defaults
   commitMessage 'Published release/{{version}}' // {{version}} will be replaced
   remote 'origin'
   branch 'main'
+  // default value is `yes`, but if you set it to `no`, then it will
+  // disable ssh host key checking (.ssh/known_hosts).
+  sshStrictHostKeyChecking "yes" // can override with `-PsshStrictHostKeyChecking=no`
 }
 
 // last version parsed from changelog

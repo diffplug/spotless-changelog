@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class ChangelogExtension {
 	/**
 	 * Parses the changelog and calculates the next version.  Once this
 	 * has been done, the user can't change the configuration at all.
-	 * Use {@link #assertNotCalculatedYet()} on every mutation to check for this. 
+	 * Use {@link #assertNotCalculatedYet()} on every mutation to check for this.
 	 */
 	ChangelogAndNext model() {
 		if (model == null) {
@@ -123,7 +123,7 @@ public class ChangelogExtension {
 	 * If any of these strings are found in the `## [Unreleased]` section, then the
 	 * next version will bump the `added` place in `breaking.added.fixed` (unless
 	 * overruled by `ifFoundBumpBreaking`).
-	 * 
+	 *
 	 * Default value is `['### Added']`
 	 */
 	public void ifFoundBumpAdded(List<String> toFind) {
@@ -139,7 +139,7 @@ public class ChangelogExtension {
 	/**
 	 * If any of these strings are found in the `## [Unreleased]` section, then the
 	 * next version will bump the `breaking` place in `breaking.added.fixed`.
-	 * 
+	 *
 	 * Default value is `['**BREAKING**']`.
 	 */
 	public void ifFoundBumpBreaking(List<String> toFind) {
@@ -163,13 +163,24 @@ public class ChangelogExtension {
 	 * appended to the end, unless you add `-Prelease=true` to the gradle command line.
 	 * Essentially, it asks like a gun safety where all versions are nerfed to `-SNAPSHOT`,
 	 * until you allow a release by adding `-Prelease`.
-	 * 
+	 *
 	 * Enabling this mode should look like this in your buildscript: `appendDashSnapshotUnless_dashPrelease=true`
 	 */
 	public void setAppendDashSnapshotUnless_dashPrelease(boolean appendSnapshot) {
 		if (appendSnapshot && !"true".equals(project.getRootProject().findProperty("release"))) {
 			nextVersionCfg.appendSnapshot = true;
 		}
+	}
+
+	/**
+	 * If you set this to `no`, then the ssh host key checking over ssh:// remotes will be disabled.
+	 * By default strict host key checking is `yes`. Make sure that there is an entry
+	 * in know_hosts file for given ssh remote.
+	 * You can also add `-PsshStrictHostKeyChecking=no` to the gradle command.
+	 * In your buildscript you can disable checking with `sshStrictHostKeyChecking = "no"`
+	 */
+	public void setSshStrictHostKeyChecking(String sshStrictHostKeyChecking) {
+		gitCfg.sshStrictHostKeyChecking = sshStrictHostKeyChecking;
 	}
 
 	// tag and push

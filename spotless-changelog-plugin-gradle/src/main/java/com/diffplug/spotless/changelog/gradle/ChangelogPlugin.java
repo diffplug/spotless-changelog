@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		ChangelogExtension extension = project.getExtensions().create(ChangelogExtension.NAME, ChangelogExtension.class, project);
 		project.getTasks().register(PrintTask.NAME, PrintTask.class, extension);
+		if (project.getRootProject().hasProperty("sshStrictHostKeyChecking")) {
+			extension.gitCfg.sshStrictHostKeyChecking = (String) project.getRootProject().findProperty("sshStrictHostKeyChecking");
+		}
 
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
 		TaskProvider<BumpTask> bump = project.getTasks().register(BumpTask.NAME, BumpTask.class, extension);

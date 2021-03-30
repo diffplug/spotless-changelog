@@ -17,6 +17,7 @@ package com.diffplug.spotless.changelog;
 
 
 import com.diffplug.common.collect.Iterables;
+import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,9 +34,12 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /** API for doing the commit, tag, and push operations.  See {@link GitCfg#withChangelog(File, ChangelogAndNext)}. */
@@ -69,7 +73,7 @@ public class GitActions implements AutoCloseable {
 			}
 			push(cfg.branch, RemoteRefUpdate.Status.UP_TO_DATE);
 		} catch (GitAPIException e) {
-			throw new IllegalArgumentException("You can set user/pass with any of these environment variables: " + envVars(), e);
+			throw new IllegalArgumentException("You can set user/pass with any of these environment variables: " + envVars() + ", or try -PsshStrictHostKeyChecking=no on ssh remotes", e);
 		}
 	}
 
@@ -118,10 +122,25 @@ public class GitActions implements AutoCloseable {
 	}
 
 	private void push(Consumer<PushCommand> cmd, RemoteRefUpdate.Status expected) throws GitAPIException {
-		PushCommand push = git.push().setCredentialsProvider(creds()).setRemote(cfg.remote);
+		String remoteUrl = git.getRepository().getConfig().getString(ConfigConstants.CONFIG_REMOTE_SECTION, cfg.remote, ConfigConstants.CONFIG_KEY_URL);
+
+		PushCommand push = git.push().setRemote(cfg.remote);
+		if (remoteUrl.startsWith("http://") || remoteUrl.startsWith("https://")) {
+			push = push.setCredentialsProvider(creds());
+		} else if (remoteUrl.startsWith("ssh://")) {
+			push.setTransportConfigCallback(transport -> {
+				SshTransport sshTransport = (SshTransport) transport;
+				sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
+					@Override
+					protected void configure(OpenSshConfig.Host host, Session session) {
+						session.setConfig("StrictHostKeyChecking", cfg.sshStrictHostKeyChecking);
+					}
+				});
+			});
+		}
+
 		cmd.accept(push);
 
-		String remoteUrl = git.getRepository().getConfig().getString(ConfigConstants.CONFIG_REMOTE_SECTION, cfg.remote, ConfigConstants.CONFIG_KEY_URL);
 		RefSpec spec = Iterables.getOnlyElement(push.getRefSpecs());
 		System.out.println("push " + spec.getSource() + " to " + cfg.remote + " " + remoteUrl);
 
