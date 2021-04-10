@@ -125,10 +125,8 @@ public class GitActions implements AutoCloseable {
 		String remoteUrl = git.getRepository().getConfig().getString(ConfigConstants.CONFIG_REMOTE_SECTION, cfg.remote, ConfigConstants.CONFIG_KEY_URL);
 
 		PushCommand push = git.push().setRemote(cfg.remote);
-		if (remoteUrl.startsWith("http://") || remoteUrl.startsWith("https://")) {
-			push = push.setCredentialsProvider(creds());
-		} else if (remoteUrl.startsWith("ssh://")) {
-			push.setTransportConfigCallback(transport -> {
+		if (remoteUrl.startsWith("ssh://")) {
+			push = push.setTransportConfigCallback(transport -> {
 				SshTransport sshTransport = (SshTransport) transport;
 				sshTransport.setSshSessionFactory(new JschConfigSessionFactory() {
 					@Override
@@ -137,6 +135,8 @@ public class GitActions implements AutoCloseable {
 					}
 				});
 			});
+		} else {
+			push = push.setCredentialsProvider(creds());
 		}
 
 		cmd.accept(push);
