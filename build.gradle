@@ -26,6 +26,7 @@ subprojects {
 			implementation 'com.diffplug.durian:durian-collect:1.2.0'
 			implementation 'com.diffplug.durian:durian-io:1.2.0'
 			implementation "org.eclipse.jgit:org.eclipse.jgit:${VER_JGIT}"
+			implementation "org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${VER_JGIT}"
 			testImplementation 'junit:junit:4.12'
 			testImplementation 'org.assertj:assertj-core:3.14.0'
 		}
@@ -47,8 +48,8 @@ subprojects {
 			implementation 'com.diffplug.durian:durian-collect:1.2.0'
 			implementation 'com.diffplug.durian:durian-io:1.2.0'
 			implementation "org.eclipse.jgit:org.eclipse.jgit:${VER_JGIT}"
-			testImplementation 'junit:junit:4.12'
-			testImplementation 'org.assertj:assertj-core:3.14.0'
+			testImplementation 'junit:junit:4.13.2'
+			testImplementation 'org.assertj:assertj-core:3.19.0'
 			// mock out the time
 			implementation               'com.diffplug.durian-globals:durian-globals:1.0.0'
 			functionalTestImplementation 'com.diffplug.durian-globals:durian-globals.dev:1.0.0'
