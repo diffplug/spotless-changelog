@@ -10,6 +10,7 @@ apply from: 干.file('spotless/freshmark.gradle')
 
 ext.javadoc_agg='spotless-changelog-lib spotless-changelog-plugin-gradle'
 apply from: 干.file('base/javadoc-agg.gradle')
+apply from: 干.file('base/sonatype.gradle')
 
 subprojects {
 	apply from: 干.file('base/java8.gradle')
@@ -60,5 +61,5 @@ subprojects {
 	}
 	// it all needs to get published and formatted
 	apply from: 干.file('base/maven.gradle')
-	apply from: 干.file('base/bintray.gradle')
+	apply from: 干.file('base/sonatype.gradle')
 }
