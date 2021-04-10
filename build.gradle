@@ -3,8 +3,6 @@ plugins {
 	id 'com.diffplug.spotless-changelog'
 }
 
-project.gradle.startParameter.excludedTaskNames.add('publishPlugins')
-
 allprojects {
 	apply from: 干.file('base/changelog.gradle')
 }
