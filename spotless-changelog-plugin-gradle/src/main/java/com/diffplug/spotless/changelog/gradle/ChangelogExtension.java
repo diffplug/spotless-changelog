@@ -40,6 +40,7 @@ public class ChangelogExtension {
 	NextVersionCfg nextVersionCfg;
 	GitCfg gitCfg;
 	boolean enforceCheck;
+	boolean annotateTags = false;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
@@ -107,6 +108,11 @@ public class ChangelogExtension {
 	/** Determines whether `changelogCheck` will be a dependency of `check`.  Default is true. */
 	public void enforceCheck(boolean enforceCheck) {
 		this.enforceCheck = enforceCheck;
+	}
+
+	/** Determines whether tags are lightweight (false) or annotated (true).  Default is false. */
+	public void annotateTags(boolean annotateTags) {
+		this.annotateTags = annotateTags;
 	}
 
 	/**

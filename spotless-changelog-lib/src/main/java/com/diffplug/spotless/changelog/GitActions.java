@@ -97,9 +97,10 @@ public class GitActions implements AutoCloseable {
 				.call();
 	}
 
-	/** Tags and pushes the tag and the branch. */
-	public void tagBranchPush() throws GitAPIException {
-		Ref tagRef = git.tag().setName(tagName()).setAnnotated(false).call();
+	/** Tags and pushes the tag and the branch.
+	 * @param annotated false for lightweight tags, true for annotated tags */
+	public void tagBranchPush(final boolean annotated) throws GitAPIException {
+		Ref tagRef = git.tag().setName(tagName()).setAnnotated(annotated).call();
 		push(tagRef, RemoteRefUpdate.Status.OK);
 		push(cfg.branch, RemoteRefUpdate.Status.OK);
 	}
