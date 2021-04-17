@@ -159,6 +159,7 @@ spotlessChangelog { // all defaults
   // keep changelog formatted
   changelogFile 'CHANGELOG.md'
   enforceCheck true
+  annotateTags false  
   // calculate next version (breaking.added.fixed)
   ifFoundBumpBreaking ['**BREAKING**']
   ifFoundBumpAdded    ['### Added']
