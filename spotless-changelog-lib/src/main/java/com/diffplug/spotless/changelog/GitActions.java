@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.TagCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
@@ -87,22 +88,27 @@ public class GitActions implements AutoCloseable {
 
 	/** Adds and commits the changelog. */
 	public void addAndCommit() throws GitAPIException {
-		String commitMsg = cfg.commitMessage.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
 		String path = repository.getWorkTree().toPath().relativize(changelogFile.toPath()).toString();
 		git.add()
 				.addFilepattern(path)
 				.call();
 		git.commit()
-				.setMessage(commitMsg)
+				.setMessage(formatCommitMessage(cfg.commitMessage))
 				.call();
 	}
 
-	/** Tags and pushes the tag and the branch.
-	 * @param annotated false for lightweight tags, true for annotated tags */
-	public void tagBranchPush(final boolean annotated) throws GitAPIException {
-		Ref tagRef = git.tag().setName(tagName()).setAnnotated(annotated).call();
-		push(tagRef, RemoteRefUpdate.Status.OK);
+	/** Tags and pushes the tag and the branch.  */
+	public void tagBranchPush() throws GitAPIException {
+		final TagCommand tagCommand = git.tag().setName(tagName());
+		if (!cfg.annotateMessage().isEmpty()) {
+			tagCommand.setAnnotated(true).setMessage(formatCommitMessage(cfg.annotateMessage()));
+		}
+		push(tagCommand.call(), RemoteRefUpdate.Status.OK);
 		push(cfg.branch, RemoteRefUpdate.Status.OK);
+	}
+
+	private String formatCommitMessage(final String commitMessage) {
+		return commitMessage.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
 	}
 
 	private String tagName() {

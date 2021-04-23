@@ -181,7 +181,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 			assertNotSnapshot();
 			GitActions git = extension.gitCfg.withChangelog(extension.changelogFile, extension.model());
 			git.addAndCommit();
-			git.tagBranchPush(extension.annotateTags);
+			git.tagBranchPush();
 		}
 	}
 }

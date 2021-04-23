@@ -40,7 +40,6 @@ public class ChangelogExtension {
 	NextVersionCfg nextVersionCfg;
 	GitCfg gitCfg;
 	boolean enforceCheck;
-	boolean annotateTags = false;
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
@@ -111,8 +110,8 @@ public class ChangelogExtension {
 	}
 
 	/** Determines whether tags are lightweight (false) or annotated (true).  Default is false. */
-	public void annotateTags(boolean annotateTags) {
-		this.annotateTags = annotateTags;
+	public void annotateMessage(String annotateMessage) {
+		gitCfg.annotateMessage(GitCfg.validateCommitMessage(annotateMessage));
 	}
 
 	/**
