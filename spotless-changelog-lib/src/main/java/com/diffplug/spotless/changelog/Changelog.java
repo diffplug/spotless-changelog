@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ public class Changelog {
 	private static final String VERSION_BEGIN = "\n## [";
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
 	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- END CHANGELOG -->";
+	public static final int LAST_RELEASE = 1;
 
 	private final boolean windowsNewlines;
 	private final PoolString dontParse, beforeUnreleased;
@@ -139,6 +140,17 @@ public class Changelog {
 	/** Returns true if there are no unreleased changes. */
 	public boolean noUnreleasedChanges() {
 		return unreleasedChanges().replace("\n", "").trim().isEmpty();
+	}
+
+	/** Returns the string describing changes in last released version - starts with a newline, and has unix newlines. */
+	public String lastReleasedChanges() {
+		if (versionsRaw.isEmpty()) {
+			return "";
+		}
+		if (versionsRaw.get(LAST_RELEASE).changes != null) {
+			return versionsRaw.get(LAST_RELEASE).changes.toString();
+		}
+		return "";
 	}
 
 	private void addError(int lineNumber, String message) {

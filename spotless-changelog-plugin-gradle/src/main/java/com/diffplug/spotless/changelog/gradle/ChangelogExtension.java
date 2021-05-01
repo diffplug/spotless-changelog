@@ -110,8 +110,8 @@ public class ChangelogExtension {
 	}
 
 	/** Determines whether tags are lightweight (false) or annotated (true).  Default is false. */
-	public void annotateMessage(String annotateMessage) {
-		gitCfg.annotateMessage(GitCfg.validateCommitMessage(annotateMessage));
+	public void annotateMessage(String tagMessage) {
+		gitCfg.tagMessage(tagMessage);
 	}
 
 	/**
@@ -197,6 +197,11 @@ public class ChangelogExtension {
 	/** Default value is `Published release/{{version}}` - the {{version}} will be replaced. */
 	public void commitMessage(String commitMessage) {
 		gitCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
+	}
+
+	/** Default value is null (creates a lightweight tag) - {{changes}} and {{version}} will be replaced. */
+	public void tagMessage(String tagMessage) {
+		gitCfg.tagMessage(tagMessage);
 	}
 
 	/** Default value is 'origin' */

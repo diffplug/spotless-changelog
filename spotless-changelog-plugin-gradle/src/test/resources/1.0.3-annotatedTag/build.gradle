@@ -1,0 +1,8 @@
+plugins {
+    id 'com.diffplug.spotless-changelog'
+}
+
+spotlessChangelog {
+    branch 'master'
+    tagMessage 'Version is {{version}}, here are the changes:{{changes}}'
+}

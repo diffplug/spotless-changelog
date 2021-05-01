@@ -51,11 +51,12 @@ public class GitActions implements AutoCloseable {
 	private final ChangelogAndNext model;
 	private final GitCfg cfg;
 
-	GitActions(File changelogFile, ChangelogAndNext model, GitCfg cfg) throws IOException {
+	public GitActions(File changelogFile, ChangelogAndNext model, GitCfg cfg) throws IOException {
 		this.changelogFile = changelogFile;
 		this.model = model;
 		this.cfg = cfg;
-		repository = new FileRepositoryBuilder()
+		final FileRepositoryBuilder fileRepositoryBuilder = new FileRepositoryBuilder();
+		repository = fileRepositoryBuilder
 				.findGitDir(changelogFile)
 				.build();
 		repository.getWorkTree();
@@ -100,8 +101,8 @@ public class GitActions implements AutoCloseable {
 	/** Tags and pushes the tag and the branch.  */
 	public void tagBranchPush() throws GitAPIException {
 		final TagCommand tagCommand = git.tag().setName(tagName());
-		if (!cfg.annotateMessage().isEmpty()) {
-			tagCommand.setAnnotated(true).setMessage(formatCommitMessage(cfg.annotateMessage()));
+		if (cfg.useAnnotatedTag()) {
+			tagCommand.setAnnotated(true).setMessage(formatTagMessage(cfg.tagMessage()));
 		}
 		push(tagCommand.call(), RemoteRefUpdate.Status.OK);
 		push(cfg.branch, RemoteRefUpdate.Status.OK);
@@ -109,6 +110,11 @@ public class GitActions implements AutoCloseable {
 
 	private String formatCommitMessage(final String commitMessage) {
 		return commitMessage.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
+	}
+
+	private String formatTagMessage(final String tagMessage) {
+		return formatCommitMessage(tagMessage)
+				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changes());
 	}
 
 	private String tagName() {
