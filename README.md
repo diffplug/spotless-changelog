@@ -171,7 +171,7 @@ spotlessChangelog { // all defaults
   // tag and push
   tagPrefix 'release/'
   commitMessage 'Published release/{{version}}' // {{version}} will be replaced
-  annotateMessage '' // default is empty string (creates lightweight tag); {{version}} will be replaced
+  tagMessage '' // default is empty string (creates lightweight tag); {{version}} will be replaced
   remote 'origin'
   branch 'main'
   // default value is `yes`, but if you set it to `no`, then it will

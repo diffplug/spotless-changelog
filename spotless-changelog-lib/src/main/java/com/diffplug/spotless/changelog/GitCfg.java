@@ -18,18 +18,18 @@ package com.diffplug.spotless.changelog;
 
 import java.io.File;
 import java.io.IOException;
+import org.eclipse.jgit.annotations.Nullable;
 
 /** Configuration for committing, tagging, and pushing the next version. */
 public class GitCfg {
 	public static final String COMMIT_MESSAGE_VERSION = "{{version}}";
 	public static final String TAG_MESSAGE_CHANGES = "{{changes}}";
-	public static final String NONE__USE_LIGHTWEIGHT_TAG = null;
 
 	/** Prefix used for release tags, default is `release/`. */
 	public String tagPrefix = "release/";
 	/** Message used for release commits, default is `Published release/{{version}}`. */
 	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
-	private String tagMessage = NONE__USE_LIGHTWEIGHT_TAG;
+	private String tagMessage = null;
 	public String remote = "origin";
 	public String branch = "main";
 	public String sshStrictHostKeyChecking = "yes";
@@ -48,7 +48,7 @@ public class GitCfg {
 	}
 
 	/** Sets the essage to annotate release tag: if null (the default), then a lightweight tag is created`. */
-	public void tagMessage(String tagMessage) {
+	public void tagMessage(@Nullable String tagMessage) {
 		this.tagMessage = tagMessage;
 	}
 
@@ -58,6 +58,6 @@ public class GitCfg {
 	}
 
 	public boolean useAnnotatedTag() {
-		return tagMessage != NONE__USE_LIGHTWEIGHT_TAG;
+		return tagMessage != null;
 	}
 }

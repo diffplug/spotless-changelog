@@ -55,11 +55,9 @@ public class GitActions implements AutoCloseable {
 		this.changelogFile = changelogFile;
 		this.model = model;
 		this.cfg = cfg;
-		final FileRepositoryBuilder fileRepositoryBuilder = new FileRepositoryBuilder();
-		repository = fileRepositoryBuilder
+		repository = new FileRepositoryBuilder()
 				.findGitDir(changelogFile)
 				.build();
-		repository.getWorkTree();
 		git = new Git(repository);
 	}
 
@@ -114,7 +112,7 @@ public class GitActions implements AutoCloseable {
 
 	private String formatTagMessage(final String tagMessage) {
 		return formatCommitMessage(tagMessage)
-				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changes());
+				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changelog().lastReleasedChanges());
 	}
 
 	private String tagName() {

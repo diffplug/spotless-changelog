@@ -109,11 +109,6 @@ public class ChangelogExtension {
 		this.enforceCheck = enforceCheck;
 	}
 
-	/** Determines whether tags are lightweight (false) or annotated (true).  Default is false. */
-	public void annotateMessage(String tagMessage) {
-		gitCfg.tagMessage(tagMessage);
-	}
-
 	/**
 	 * Sets a custom {@link NextVersionFunction} by calling the public no-arg constructor of the given class.
 	 * Default value is {@link com.diffplug.spotless.changelog.NextVersionFunction.Semver Semver}.

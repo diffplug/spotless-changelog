@@ -35,8 +35,6 @@ public class Changelog {
 	private static final String VERSION_BEGIN = "\n## [";
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
 	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- END CHANGELOG -->";
-	public static final int LAST_RELEASE = 1;
-
 	private final boolean windowsNewlines;
 	private final PoolString dontParse, beforeUnreleased;
 	private final List<VersionEntry> versionsRaw;
@@ -142,7 +140,9 @@ public class Changelog {
 		return unreleasedChanges().replace("\n", "").trim().isEmpty();
 	}
 
-	/** Returns the string describing changes in last released version - starts with a newline, and has unix newlines. */
+	private static final int LAST_RELEASE = 1;
+
+	/** Returns the string describing changes in last released version - either empty, or starts with a newline, and has unix newlines. */
 	public String lastReleasedChanges() {
 		if (versionsRaw.isEmpty()) {
 			return "";
