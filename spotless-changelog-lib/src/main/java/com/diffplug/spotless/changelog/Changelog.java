@@ -140,19 +140,6 @@ public class Changelog {
 		return unreleasedChanges().replace("\n", "").trim().isEmpty();
 	}
 
-	private static final int LAST_RELEASE = 1;
-
-	/** Returns the string describing changes in last released version - either empty, or starts with a newline, and has unix newlines. */
-	public String lastReleasedChanges() {
-		if (versionsRaw.isEmpty()) {
-			return "";
-		}
-		if (versionsRaw.get(LAST_RELEASE).changes != null) {
-			return versionsRaw.get(LAST_RELEASE).changes.toString();
-		}
-		return "";
-	}
-
 	private void addError(int lineNumber, String message) {
 		parseErrors.put(lineNumber, message);
 	}

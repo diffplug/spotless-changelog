@@ -112,7 +112,7 @@ public class GitActions implements AutoCloseable {
 
 	private String formatTagMessage(final String tagMessage) {
 		return formatCommitMessage(tagMessage)
-				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changelog().lastReleasedChanges());
+				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changelog().unreleasedChanges());
 	}
 
 	private String tagName() {
