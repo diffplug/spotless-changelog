@@ -15,7 +15,7 @@
  */
 package com.diffplug.spotless.changelog.gradle;
 
-import static org.gradle.internal.impldep.org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,9 +59,11 @@ public class ChangelogPluginPushTest extends GradleHarness {
 	}
 
 	private String annotatedTagMessage(Git localGit, final String tagName) throws IOException {
-		return new RevWalk(localGit.getRepository()).parseTag(
-				localGit.getRepository().findRef(tagName).getObjectId())
-				.getFullMessage();
+		try (RevWalk walk = new RevWalk(localGit.getRepository())) {
+			return walk.parseTag(
+					localGit.getRepository().findRef(tagName).getObjectId())
+					.getFullMessage();
+		}
 	}
 
 	private File initUpstreamRepo(String testCaseFolder) throws IOException, GitAPIException {
