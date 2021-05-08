@@ -23,6 +23,6 @@ blowdryerSetup {
 	github 'diffplug/blowdryer-diffplug', 'tag', '4.0.2'
 	//devLocal '../blowdryer-diffplug'
 }
-rootProject.name = 'spotless-changelog-agg'
+rootProject.name = 'spotless-changelog'
 include 'spotless-changelog-lib'
 include 'spotless-changelog-plugin-gradle'
