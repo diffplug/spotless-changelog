@@ -316,12 +316,13 @@ public class Changelog {
 	/** Returns a new changelog where the [Unreleased] section has been released with the given version and date. */
 	public Changelog releaseUnreleased(String version, String date) {
 		return withMutatedVersions(list -> {
-			VersionEntry unreleased = list.get(0).copy();
+			VersionEntry unreleased = list.get(0);
 			Preconditions.checkArgument(unreleased.isUnreleased());
 
 			VersionEntry entry = VersionEntry.versionDate(version, date);
 			entry.setChanges(unreleased.changes());
-			unreleased.setChanges("\n");
+
+			list.set(0, unreleased.copy().setChanges("\n"));
 			list.add(1, entry);
 		});
 	}
