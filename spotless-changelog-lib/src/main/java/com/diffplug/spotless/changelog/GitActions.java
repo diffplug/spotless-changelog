@@ -99,8 +99,8 @@ public class GitActions implements AutoCloseable {
 	/** Tags and pushes the tag and the branch.  */
 	public void tagBranchPush() throws GitAPIException {
 		TagCommand tagCommand = git.tag().setName(tagName());
-		if (cfg.useAnnotatedTag()) {
-			tagCommand.setAnnotated(true).setMessage(formatTagMessage(cfg.tagMessage()));
+		if (cfg.tagMessage != null) {
+			tagCommand.setAnnotated(true).setMessage(formatTagMessage(cfg.tagMessage));
 		}
 		push(tagCommand.call(), RemoteRefUpdate.Status.OK);
 		push(cfg.branch, RemoteRefUpdate.Status.OK);
@@ -112,7 +112,8 @@ public class GitActions implements AutoCloseable {
 
 	private String formatTagMessage(final String tagMessage) {
 		return formatCommitMessage(tagMessage)
-				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changelog().unreleasedChanges());
+				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changelog().unreleasedChanges())
+				.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
 	}
 
 	private String tagName() {

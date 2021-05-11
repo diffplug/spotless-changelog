@@ -301,11 +301,6 @@ public class Changelog {
 				return PoolString.concat("\n## [", version, "] - ", date, " ", headerMisc, changes);
 			}
 		}
-
-		@Override
-		public String toString() {
-			return version + "xxxxxxw " + changes.toString().replaceAll(" |\n", "");
-		}
 	}
 
 	/** Returns a ParsedChangelog where the version list has been mutated by the given mutator. */
