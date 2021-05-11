@@ -209,6 +209,7 @@ Java 8+ and Gradle 5.2+
 
 - Huge thanks to [Olivier Lacan](https://github.com/olivierlacan) and [contributors](https://github.com/olivierlacan/keep-a-changelog/graphs/contributors) for [keepachangelog](https://keepachangelog.com/en/1.0.0/).
     - Changelog format is arbitrary, but a consistent format unlocks tooling. It's such an abstract thing, keepachangelog is an outstanding achievement of branding for the greater good!
+- Thanks to [Romano Zabini](https://github.com/rzabini) for adding [annotated tag support](https://github.com/diffplug/spotless-changelog/pull/22).
 - Thanks to [Christian Aye](https://github.com/christianaye) for [adding SSH support](https://github.com/diffplug/spotless-changelog/pull/20).
 - Thanks to [Colin Dean](https://github.com/colindean) for [keepachangelog-parser-java](https://github.com/colindean/keepachangelog-parser-java).  We ended up not using it, but because it existed, we [thought](https://twitter.com/pinboard/status/761656824202276864?lang=en) this plugin would be easy to build.
 - Git stuff by [jgit](https://www.eclipse.org/jgit/).
