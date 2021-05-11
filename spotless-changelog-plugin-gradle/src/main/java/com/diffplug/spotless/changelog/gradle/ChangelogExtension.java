@@ -194,6 +194,11 @@ public class ChangelogExtension {
 		gitCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
 	}
 
+	/** Default value is null (creates a lightweight tag) - {{changes}} and {{version}} will be replaced. */
+	public void tagMessage(String tagMessage) {
+		gitCfg.tagMessage = tagMessage;
+	}
+
 	/** Default value is 'origin' */
 	public void remote(String remote) {
 		gitCfg.remote = remote;

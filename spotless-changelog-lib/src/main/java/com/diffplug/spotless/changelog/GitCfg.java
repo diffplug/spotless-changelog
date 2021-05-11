@@ -22,11 +22,14 @@ import java.io.IOException;
 /** Configuration for committing, tagging, and pushing the next version. */
 public class GitCfg {
 	public static final String COMMIT_MESSAGE_VERSION = "{{version}}";
+	public static final String TAG_MESSAGE_CHANGES = "{{changes}}";
 
 	/** Prefix used for release tags, default is `release/`. */
 	public String tagPrefix = "release/";
 	/** Message used for release commits, default is `Published release/{{version}}`. */
 	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
+	/** Message used in tag, null means lightweight tag. */
+	public String tagMessage = null;
 	public String remote = "origin";
 	public String branch = "main";
 	public String sshStrictHostKeyChecking = "yes";

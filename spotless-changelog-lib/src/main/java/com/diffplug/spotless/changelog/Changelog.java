@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ public class Changelog {
 	private static final String VERSION_BEGIN = "\n## [";
 	private static final String UNRELEASED = VERSION_BEGIN + "Unreleased]";
 	private static final String DONT_PARSE_BELOW_HERE = "\n<!-- END CHANGELOG -->";
-
 	private final boolean windowsNewlines;
 	private final PoolString dontParse, beforeUnreleased;
 	private final List<VersionEntry> versionsRaw;
@@ -165,6 +164,15 @@ public class Changelog {
 		private @NullOr PoolString changes;
 
 		private VersionEntry() {}
+
+		private VersionEntry copy() {
+			VersionEntry copy = new VersionEntry();
+			copy.version = version;
+			copy.date = date;
+			copy.headerMisc = headerMisc;
+			copy.changes = changes;
+			return copy;
+		}
 
 		/** Creates a VersionHeader of the given version and date. */
 		public static VersionEntry versionDate(String version, String date) {
@@ -313,7 +321,8 @@ public class Changelog {
 
 			VersionEntry entry = VersionEntry.versionDate(version, date);
 			entry.setChanges(unreleased.changes());
-			unreleased.setChanges("\n");
+
+			list.set(0, unreleased.copy().setChanges("\n"));
 			list.add(1, entry);
 		});
 	}

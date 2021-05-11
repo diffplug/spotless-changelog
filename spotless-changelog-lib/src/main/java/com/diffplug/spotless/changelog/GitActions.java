@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.TagCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
@@ -57,7 +58,6 @@ public class GitActions implements AutoCloseable {
 		repository = new FileRepositoryBuilder()
 				.findGitDir(changelogFile)
 				.build();
-		repository.getWorkTree();
 		git = new Git(repository);
 	}
 
@@ -87,21 +87,33 @@ public class GitActions implements AutoCloseable {
 
 	/** Adds and commits the changelog. */
 	public void addAndCommit() throws GitAPIException {
-		String commitMsg = cfg.commitMessage.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
 		String path = repository.getWorkTree().toPath().relativize(changelogFile.toPath()).toString();
 		git.add()
 				.addFilepattern(path)
 				.call();
 		git.commit()
-				.setMessage(commitMsg)
+				.setMessage(formatCommitMessage(cfg.commitMessage))
 				.call();
 	}
 
-	/** Tags and pushes the tag and the branch. */
+	/** Tags and pushes the tag and the branch.  */
 	public void tagBranchPush() throws GitAPIException {
-		Ref tagRef = git.tag().setName(tagName()).setAnnotated(false).call();
-		push(tagRef, RemoteRefUpdate.Status.OK);
+		TagCommand tagCommand = git.tag().setName(tagName());
+		if (cfg.tagMessage != null) {
+			tagCommand.setAnnotated(true).setMessage(formatTagMessage(cfg.tagMessage));
+		}
+		push(tagCommand.call(), RemoteRefUpdate.Status.OK);
 		push(cfg.branch, RemoteRefUpdate.Status.OK);
+	}
+
+	private String formatCommitMessage(final String commitMessage) {
+		return commitMessage.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
+	}
+
+	private String formatTagMessage(final String tagMessage) {
+		return formatCommitMessage(tagMessage)
+				.replace(GitCfg.TAG_MESSAGE_CHANGES, model.changelog().unreleasedChanges())
+				.replace(GitCfg.COMMIT_MESSAGE_VERSION, model.versions().next());
 	}
 
 	private String tagName() {
