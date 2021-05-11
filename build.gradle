@@ -3,6 +3,7 @@ plugins {
 	id 'com.diffplug.spotless-changelog'
 }
 
+group              = 干.proj('maven_group',    'the maven group, recommend com.diffplug')
 allprojects {
 	apply from: 干.file('base/changelog.gradle')
 }
