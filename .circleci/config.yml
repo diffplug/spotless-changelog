@@ -1,0 +1,86 @@
+version: 2.1
+anchors:
+  env_gradle: &env_gradle
+    environment:
+       # we're only allowed to use 2 vCPUs
+      GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
+    docker:
+      - image: cimg/openjdk:8.0
+
+  restore_cache_wrapper: &restore_cache_wrapper
+    restore_cache:
+      key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+  restore_cache_deps: &restore_cache_deps
+    restore_cache:
+      keys:
+        - gradle-deps-{{ checksum "build.gradle" }}-{{ checksum "gradle.properties" }}
+        - gradle-deps-
+  set_git_origin_to_https: &set_git_origin_to_https
+    run:
+      name: set git origin to https
+      command: git remote set-url --push origin https://github.com/diffplug/spotless-changelog
+
+jobs:
+  assemble_and_check: 
+    <<: *env_gradle
+    steps:
+      - checkout
+      - *restore_cache_wrapper
+      - *restore_cache_deps
+      - run:
+          name: gradlew spotlessCheck assemble testClasses
+          command: ./gradlew spotlessCheck assemble testClasses --build-cache
+      - run:
+          name: gradlew check
+          command: ./gradlew check --build-cache
+      - save_cache:
+          paths:
+            - ~/.gradle/wrapper
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - save_cache:
+          paths:
+            - ~/.gradle/caches
+          key: gradle-deps-{{ checksum "build.gradle" }}-{{ checksum "gradle.properties" }}
+  changelog_print:
+    << : *env_gradle
+    steps:
+      - checkout
+      - *restore_cache_wrapper
+      - *restore_cache_deps
+      - run:
+          name: gradlew changelogPrint
+          command: ./gradlew changelogPrint
+  do_release:
+    << : *env_gradle
+    steps:
+      - checkout
+      - *restore_cache_wrapper
+      - *restore_cache_deps
+      - *set_git_origin_to_https
+      - run:
+          name: lib changelog push
+          command: ./gradlew :spotless-changelog-lib:changelogPush --stacktrace --warning-mode all
+      - run:
+          name: plugin-gradle changelog push
+          command: ./gradlew :spotless-changelog-plugin-gradle:changelogPush --stacktrace --warning-mode all
+
+workflows:
+  version: 2
+  assemble_and_check:
+    jobs:
+      - assemble_and_check
+  deploy:
+    jobs:
+      - changelog_print:
+          filters:
+            branches:
+              only: main
+      - release:
+          type: approval
+          requires:
+            - changelog_print
+      - do_release:
+          requires:
+            - release
+          context:
+            - SonatypeDeploy
