@@ -51,7 +51,7 @@ public class GitActions implements AutoCloseable {
 	private final ChangelogAndNext model;
 	private final GitCfg cfg;
 
-	public GitActions(File changelogFile, ChangelogAndNext model, GitCfg cfg) throws IOException {
+	GitActions(File changelogFile, ChangelogAndNext model, GitCfg cfg) throws IOException {
 		this.changelogFile = changelogFile;
 		this.model = model;
 		this.cfg = cfg;
@@ -98,7 +98,7 @@ public class GitActions implements AutoCloseable {
 
 	/** Tags and pushes the tag and the branch.  */
 	public void tagBranchPush() throws GitAPIException {
-		final TagCommand tagCommand = git.tag().setName(tagName());
+		TagCommand tagCommand = git.tag().setName(tagName());
 		if (cfg.useAnnotatedTag()) {
 			tagCommand.setAnnotated(true).setMessage(formatTagMessage(cfg.tagMessage()));
 		}
