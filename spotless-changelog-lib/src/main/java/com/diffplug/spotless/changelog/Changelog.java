@@ -165,6 +165,15 @@ public class Changelog {
 
 		private VersionEntry() {}
 
+		private VersionEntry copy() {
+			VersionEntry copy = new VersionEntry();
+			copy.version = version;
+			copy.date = date;
+			copy.headerMisc = headerMisc;
+			copy.changes = changes;
+			return copy;
+		}
+
 		/** Creates a VersionHeader of the given version and date. */
 		public static VersionEntry versionDate(String version, String date) {
 			VersionEntry header = new VersionEntry();
@@ -292,6 +301,11 @@ public class Changelog {
 				return PoolString.concat("\n## [", version, "] - ", date, " ", headerMisc, changes);
 			}
 		}
+
+		@Override
+		public String toString() {
+			return version + "xxxxxxw " + changes.toString().replaceAll(" |\n", "");
+		}
 	}
 
 	/** Returns a ParsedChangelog where the version list has been mutated by the given mutator. */
@@ -307,7 +321,7 @@ public class Changelog {
 	/** Returns a new changelog where the [Unreleased] section has been released with the given version and date. */
 	public Changelog releaseUnreleased(String version, String date) {
 		return withMutatedVersions(list -> {
-			VersionEntry unreleased = list.get(0);
+			VersionEntry unreleased = list.get(0).copy();
 			Preconditions.checkArgument(unreleased.isUnreleased());
 
 			VersionEntry entry = VersionEntry.versionDate(version, date);
