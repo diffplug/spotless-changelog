@@ -58,11 +58,8 @@ jobs:
       - *restore_cache_deps
       - *set_git_origin_to_https
       - run:
-          name: lib changelog push
-          command: ./gradlew :spotless-changelog-lib:changelogPush --stacktrace --warning-mode all
-      - run:
-          name: plugin-gradle changelog push
-          command: ./gradlew :spotless-changelog-plugin-gradle:changelogPush --stacktrace --warning-mode all
+          name: changelogPush
+          command: ./gradlew changelogPush --stacktrace --warning-mode all
 
 workflows:
   version: 2
