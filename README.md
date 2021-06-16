@@ -9,8 +9,7 @@ output = [
     link(shield('Changelog', 'changelog', versionLast, 'brightgreen'), 'CHANGELOG.md'),
     link(shield('Javadoc', 'javadoc', 'yes', 'brightgreen'), 'https://javadoc.jitpack.io/com/github/diffplug/spotless-changelog/spotless-changelog-agg/release~{{versionLast}}/javadoc/'),
     link(shield('Live chat', 'gitter', 'chat', 'brightgreen'), 'https://gitter.im/diffplug/spotless-changelog'),
-    link(image('JitCI', 'https://jitci.com/gh/diffplug/spotless-changelog/svg'), 'https://jitci.com/gh/diffplug/spotless-changelog')
-
+    link(image('CircleCI', 'https://circleci.com/gh/diffplug/spotless-changelog.svg?style=shield'), 'https://circleci.com/gh/diffplug/spotless-changelog')
     ].join('\n');
 -->
 [![Gradle plugin](https://img.shields.io/badge/plugins.gradle.org-com.diffplug.spotless--changelog-blue.svg)](https://plugins.gradle.org/plugin/com.diffplug.spotless-changelog)
@@ -20,7 +19,7 @@ output = [
 [![Changelog](https://img.shields.io/badge/changelog-2.2.0-brightgreen.svg)](CHANGELOG.md)
 [![Javadoc](https://img.shields.io/badge/javadoc-yes-brightgreen.svg)](https://javadoc.jitpack.io/com/github/diffplug/spotless-changelog/spotless-changelog-agg/release~2.2.0/javadoc/)
 [![Live chat](https://img.shields.io/badge/gitter-chat-brightgreen.svg)](https://gitter.im/diffplug/spotless-changelog)
-[![JitCI](https://jitci.com/gh/diffplug/spotless-changelog/svg)](https://jitci.com/gh/diffplug/spotless-changelog)
+[![CircleCI](https://circleci.com/gh/diffplug/spotless-changelog.svg?style=shield)](https://circleci.com/gh/diffplug/spotless-changelog)
 <!---freshmark /shields -->
 
 Spotless Changelog checks that your changelog complies with the format of [keepachangelog](https://keepachangelog.com/), and uses the information from **only the changelog file** to compute the version of the next release. If you want, you can use the computed version to update the changelog file, then automatically commit, tag, and push when a release is published.
