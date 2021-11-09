@@ -37,6 +37,8 @@ jobs:
           path: spotless-changelog-lib/build/test-results/test
       - store_test_results:
           path: spotless-changelog-plugin-gradle/build/test-results/test
+      - store_test_results:
+          path: spotless-changelog-plugin-gradle/build/test-results/configCacheTest
       - save_cache:
           paths:
             - ~/.gradle/wrapper

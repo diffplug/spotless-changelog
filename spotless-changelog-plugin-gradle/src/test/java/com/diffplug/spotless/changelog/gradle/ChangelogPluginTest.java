@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -92,7 +92,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -100,7 +100,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -108,7 +108,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
 	}
 
 	@Test

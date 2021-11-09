@@ -58,6 +58,12 @@ subprojects {
 		gradlePlugin {
 			pluginSourceSet project.sourceSets.functionalTest
 		}
+		tasks.register('configCacheTest', Test) {
+			systemProperty 'com.diffplug.config-cache-test', 'true'
+		}
+		tasks.named('check') {
+			dependsOn 'configCacheTest'
+		}
 	}
 	// it all needs to get published and formatted
 	apply from: 干.file('base/maven.gradle')
