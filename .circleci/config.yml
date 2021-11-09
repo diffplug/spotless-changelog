@@ -28,11 +28,15 @@ jobs:
       - *restore_cache_wrapper
       - *restore_cache_deps
       - run:
-          name: gradlew spotlessCheck assemble testClasses
-          command: ./gradlew spotlessCheck assemble testClasses --build-cache
+          name: gradlew assemble
+          command: ./gradlew assemble --build-cache
       - run:
           name: gradlew check
           command: ./gradlew check --build-cache
+      - store_test_results:
+          path: spotless-changelog-lib/build/test-results/test
+      - store_test_results:
+          path: spotless-changelog-plugin-gradle/build/test-results/test
       - save_cache:
           paths:
             - ~/.gradle/wrapper
