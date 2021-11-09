@@ -46,8 +46,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		ChangelogExtension extension = project.getExtensions().create(ChangelogExtension.NAME, ChangelogExtension.class, project);
 		project.getTasks().register(PrintTask.NAME, PrintTask.class, extension);
-		if (project.getRootProject().hasProperty("sshStrictHostKeyChecking")) {
-			extension.gitCfg.sshStrictHostKeyChecking = (String) project.getRootProject().findProperty("sshStrictHostKeyChecking");
+		String sshStrictHostKeyChecking = (String) project.getRootProject().findProperty("sshStrictHostKeyChecking");
+		if (sshStrictHostKeyChecking != null) {
+			extension.data.gitCfg.sshStrictHostKeyChecking = sshStrictHostKeyChecking;
 		}
 
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
@@ -57,26 +58,26 @@ public class ChangelogPlugin implements Plugin<Project> {
 		push.configure(t -> t.dependsOn(bump));
 
 		project.afterEvaluate(unused -> {
-			if (extension.enforceCheck) {
+			if (extension.data.enforceCheck) {
 				project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME).configure(t -> t.dependsOn(check));
 			}
 		});
 	}
 
 	private static abstract class ChangelogTask extends DefaultTask {
-		protected final ChangelogExtension extension;
+		protected final ChangelogExtension.Data data;
 
 		protected ChangelogTask(ChangelogExtension extension) {
-			this.extension = extension;
+			this.data = extension.data;
 			setGroup("changelog");
 		}
 
 		protected void assertNotSnapshot() {
-			if (extension.getVersionNext().endsWith(ChangelogAndNext.DASH_SNAPSHOT)) {
-				if (extension.nextVersionCfg.appendSnapshot) {
-					throw new GradleException("You must add `-Prelease=true` to remove the -SNAPSHOT from " + extension.getVersionNext());
+			if (data.getVersionNext().endsWith(ChangelogAndNext.DASH_SNAPSHOT)) {
+				if (data.nextVersionCfg.appendSnapshot) {
+					throw new GradleException("You must add `-Prelease=true` to remove the -SNAPSHOT from " + data.getVersionNext());
 				} else {
-					throw new GradleException("It doesn't make sense to put a -SNAPSHOT version into the changelog, nor to make a git tag " + extension.gitCfg.tagPrefix + extension.getVersionNext());
+					throw new GradleException("It doesn't make sense to put a -SNAPSHOT version into the changelog, nor to make a git tag " + data.gitCfg.tagPrefix + data.getVersionNext());
 				}
 			}
 		}
@@ -97,26 +98,24 @@ public class ChangelogPlugin implements Plugin<Project> {
 			String pushTaskPath = getProject().absoluteProjectPath(PushTask.NAME);
 			// if we're going to push later, let's first make sure that will work
 			if (getProject().getGradle().getTaskGraph().hasTask(pushTaskPath)) {
-				GitActions git = extension.gitCfg.withChangelog(extension.changelogFile, extension.model());
+				GitActions git = data.gitCfg.withChangelog(data.changelogFile, data.model());
 				git.assertNoTag();
 				git.checkCanPush();
 			}
 
-			LinkedHashMap<Integer, String> errors = extension.model().changelog().errors();
+			LinkedHashMap<Integer, String> errors = data.model().changelog().errors();
 			if (errors.isEmpty()) {
 				return;
 			}
 
-			String path = getProject().getRootDir().toPath().relativize(extension.changelogFile.toPath()).toString();
-			String allErrors = StringPrinter.buildString(printer -> {
-				errors.forEach((idx, error) -> {
-					if (idx == -1) {
-						printer.println(path + ": " + error);
-					} else {
-						printer.println(path + ":" + idx + ": " + error);
-					}
-				});
-			});
+			String path = getProject().getRootDir().toPath().relativize(data.changelogFile.toPath()).toString();
+			String allErrors = StringPrinter.buildString(printer -> errors.forEach((idx, error) -> {
+				if (idx == -1) {
+					printer.println(path + ": " + error);
+				} else {
+					printer.println(path + ":" + idx + ": " + error);
+				}
+			}));
 			throw new GradleException(allErrors);
 		}
 	}
@@ -133,10 +132,10 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void print() {
-			if (extension.getVersionNext().equals(extension.getVersionLast())) {
-				System.out.println(getProject().getName() + " " + extension.getVersionLast() + " (no unreleased changes)");
+			if (data.getVersionNext().equals(data.getVersionLast())) {
+				System.out.println(getProject().getName() + " " + data.getVersionLast() + " (no unreleased changes)");
 			} else {
-				System.out.println(getProject().getName() + " " + extension.getVersionLast() + " -> " + extension.getVersionNext());
+				System.out.println(getProject().getName() + " " + data.getVersionLast() + " -> " + data.getVersionNext());
 			}
 		}
 	}
@@ -154,15 +153,15 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@TaskAction
 		public void bump() throws IOException {
 			assertNotSnapshot();
-			if (extension.getVersionNext().equals(extension.getVersionLast())) {
+			if (data.getVersionNext().equals(data.getVersionLast())) {
 				// if there are no unreleased changes, then the changelog on disk has already been bumped
 				return;
 			}
 			// time to bump!
-			ChangelogAndNext model = extension.model();
+			ChangelogAndNext model = data.model();
 			LocalDate localDate = LocalDate.now(Time.clockUtc());
 			Changelog bumped = model.changelog().releaseUnreleased(model.versions().next(), localDate.toString());
-			Files.write(extension.changelogFile.toPath(), bumped.toString().getBytes(StandardCharsets.UTF_8));
+			Files.write(data.changelogFile.toPath(), bumped.toString().getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
@@ -179,7 +178,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@TaskAction
 		public void push() throws IOException, GitAPIException {
 			assertNotSnapshot();
-			GitActions git = extension.gitCfg.withChangelog(extension.changelogFile, extension.model());
+			GitActions git = data.gitCfg.withChangelog(data.changelogFile, data.model());
 			git.addAndCommit();
 			git.tagBranchPush();
 		}
