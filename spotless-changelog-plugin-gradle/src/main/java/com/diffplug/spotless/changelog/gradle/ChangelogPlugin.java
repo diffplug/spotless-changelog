@@ -108,7 +108,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 				return;
 			}
 
-			String path = getProject().getRootDir().toPath().relativize(data.changelogFile.toPath()).toString();
+			String path = data.projectRoot.toPath().relativize(data.changelogFile.toPath()).toString();
 			String allErrors = StringPrinter.buildString(printer -> errors.forEach((idx, error) -> {
 				if (idx == -1) {
 					printer.println(path + ": " + error);
@@ -133,9 +133,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 		@TaskAction
 		public void print() {
 			if (data.getVersionNext().equals(data.getVersionLast())) {
-				System.out.println(getProject().getName() + " " + data.getVersionLast() + " (no unreleased changes)");
+				System.out.println(data.projectName + " " + data.getVersionLast() + " (no unreleased changes)");
 			} else {
-				System.out.println(getProject().getName() + " " + data.getVersionLast() + " -> " + data.getVersionNext());
+				System.out.println(data.projectName + " " + data.getVersionLast() + " -> " + data.getVersionNext());
 			}
 		}
 	}

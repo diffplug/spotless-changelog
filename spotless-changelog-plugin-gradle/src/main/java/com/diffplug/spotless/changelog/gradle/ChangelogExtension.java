@@ -40,6 +40,8 @@ public class ChangelogExtension {
 	final Data data = new Data();
 
 	public ChangelogExtension(Project project) {
+		data.projectRoot = project.getRootDir();
+		data.projectName = project.getName();
 		this.project = Objects.requireNonNull(project);
 		data.changelogFile = project.file(ChangelogAndNext.DEFAULT_FILE);
 		data.nextVersionCfg = new NextVersionCfg();
@@ -48,6 +50,8 @@ public class ChangelogExtension {
 	}
 
 	static class Data implements Serializable {
+		File projectRoot;
+		String projectName;
 		File changelogFile;
 		NextVersionCfg nextVersionCfg;
 		GitCfg gitCfg;
