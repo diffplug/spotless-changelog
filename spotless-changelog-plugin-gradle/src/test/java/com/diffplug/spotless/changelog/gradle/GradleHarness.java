@@ -23,7 +23,7 @@ import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 
 public class GradleHarness extends ResourceHarness {
-	private static final String V_GRADLE_OLDEST_SUPPORTED = "5.2";
+	private static final String V_GRADLE_OLDEST_SUPPORTED = "6.1";
 	private static final String V_GRADLE_CONFIG_CACHE = "6.6";
 
 	private static boolean isConfigCache() {

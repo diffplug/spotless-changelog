@@ -41,7 +41,7 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void tasks() throws IOException {
 		writeSpotlessChangelog();
-		assertOutput("tasks").contains("Changelog tasks\n" +
+		assertOutput("tasks", "--configuration-cache-problems=warn").contains("Changelog tasks\n" +
 				"---------------\n" +
 				"changelogBump - updates the changelog on disk with the next version and the current UTC date\n" +
 				"changelogCheck - checks that the changelog is formatted according to your rules\n" +

@@ -25,15 +25,24 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Set;
 import javax.inject.Inject;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaBasePlugin;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.services.BuildService;
+import org.gradle.api.services.BuildServiceParameters;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -51,17 +60,69 @@ public class ChangelogPlugin implements Plugin<Project> {
 			extension.data.gitCfg.sshStrictHostKeyChecking = sshStrictHostKeyChecking;
 		}
 
+		Provider<TaskOrderingService> taskOrdering = project.getGradle().getSharedServices().registerIfAbsent("ChangelogService", TaskOrderingService.class, unused -> {});
+
+		TaskProvider<PushWillRunTask> pushWillRun = project.getTasks().register(PushWillRunTask.NAME, PushWillRunTask.class, task -> {
+			task.getTaskOrderingService().set(taskOrdering);
+		});
+
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
+		check.configure(t -> {
+			t.getTaskOrderingService().set(taskOrdering);
+			t.mustRunAfter(pushWillRun);
+		});
 		TaskProvider<BumpTask> bump = project.getTasks().register(BumpTask.NAME, BumpTask.class, extension);
 		bump.configure(t -> t.dependsOn(check));
 		TaskProvider<PushTask> push = project.getTasks().register(PushTask.NAME, PushTask.class, extension);
-		push.configure(t -> t.dependsOn(bump));
+		push.configure(t -> {
+			t.dependsOn(bump);
+			t.dependsOn(pushWillRun);
+		});
 
 		project.afterEvaluate(unused -> {
 			if (extension.data.enforceCheck) {
 				project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME).configure(t -> t.dependsOn(check));
 			}
 		});
+	}
+
+	/**
+	 * +---------------------------+                                        +-------+
+	 * | pushWillRun               |<--dependsOn----------------------------| push  |
+	 * |                           |                                        +---T---+
+	 * | marks that push will run  |                                        dependsOn
+	 * |  in TaskOrderingService   |                 +-------+              +---V---+
+	 * | as a taskGraph workaround |<--mustRunAfter--| check |<--dependsOn--| bump  |
+	 * +---------------------------+                 +-------+              +-------+
+	 */
+	public static abstract class TaskOrderingService implements BuildService<BuildServiceParameters.None> {
+		private final Set<String> pushWillRun = Collections.synchronizedSet(new HashSet<>());
+
+		private String projectFor(Task task) {
+			String path = task.getPath();
+			int lastColon = path.lastIndexOf(':');
+			return lastColon == -1 ? path : path.substring(0, lastColon);
+		}
+
+		void notifyPushWillRun(PushWillRunTask task) {
+			pushWillRun.add(projectFor(task));
+		}
+
+		boolean pushWillRun(CheckTask task) {
+			return pushWillRun.contains(projectFor(task));
+		}
+	}
+
+	public static abstract class PushWillRunTask extends DefaultTask {
+		public static final String NAME = "changelogInternalPushWillRun";
+
+		@Internal
+		abstract Property<TaskOrderingService> getTaskOrderingService();
+
+		@TaskAction
+		public void pushWillRun() {
+			getTaskOrderingService().get().notifyPushWillRun(this);
+		}
 	}
 
 	private static abstract class ChangelogTask extends DefaultTask {
@@ -87,6 +148,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 	public static abstract class CheckTask extends ChangelogTask {
 		public static final String NAME = "changelogCheck";
 
+		@Internal
+		abstract Property<TaskOrderingService> getTaskOrderingService();
+
 		@Inject
 		public CheckTask(ChangelogExtension extension) {
 			super(extension);
@@ -95,9 +159,9 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		@TaskAction
 		public void check() throws IOException, GitAPIException {
-			String pushTaskPath = getProject().absoluteProjectPath(PushTask.NAME);
-			// if we're going to push later, let's first make sure that will work
-			if (getProject().getGradle().getTaskGraph().hasTask(pushTaskPath)) {
+			boolean pushWillRun = getTaskOrderingService().get().pushWillRun(this);
+			if (pushWillRun) {
+				// if we're going to push later, let's first make sure that will work before we bump and publish
 				GitActions git = data.gitCfg.withChangelog(data.changelogFile, data.model());
 				git.assertNoTag();
 				git.checkCanPush();
