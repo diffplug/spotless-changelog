@@ -25,67 +25,104 @@ import com.diffplug.spotless.changelog.NextVersionCfg;
 import com.diffplug.spotless.changelog.NextVersionFunction;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 
 /** Plugin DSL. */
 public class ChangelogExtension {
 	static final String NAME = "spotlessChangelog";
 
 	private final Project project;
-
-	File changelogFile;
-	NextVersionCfg nextVersionCfg;
-	GitCfg gitCfg;
-	boolean enforceCheck;
+	final Data data = new Data();
 
 	public ChangelogExtension(Project project) {
 		this.project = Objects.requireNonNull(project);
-		this.changelogFile = project.file(ChangelogAndNext.DEFAULT_FILE);
-		this.nextVersionCfg = new NextVersionCfg();
-		this.gitCfg = new GitCfg();
+		// actual data
+		data.changelogFile = project.file(ChangelogAndNext.DEFAULT_FILE);
+		data.nextVersionCfg = new NextVersionCfg();
+		data.gitCfg = new GitCfg();
+		// configuration cache workaround
+		data.projectRoot = project.getRootDir();
+		data.projectName = project.getName();
+		data.Prelease = project.getRootProject().getProviders().gradleProperty("release");
+		// default values
 		changelogFile(ChangelogAndNext.DEFAULT_FILE);
 	}
 
-	private volatile ChangelogAndNext model;
+	static class Data implements Serializable {
+		File changelogFile;
+		NextVersionCfg nextVersionCfg;
+		GitCfg gitCfg;
+		boolean enforceCheck;
 
-	/**
-	 * Parses the changelog and calculates the next version.  Once this
-	 * has been done, the user can't change the configuration at all.
-	 * Use {@link #assertNotCalculatedYet()} on every mutation to check for this.
-	 */
-	ChangelogAndNext model() {
-		if (model == null) {
-			synchronized (this) {
-				if (model == null) {
-					try {
-						model = ChangelogAndNext.calculateUsingCache(changelogFile, nextVersionCfg);
-					} catch (IOException e) {
-						throw Errors.asRuntime(e);
+		File projectRoot;
+		String projectName;
+		Provider<String> Prelease;
+
+		private volatile ChangelogAndNext model;
+
+		/**
+		 * Parses the changelog and calculates the next version.  Once this
+		 * has been done, the user can't change the configuration at all.
+		 * Use {@link #assertNotCalculatedYet()} on every mutation to check for this.
+		 */
+		ChangelogAndNext model() {
+			if (model == null) {
+				synchronized (this) {
+					if (model == null) {
+						try {
+							NextVersionCfg cfgToUse;
+							try {
+								String releaseValue = Prelease.get();
+								if ("true".equals(releaseValue)) {
+									cfgToUse = nextVersionCfg.shallowCopy();
+									cfgToUse.appendSnapshot = false;
+								} else {
+									throw new GradleException("spotless-changelog expects -Prelease to be either null or 'true', was '" + releaseValue + "'");
+								}
+							} catch (IllegalStateException e) {
+								cfgToUse = nextVersionCfg;
+							}
+							model = ChangelogAndNext.calculateUsingCache(changelogFile, cfgToUse);
+						} catch (IOException e) {
+							throw Errors.asRuntime(e);
+						}
 					}
 				}
 			}
+			return model;
 		}
-		return model;
-	}
 
-	/** Ensures that we haven't locked the next version calculation already. */
-	private synchronized void assertNotCalculatedYet() {
-		Preconditions.checkState(model == null,
-				"You have to configure the `spotlessChangelog` block before calling `versionNext`, `versionLast`, or `parsedChangelog`.\n" +
-						"Try moving `spotlessChangelog` higher in your buildscript, and make sure you don't change it after calling `versionNext`, `versionLast`, or `parsedChangelog`.");
+		/** Ensures that we haven't locked the next version calculation already. */
+		private synchronized void assertNotCalculatedYet() {
+			Preconditions.checkState(model == null,
+					"You have to configure the `spotlessChangelog` block before calling `versionNext`, `versionLast`, or `parsedChangelog`.\n" +
+							"Try moving `spotlessChangelog` higher in your buildscript, and make sure you don't change it after calling `versionNext`, `versionLast`, or `parsedChangelog`.");
+		}
+
+		String getVersionLast() {
+			return model().changelog().versionLast();
+		}
+
+		String getVersionNext() {
+			return model().versions().next();
+		}
 	}
 
 	/** Reads the last-published version - you can't change the configuration after calling this method. */
 	public String getVersionLast() {
-		return model().changelog().versionLast();
+		return data.model().changelog().versionLast();
 	}
 
 	/** Calculates the next-to-publish version - you can't change the configuration after calling this method. */
 	public String getVersionNext() {
-		return model().versions().next();
+		return data.model().versions().next();
 	}
 
 	/**
@@ -95,18 +132,18 @@ public class ChangelogExtension {
 	 * link back to you from here.
 	 */
 	public Changelog getParsedChangelog() {
-		return model().changelog();
+		return data.model().changelog();
 	}
 
 	/** Sets the changelog file using {@link Project#file(Object)}. */
 	public void changelogFile(Object file) {
-		assertNotCalculatedYet();
-		changelogFile = project.file(file);
+		data.assertNotCalculatedYet();
+		data.changelogFile = project.file(file);
 	}
 
 	/** Determines whether `changelogCheck` will be a dependency of `check`.  Default is true. */
 	public void enforceCheck(boolean enforceCheck) {
-		this.enforceCheck = enforceCheck;
+		data.enforceCheck = enforceCheck;
 	}
 
 	/**
@@ -114,9 +151,9 @@ public class ChangelogExtension {
 	 * Default value is {@link com.diffplug.spotless.changelog.NextVersionFunction.Semver Semver}.
 	 * See [ALTERNATE_VERSION_SCHEMAS.md](https://github.com/diffplug/spotless-changelog/blob/main/ALTERNATE_VERSION_SCHEMAS.md) for more info.
 	 */
-	public void versionSchema(Class<? extends NextVersionFunction> functionClass) throws InstantiationException, IllegalAccessException {
-		assertNotCalculatedYet();
-		nextVersionCfg.function = functionClass.newInstance();
+	public void versionSchema(Class<? extends NextVersionFunction> functionClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+		data.assertNotCalculatedYet();
+		data.nextVersionCfg.function = functionClass.getDeclaredConstructor().newInstance();
 	}
 
 	/**
@@ -127,8 +164,8 @@ public class ChangelogExtension {
 	 * Default value is `['### Added']`
 	 */
 	public void ifFoundBumpAdded(List<String> toFind) {
-		assertNotCalculatedYet();
-		nextVersionCfg.function.ifFoundBumpAdded(toFind);
+		data.assertNotCalculatedYet();
+		data.nextVersionCfg.function.ifFoundBumpAdded(toFind);
 	}
 
 	/** @see #ifFoundBumpAdded(List) */
@@ -143,8 +180,8 @@ public class ChangelogExtension {
 	 * Default value is `['**BREAKING**']`.
 	 */
 	public void ifFoundBumpBreaking(List<String> toFind) {
-		assertNotCalculatedYet();
-		nextVersionCfg.function.ifFoundBumpBreaking(toFind);
+		data.assertNotCalculatedYet();
+		data.nextVersionCfg.function.ifFoundBumpBreaking(toFind);
 	}
 
 	/** @see #ifFoundBumpBreaking(List) */
@@ -154,8 +191,8 @@ public class ChangelogExtension {
 
 	/** Short-circuits the next-version calculation and just uses this string. */
 	public void forceNextVersion(String forceNextVersion) {
-		assertNotCalculatedYet();
-		nextVersionCfg.forceNextVersion = forceNextVersion;
+		data.assertNotCalculatedYet();
+		data.nextVersionCfg.forceNextVersion = forceNextVersion;
 	}
 
 	/**
@@ -168,7 +205,7 @@ public class ChangelogExtension {
 	 */
 	public void setAppendDashSnapshotUnless_dashPrelease(boolean appendSnapshot) {
 		if (appendSnapshot && !"true".equals(project.getRootProject().findProperty("release"))) {
-			nextVersionCfg.appendSnapshot = true;
+			data.nextVersionCfg.appendSnapshot = true;
 		}
 	}
 
@@ -180,32 +217,32 @@ public class ChangelogExtension {
 	 * In your buildscript you can disable checking with `sshStrictHostKeyChecking = "no"`
 	 */
 	public void setSshStrictHostKeyChecking(String sshStrictHostKeyChecking) {
-		gitCfg.sshStrictHostKeyChecking = sshStrictHostKeyChecking;
+		data.gitCfg.sshStrictHostKeyChecking = sshStrictHostKeyChecking;
 	}
 
 	// tag and push
 	/** Default value is `release/` */
 	public void tagPrefix(String tagPrefix) {
-		gitCfg.tagPrefix = tagPrefix;
+		data.gitCfg.tagPrefix = tagPrefix;
 	}
 
 	/** Default value is `Published release/{{version}}` - the {{version}} will be replaced. */
 	public void commitMessage(String commitMessage) {
-		gitCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
+		data.gitCfg.commitMessage = GitCfg.validateCommitMessage(commitMessage);
 	}
 
 	/** Default value is null (creates a lightweight tag) - {{changes}} and {{version}} will be replaced. */
 	public void tagMessage(String tagMessage) {
-		gitCfg.tagMessage = tagMessage;
+		data.gitCfg.tagMessage = tagMessage;
 	}
 
 	/** Default value is 'origin' */
 	public void remote(String remote) {
-		gitCfg.remote = remote;
+		data.gitCfg.remote = remote;
 	}
 
 	/** Default value is 'main' */
 	public void branch(String branch) {
-		gitCfg.branch = branch;
+		data.gitCfg.branch = branch;
 	}
 }

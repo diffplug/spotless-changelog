@@ -18,6 +18,7 @@ package com.diffplug.spotless.changelog;
 
 import java.io.File;
 import java.io.IOException;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 /** Configuration for committing, tagging, and pushing the next version. */
 public class GitCfg {
@@ -29,7 +30,7 @@ public class GitCfg {
 	/** Message used for release commits, default is `Published release/{{version}}`. */
 	public String commitMessage = "Published release/" + COMMIT_MESSAGE_VERSION;
 	/** Message used in tag, null means lightweight tag. */
-	public String tagMessage = null;
+	public @NullOr String tagMessage = null;
 	public String remote = "origin";
 	public String branch = "main";
 	public String sshStrictHostKeyChecking = "yes";

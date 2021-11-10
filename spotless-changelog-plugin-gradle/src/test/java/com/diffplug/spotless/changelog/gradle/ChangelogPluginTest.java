@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.diffplug.spotless.changelog.gradle;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import org.assertj.core.api.AbstractStringAssert;
 import org.junit.Test;
 
 public class ChangelogPluginTest extends GradleHarness {
@@ -41,7 +42,9 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void tasks() throws IOException {
 		writeSpotlessChangelog();
-		assertOutput("tasks").contains("Changelog tasks\n" +
+
+		AbstractStringAssert<?> tasksOutputAssertThat = isConfigCache() ? assertOutput("tasks", "--configuration-cache-problems=warn") : assertOutput("tasks");
+		tasksOutputAssertThat.contains("Changelog tasks\n" +
 				"---------------\n" +
 				"changelogBump - updates the changelog on disk with the next version and the current UTC date\n" +
 				"changelogCheck - checks that the changelog is formatted according to your rules\n" +
@@ -84,7 +87,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -92,7 +95,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -100,7 +103,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
 		write("CHANGELOG.md",
 				"",
 				"## [Unreleased]",
@@ -108,7 +111,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
-				.startsWith("\n> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
+				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 2.0.0");
 	}
 
 	@Test
@@ -181,7 +184,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"- Some change",
 				"",
 				"## [1.0.0] - 2020-10-10");
-		assertOutput("changelogPrint").contains("\nundertest 1.0.0 -> 1.1.0-SNAPSHOT\n");
+		assertOutput("changelogPrint", "--stacktrace").contains("\nundertest 1.0.0 -> 1.1.0-SNAPSHOT\n");
 		assertOutput("changelogPrint", "-Prelease=true").contains("\nundertest 1.0.0 -> 1.1.0\n");
 
 		// check runs fine either way

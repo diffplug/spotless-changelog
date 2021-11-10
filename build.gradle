@@ -3,7 +3,9 @@ plugins {
 	id 'com.diffplug.spotless-changelog'
 }
 
-group              = 干.proj('maven_group',    'the maven group, recommend com.diffplug')
+repositories { mavenCentral() }
+
+group = 干.proj('maven_group', 'the maven group, recommend com.diffplug')
 allprojects {
 	apply from: 干.file('base/changelog.gradle')
 }
@@ -37,12 +39,6 @@ subprojects {
 		ext.maven_desc='Gradle plugin for parsing and updating a changelog'
 
 		apply from: 干.file('base/gradle-plugin.gradle')
-		sourceSets {
-			functionalTest {
-				compileClasspath += sourceSets.main.compileClasspath
-				runtimeClasspath += sourceSets.main.runtimeClasspath
-			}
-		}
 		dependencies {
 			implementation project(':spotless-changelog-lib')
 			implementation 'com.diffplug.durian:durian-core:1.2.0'
@@ -52,11 +48,15 @@ subprojects {
 			testImplementation 'junit:junit:4.13.2'
 			testImplementation 'org.assertj:assertj-core:3.19.0'
 			// mock out the time
-			implementation               'com.diffplug.durian-globals:durian-globals:1.0.0'
-			functionalTestImplementation 'com.diffplug.durian-globals:durian-globals.dev:1.0.0'
+			implementation 'com.diffplug.durian-globals:durian-globals:1.0.0'
+			// TODO: in Gradle 6.5 we could do this with a functionalTest sourceSet to keep it out of publishing
+			implementation 'com.diffplug.durian-globals:durian-globals.dev:1.0.0'
 		}
-		gradlePlugin {
-			pluginSourceSet project.sourceSets.functionalTest
+		tasks.register('configCacheTest', Test) {
+			systemProperty 'com.diffplug.config-cache-test', 'true'
+		}
+		tasks.named('check') {
+			dependsOn 'configCacheTest'
 		}
 	}
 	// it all needs to get published and formatted

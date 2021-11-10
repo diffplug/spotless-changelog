@@ -6,6 +6,9 @@
 .gradle/
 build/
 
+# Idea stuff
+.idea/
+
 # Eclipse stuff
 .project
 .classpath

@@ -68,7 +68,7 @@ public class ChangelogPluginPushTest extends GradleHarness {
 
 	private File initUpstreamRepo(String testCaseFolder) throws IOException, GitAPIException {
 		File origin = temporaryFolder.newFolder("origin");
-		Git git = Git.init().setDirectory(origin).call();
+		Git git = Git.init().setDirectory(origin).setInitialBranch("master").call();
 		copyResourceFile(origin, "settings.gradle");
 		copyResourceFile(origin, testCaseFolder, "build.gradle");
 		git.add().addFilepattern(".").call();
