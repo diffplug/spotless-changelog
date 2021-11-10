@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2021 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,4 +27,13 @@ public class NextVersionCfg implements Serializable {
 	public @NullOr String forceNextVersion = null;
 	/** Whatever version is calculated (by function or force), append -SNAPSHOT. */
 	public boolean appendSnapshot = false;
+
+	/** Returns a shallow copy of this object. */
+	public NextVersionCfg shallowCopy() {
+		NextVersionCfg copy = new NextVersionCfg();
+		copy.function = function;
+		copy.forceNextVersion = forceNextVersion;
+		copy.appendSnapshot = appendSnapshot;
+		return copy;
+	}
 }

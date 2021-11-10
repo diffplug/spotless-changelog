@@ -30,7 +30,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 
 /** Plugin DSL. */
 public class ChangelogExtension {
@@ -40,22 +42,28 @@ public class ChangelogExtension {
 	final Data data = new Data();
 
 	public ChangelogExtension(Project project) {
-		data.projectRoot = project.getRootDir();
-		data.projectName = project.getName();
 		this.project = Objects.requireNonNull(project);
+		// actual data
 		data.changelogFile = project.file(ChangelogAndNext.DEFAULT_FILE);
 		data.nextVersionCfg = new NextVersionCfg();
 		data.gitCfg = new GitCfg();
+		// configuration cache workaround
+		data.projectRoot = project.getRootDir();
+		data.projectName = project.getName();
+		data.Prelease = project.getRootProject().getProviders().gradleProperty("release");
+		// default values
 		changelogFile(ChangelogAndNext.DEFAULT_FILE);
 	}
 
 	static class Data implements Serializable {
-		File projectRoot;
-		String projectName;
 		File changelogFile;
 		NextVersionCfg nextVersionCfg;
 		GitCfg gitCfg;
 		boolean enforceCheck;
+
+		File projectRoot;
+		String projectName;
+		Provider<String> Prelease;
 
 		private volatile ChangelogAndNext model;
 
@@ -69,7 +77,19 @@ public class ChangelogExtension {
 				synchronized (this) {
 					if (model == null) {
 						try {
-							model = ChangelogAndNext.calculateUsingCache(changelogFile, nextVersionCfg);
+							NextVersionCfg cfgToUse;
+							try {
+								String releaseValue = Prelease.get();
+								if ("true".equals(releaseValue)) {
+									cfgToUse = nextVersionCfg.shallowCopy();
+									cfgToUse.appendSnapshot = false;
+								} else {
+									throw new GradleException("spotless-changelog expects -Prelease to be either null or 'true', was '" + releaseValue + "'");
+								}
+							} catch (IllegalStateException e) {
+								cfgToUse = nextVersionCfg;
+							}
+							model = ChangelogAndNext.calculateUsingCache(changelogFile, cfgToUse);
 						} catch (IOException e) {
 							throw Errors.asRuntime(e);
 						}

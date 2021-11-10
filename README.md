@@ -200,7 +200,7 @@ String versionNext = spotlessChangelog.versionNext
 
 ### Requirements
 
-Java 8+ and Gradle 6.1+. (Spotless Changelog `2.2.0` can support Gradle 5.2+)
+Java 8+ and Gradle 6.2+. (Spotless Changelog `2.2.0` can support Gradle 5.2+)
 
 <!---freshmark /version -->
 
