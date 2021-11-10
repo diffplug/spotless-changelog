@@ -20,7 +20,7 @@ plugins {
 	id 'org.jdrupes.mdoclet'                   apply false
 }
 blowdryerSetup {
-	github 'diffplug/blowdryer-diffplug', 'tag', '5.1.1'
+	github 'diffplug/blowdryer-diffplug', 'tag', '5.1.2'
 	//devLocal '../blowdryer-diffplug'
 }
 rootProject.name = 'spotless-changelog'
