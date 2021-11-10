@@ -65,7 +65,7 @@ public class ChangelogExtension {
 		String projectName;
 		Provider<String> Prelease;
 
-		private volatile ChangelogAndNext model;
+		private transient ChangelogAndNext model;
 
 		/**
 		 * Parses the changelog and calculates the next version.  Once this
