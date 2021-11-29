@@ -83,10 +83,13 @@ public class ChangelogExtension {
 								if ("true".equals(releaseValue)) {
 									cfgToUse = nextVersionCfg.shallowCopy();
 									cfgToUse.appendSnapshot = false;
+								} else if ("false".equals(releaseValue)) {
+									cfgToUse = nextVersionCfg;
 								} else {
-									throw new GradleException("spotless-changelog expects -Prelease to be either null or 'true', was '" + releaseValue + "'");
+									throw new GradleException("spotless-changelog expects -Prelease to be either null, 'true', or 'false` - this was '" + releaseValue + "'");
 								}
 							} catch (IllegalStateException e) {
+								// thrown on Prelease == null
 								cfgToUse = nextVersionCfg;
 							}
 							model = ChangelogAndNext.calculateUsingCache(changelogFile, cfgToUse);
