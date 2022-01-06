@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 DiffPlug
+ * Copyright (C) 2019-2022 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ public class ChangelogPluginTest extends GradleHarness {
 	private static final String DATE_NOW = "2019-01-30";
 
 	private void writeSpotlessChangelog(String... lines) throws IOException {
-		write("settings.gradle", "rootProject.name='undertest'");
-		write("build.gradle",
+		setFile("settings.gradle").toContent("rootProject.name='undertest'");
+		setFile("build.gradle").toLines(
 				"plugins {",
 				"  id 'com.diffplug.spotless-changelog'",
 				"}",
@@ -62,15 +62,15 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void changelogCheck() throws IOException {
 		writeSpotlessChangelog();
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"",
 				"## [1.0.0]");
 		assertFailOutput("changelogCheck")
-				.contains("CHANGELOG.md:5: '] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd");
+				.contains("CHANGELOG.md:4: '] - ' is missing from the expected '## [x.y.z] - yyyy-mm-dd");
 
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"",
@@ -81,14 +81,14 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void changelogPrint() throws IOException {
 		writeSpotlessChangelog();
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"",
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
 				.startsWith("> Task :changelogPrint\nundertest 1.0.0 (no unreleased changes)");
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"Some minor change",
@@ -96,7 +96,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
 				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 1.0.1");
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"### Added",
@@ -104,7 +104,7 @@ public class ChangelogPluginTest extends GradleHarness {
 				"## [1.0.0] - 2020-10-10");
 		assertOutput("changelogPrint")
 				.startsWith("> Task :changelogPrint\nundertest 1.0.0 -> 1.1.0");
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"**BREAKING**",
@@ -117,7 +117,7 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void changelogBump() throws IOException {
 		writeSpotlessChangelog();
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"",
@@ -126,7 +126,7 @@ public class ChangelogPluginTest extends GradleHarness {
 		gradleRunner().withArguments("changelogBump").build();
 		assertFile("CHANGELOG.md").hasContent(noUnreleasedChanges);
 
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"### Added",
@@ -147,7 +147,7 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void changelogBumpCustomNextVersionFunction() throws IOException {
 		writeSpotlessChangelog("versionSchema(com.diffplug.spotless.changelog.NextVersionFunction.SemverBrandPrefix)");
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"",
@@ -156,7 +156,7 @@ public class ChangelogPluginTest extends GradleHarness {
 		gradleRunner().withArguments("changelogBump").build();
 		assertFile("CHANGELOG.md").hasContent(noUnreleasedChanges);
 
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"### Added",
@@ -177,7 +177,7 @@ public class ChangelogPluginTest extends GradleHarness {
 	@Test
 	public void snapshot() throws IOException {
 		writeSpotlessChangelog("appendDashSnapshotUnless_dashPrelease=true");
-		write("CHANGELOG.md",
+		setFile("CHANGELOG.md").toLines(
 				"",
 				"## [Unreleased]",
 				"### Added",

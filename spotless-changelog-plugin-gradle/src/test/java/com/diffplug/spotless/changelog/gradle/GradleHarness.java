@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 DiffPlug
+ * Copyright (C) 2019-2022 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class GradleHarness extends ResourceHarness {
 	protected GradleRunner gradleRunner() throws IOException {
 		String version;
 		if (isConfigCache()) {
-			write("gradle.properties", "org.gradle.unsafe.configuration-cache=true");
+			setFile("gradle.properties").toContent("org.gradle.unsafe.configuration-cache=true");
 			version = V_GRADLE_CONFIG_CACHE;
 		} else {
 			version = V_GRADLE_OLDEST_SUPPORTED;
