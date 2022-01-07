@@ -23,11 +23,13 @@ import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.Git;
 import org.gradle.testkit.runner.BuildTask;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class IfGitDiffPluginTest extends GradleHarness {
 	@Test
 	public void ifGitDiff() throws Exception {
+		Assume.assumeFalse(isConfigCache());
 		Git git = Git.init().setDirectory(rootFolder()).setInitialBranch("main").call();
 		setFile("build.gradle").toContent("tasks.register('test')");
 		setFile("a/build.gradle").toContent("tasks.register('test')");
