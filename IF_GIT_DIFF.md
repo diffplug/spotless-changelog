@@ -15,8 +15,8 @@ output = [
 [![Maven central](https://img.shields.io/badge/mavencentral-available-blue.svg)](https://search.maven.org/search?q=g:com.diffplug.spotless-changelog)
 [![Apache 2.0](https://img.shields.io/badge/license-apache--2.0-blue.svg)](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
 
-[![Changelog](https://img.shields.io/badge/changelog-2.3.2-brightgreen.svg)](CHANGELOG.md)
-[![Javadoc](https://img.shields.io/badge/javadoc-yes-brightgreen.svg)](https://javadoc.jitpack.io/com/github/diffplug/spotless-changelog/spotless-changelog-agg/release~2.3.2/javadoc/)
+[![Changelog](https://img.shields.io/badge/changelog-2.4.0-brightgreen.svg)](CHANGELOG.md)
+[![Javadoc](https://img.shields.io/badge/javadoc-yes-brightgreen.svg)](https://javadoc.jitpack.io/com/github/diffplug/spotless-changelog/spotless-changelog-agg/release~2.4.0/javadoc/)
 [![Live chat](https://img.shields.io/badge/gitter-chat-brightgreen.svg)](https://gitter.im/diffplug/spotless-changelog)
 [![CircleCI](https://circleci.com/gh/diffplug/spotless-changelog.svg?style=shield)](https://circleci.com/gh/diffplug/spotless-changelog)
 <!---freshmark /shields -->
@@ -58,7 +58,7 @@ output = prefixDelimiterReplace(output, 'https://github.com/diffplug/spotless-ch
 output = prefixDelimiterReplace(output, 'https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/', '/', versionLast)
 -->
 
-[Plugin DSL javadoc](https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/2.3.2/com/diffplug/spotless/changelog/gradle/IfGitDiffExtension.html).  For requirements see [spotless-changelog](https://github.com/diffplug/spotless-changelog#requirements).
+[Plugin DSL javadoc](https://javadoc.io/static/com.diffplug.spotless-changelog/spotless-changelog-plugin-gradle/2.4.0/com/diffplug/spotless/changelog/gradle/IfGitDiffExtension.html).  For requirements see [spotless-changelog](https://github.com/diffplug/spotless-changelog#requirements).
 
 <!---freshmark /version -->
 
