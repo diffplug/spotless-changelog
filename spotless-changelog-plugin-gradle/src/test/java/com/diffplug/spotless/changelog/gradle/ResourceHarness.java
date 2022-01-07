@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2020 DiffPlug
+ * Copyright (C) 2019-2022 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,24 @@
  */
 package com.diffplug.spotless.changelog.gradle;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.diffplug.common.base.Errors;
 import com.diffplug.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import org.assertj.core.api.AbstractFileAssert;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ListAssert;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import org.assertj.core.api.AbstractCharSequenceAssert;
+import org.assertj.core.util.CheckReturnValue;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -37,61 +41,156 @@ public class ResourceHarness {
 	 * On OS X, the temp folder is a symlink,
 	 * and some of gradle's stuff breaks symlinks.
 	 * By only accessing it through the {@link #rootFolder()}
-	 * and {@link #newFile()} apis, we can guarantee there
+	 * and {@link #newFile(String)} apis, we can guarantee there
 	 * will be no symlink problems.
 	 */
 	@Rule
 	public TemporaryFolder folderDontUseDirectly = new TemporaryFolder();
 
 	/** Returns the root folder (canonicalized to fix OS X issue) */
-	protected File rootFolder() throws IOException {
-		return folderDontUseDirectly.getRoot().getCanonicalFile();
+	protected File rootFolder() {
+		return Errors.rethrow().get(() -> folderDontUseDirectly.getRoot().getCanonicalFile());
 	}
 
-	/** Returns a File (in a temporary folder) which has the given contents. */
-	protected File file(String subpath) throws IOException {
+	/** Returns a new child of the root folder. */
+	protected File newFile(String subpath) throws IOException {
 		return new File(rootFolder(), subpath);
 	}
 
-	protected String read(String path) throws IOException {
-		return new String(Files.readAllBytes(file(path).toPath()), StandardCharsets.UTF_8);
-	}
-
-	/** Returns a File (in a temporary folder) which has the given contents. */
-	protected File write(String subpath, byte[] content) throws IOException {
-		File file = file(subpath);
-		file.getParentFile().mkdirs();
-		Files.write(file.toPath(), content);
-		return file;
-	}
-
-	/** Writes the given content to the given path. */
-	protected File write(String path, String... lines) throws IOException {
-		File file = file(path);
-		file.getParentFile().mkdirs();
-		Files.write(file.toPath(), Arrays.asList(lines), StandardCharsets.UTF_8);
-		return file;
-	}
-
-	protected AbstractFileAssert<?> assertFile(String path) throws IOException {
-		return Assertions.assertThat(file(path));
-	}
-
-	protected ListAssert<String> assertFolderContent(String path) throws IOException {
-		List<String> children = new ArrayList<>();
-		for (File child : file(path).listFiles()) {
-			children.add(child.getName());
+	/** Creates and returns a new child-folder of the root folder. */
+	protected File newFolder(String subpath) throws IOException {
+		File targetDir = newFile(subpath);
+		if (!targetDir.mkdir()) {
+			throw new IOException("Failed to create " + targetDir);
 		}
-		Collections.sort(children);
-		return Assertions.assertThat(children);
+		return targetDir;
+	}
+
+	protected String read(String path) throws IOException {
+		return read(newFile(path).toPath(), StandardCharsets.UTF_8);
+	}
+
+	protected String read(Path path, Charset encoding) throws IOException {
+		return new String(Files.readAllBytes(path), encoding);
+	}
+
+	protected void replace(String path, String toReplace, String replaceWith) throws IOException {
+		String before = read(path);
+		String after = before.replace(toReplace, replaceWith);
+		if (before.equals(after)) {
+			throw new IllegalArgumentException("Replace was ineffective! '" + toReplace + "' was not found in " + path);
+		}
+		setFile(path).toContent(after);
 	}
 
 	/** Returns the contents of the given file from the src/test/resources directory. */
-	protected static byte[] readTestResource(String filename) throws IOException {
+	protected static String getTestResource(String filename) throws IOException {
 		URL url = ResourceHarness.class.getResource("/" + filename);
 		if (url == null) {
 			throw new IllegalArgumentException("No such resource " + filename);
 		}
-		return Resources.toByteArray(url);
+		return Resources.toString(url, StandardCharsets.UTF_8);
+	}
+
+	/** Returns Files (in a temporary folder) which has the contents of the given file from the src/test/resources directory. */
+	protected List<File> createTestFiles(String... filenames) throws IOException {
+		List<File> files = new ArrayList<>(filenames.length);
+		for (String filename : filenames) {
+			files.add(createTestFile(filename));
+		}
+		return files;
+	}
+
+	/** Returns a File (in a temporary folder) which has the contents of the given file from the src/test/resources directory. */
+	protected File createTestFile(String filename) throws IOException {
+		return createTestFile(filename, UnaryOperator.identity());
+	}
+
+	/**
+	 * Returns a File (in a temporary folder) which has the contents, possibly processed, of the given file from the
+	 * src/test/resources directory.
+	 */
+	protected File createTestFile(String filename, UnaryOperator<String> fileContentsProcessor) throws IOException {
+		int lastSlash = filename.lastIndexOf('/');
+		String name = lastSlash >= 0 ? filename.substring(lastSlash) : filename;
+		File file = newFile(name);
+		file.getParentFile().mkdirs();
+		Files.write(file.toPath(), fileContentsProcessor.apply(getTestResource(filename)).getBytes(StandardCharsets.UTF_8));
+		return file;
+	}
+
+	@CheckReturnValue
+	protected ReadAsserter assertFile(String path) throws IOException {
+		return new ReadAsserter(newFile(path));
+	}
+
+	@CheckReturnValue
+	protected ReadAsserter assertFile(File file) throws IOException {
+		return new ReadAsserter(file);
+	}
+
+	public static class ReadAsserter {
+		private final File file;
+
+		private ReadAsserter(File file) {
+			this.file = file;
+		}
+
+		public void hasContent(String expected) {
+			hasContent(expected, StandardCharsets.UTF_8);
+		}
+
+		public void hasContent(String expected, Charset charset) {
+			assertThat(file).usingCharset(charset).hasContent(expected);
+		}
+
+		public void hasLines(String... lines) {
+			hasContent(String.join("\n", Arrays.asList(lines)));
+		}
+
+		public void sameAsResource(String resource) throws IOException {
+			hasContent(getTestResource(resource));
+		}
+
+		public void matches(Consumer<AbstractCharSequenceAssert<?, String>> conditions) throws IOException {
+			String content = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+			conditions.accept(assertThat(content));
+		}
+	}
+
+	protected WriteAsserter setFile(String path) throws IOException {
+		return new WriteAsserter(newFile(path));
+	}
+
+	public static class WriteAsserter {
+		private File file;
+
+		private WriteAsserter(File file) {
+			file.getParentFile().mkdirs();
+			this.file = file;
+		}
+
+		public File toLines(String... lines) throws IOException {
+			return toContent(String.join("\n", Arrays.asList(lines)));
+		}
+
+		public File toContent(String content) throws IOException {
+			return toContent(content, StandardCharsets.UTF_8);
+		}
+
+		public File toContent(String content, Charset charset) throws IOException {
+			Files.write(file.toPath(), content.getBytes(charset));
+			return file;
+		}
+
+		public File toResource(String path) throws IOException {
+			Files.write(file.toPath(), getTestResource(path).getBytes(StandardCharsets.UTF_8));
+			return file;
+		}
+
+		public File deleted() throws IOException {
+			Files.delete(file.toPath());
+			return file;
+		}
 	}
 }
