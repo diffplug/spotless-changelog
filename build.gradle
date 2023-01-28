@@ -19,7 +19,7 @@ String VER_ASSERTJ = '3.23.1'
 String VER_JGIT= '5.13.1.202206130422-r'
 
 subprojects {
-	apply from: 干.file('base/java8.gradle')
+	apply from: 干.file('base/java.gradle')
 	apply from: 干.file('spotless/java.gradle')
 
 	if (it.name == 'spotless-changelog-lib') {
