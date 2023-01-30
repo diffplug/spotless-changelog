@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 DiffPlug
+ * Copyright (C) 2019-2023 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.diffplug.spotless.changelog.gradle;
-
 
 import com.diffplug.common.base.StringPrinter;
 import com.diffplug.common.globals.Time;
@@ -163,6 +162,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 			if (pushWillRun) {
 				// if we're going to push later, let's first make sure that will work before we bump and publish
 				GitActions git = data.gitCfg.withChangelog(data.changelogFile, data.model());
+				git.checkWcClean();
 				git.assertNoTag();
 				git.checkCanPush();
 			}

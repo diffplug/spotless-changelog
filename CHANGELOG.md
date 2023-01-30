@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- **BREAKING** Change the default value of `enforceCheck` to `true`. ([#44](https://github.com/diffplug/spotless-changelog/pull/44))
+- **BREAKING** Change the default value of `enforceCheck` to `true`. (fixes [#38](https://github.com/diffplug/spotless-changelog/issues/38))
   - Our docs have always claimed this was the default (it should be!), but we made a mistake and the default value has actually been `false` in the past.
+- If `changelogPush` is run and the WC is not clean at the start of the build, throw an error. (fixes [#37](https://github.com/diffplug/spotless-changelog/issues/37))
 - Bump required Java from 8 to 11, and JGit from `5.13` to `6.4`. ([#43](https://github.com/diffplug/spotless-changelog/pull/43))
 
 ## [2.4.1] - 2022-11-24

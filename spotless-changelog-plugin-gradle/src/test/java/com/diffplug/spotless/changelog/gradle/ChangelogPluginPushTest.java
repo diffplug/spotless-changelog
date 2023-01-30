@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 DiffPlug
+ * Copyright (C) 2019-2023 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,15 +39,12 @@ public class ChangelogPluginPushTest extends GradleHarness {
 
 	@Test
 	public void verifyAnnotatedTagMessage() throws IOException, GitAPIException {
-
 		final String testCaseFolder = "1.0.3-annotatedTag";
 		File origin = initUpstreamRepo(testCaseFolder);
 
 		final File working = temporaryFolder.newFolder("working");
 		Git git = Git.cloneRepository().setURI(origin.getAbsolutePath())
 				.setDirectory(working).call();
-
-		copyResourceFile(working, testCaseFolder, "CHANGELOG.md");
 
 		gradleRunner().withProjectDir(working)/*.withDebug(true)*/
 				.withArguments("changelogPush").build();
@@ -71,6 +68,8 @@ public class ChangelogPluginPushTest extends GradleHarness {
 		Git git = Git.init().setDirectory(origin).setInitialBranch("master").call();
 		copyResourceFile(origin, "settings.gradle");
 		copyResourceFile(origin, testCaseFolder, "build.gradle");
+		copyResourceFile(origin, testCaseFolder, ".gitignore");
+		copyResourceFile(origin, testCaseFolder, "CHANGELOG.md");
 		git.add().addFilepattern(".").call();
 		git.commit()
 				.setMessage("Commit all changes including additions")
