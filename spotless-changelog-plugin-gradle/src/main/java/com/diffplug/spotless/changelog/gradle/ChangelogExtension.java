@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 DiffPlug
+ * Copyright (C) 2019-2023 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.diffplug.spotless.changelog.gradle;
-
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Preconditions;
@@ -59,7 +58,7 @@ public class ChangelogExtension {
 		File changelogFile;
 		NextVersionCfg nextVersionCfg;
 		GitCfg gitCfg;
-		boolean enforceCheck;
+		boolean enforceCheck = true;
 
 		File projectRoot;
 		String projectName;
