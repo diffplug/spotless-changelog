@@ -80,7 +80,10 @@ public class GitActions implements AutoCloseable {
 	public void checkWcClean() throws GitAPIException {
 		var status = new Git(repository).status().call();
 		if (!status.isClean()) {
-			throw new IllegalStateException("The working copy is not clean, make a commit first. Uncommitted changes:\n" + String.join("\n", status.getUncommittedChanges()));
+			StringBuilder builder = new StringBuilder("The working copy is not clean, make a commit first. Uncommitted changes:\n");
+			status.getUntracked().forEach(str -> builder.append("  ").append(str).append('\n'));
+			status.getUncommittedChanges().forEach(str -> builder.append("  ").append(str).append('\n'));
+			throw new IllegalStateException(builder.toString());
 		}
 	}
 
