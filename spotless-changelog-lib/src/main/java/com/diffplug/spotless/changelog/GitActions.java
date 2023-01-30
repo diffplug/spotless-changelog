@@ -76,6 +76,14 @@ public class GitActions implements AutoCloseable {
 		}
 	}
 
+	/** Throw an exception if the working copy is not clean. */
+	public void checkWcClean() throws GitAPIException {
+		var status = new Git(repository).status().call();
+		if (!status.isClean()) {
+			throw new IllegalStateException("The working copy is not clean, make a commit first. Uncommitted changes:\n" + String.join("\n", status.getUncommittedChanges()));
+		}
+	}
+
 	/** Asserts that there is no tag with the expected name. */
 	public void assertNoTag() throws IOException {
 		Ref ref = repository.getRefDatabase().exactRef(Constants.R_TAGS + tagName());
