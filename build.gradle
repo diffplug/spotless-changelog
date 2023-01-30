@@ -15,8 +15,8 @@ ext.javadoc_agg='spotless-changelog-lib spotless-changelog-plugin-gradle'
 apply from: 干.file('base/sonatype.gradle')
 
 String VER_JUNIT = '4.13.2'
-String VER_ASSERTJ = '3.23.1'
-String VER_JGIT= '5.13.1.202206130422-r'
+String VER_ASSERTJ = '3.24.2'
+String VER_JGIT= '6.4.0.202211300538-r'
 
 subprojects {
 	apply from: 干.file('base/java.gradle')
@@ -28,14 +28,14 @@ subprojects {
 		dependencies {
 			compileOnly 'pl.tlinkowski.annotation:pl.tlinkowski.annotation.basic:0.2.0'
 			testCompileOnly 'pl.tlinkowski.annotation:pl.tlinkowski.annotation.basic:0.2.0'
-			implementation 'org.osgi:org.osgi.framework:1.9.0'
+			implementation 'org.osgi:org.osgi.framework:1.10.0'
 			implementation 'com.diffplug.durian:durian-core:1.2.0'
 			implementation 'com.diffplug.durian:durian-collect:1.2.0'
 			implementation 'com.diffplug.durian:durian-io:1.2.0'
-			implementation "org.eclipse.jgit:org.eclipse.jgit:${VER_JGIT}"
-			implementation "org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:${VER_JGIT}"
-			testImplementation "junit:junit:${VER_JUNIT}"
-			testImplementation "org.assertj:assertj-core:${VER_ASSERTJ}"
+			implementation "org.eclipse.jgit:org.eclipse.jgit:$VER_JGIT"
+			implementation "org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:$VER_JGIT"
+			testImplementation "junit:junit:$VER_JUNIT"
+			testImplementation "org.assertj:assertj-core:$VER_ASSERTJ"
 		}
 	} else {
 		assert it.name == 'spotless-changelog-plugin-gradle'
@@ -48,9 +48,9 @@ subprojects {
 			implementation 'com.diffplug.durian:durian-core:1.2.0'
 			implementation 'com.diffplug.durian:durian-collect:1.2.0'
 			implementation 'com.diffplug.durian:durian-io:1.2.0'
-			implementation "org.eclipse.jgit:org.eclipse.jgit:${VER_JGIT}"
-			testImplementation "junit:junit:${VER_JUNIT}"
-			testImplementation "org.assertj:assertj-core:${VER_ASSERTJ}"
+			implementation "org.eclipse.jgit:org.eclipse.jgit:$VER_JGIT"
+			testImplementation "junit:junit:$VER_JUNIT"
+			testImplementation "org.assertj:assertj-core:$VER_ASSERTJ"
 			// mock out the time
 			implementation 'com.diffplug.durian-globals:durian-globals:1.0.0'
 			// TODO: in Gradle 6.5 we could do this with a functionalTest sourceSet to keep it out of publishing
