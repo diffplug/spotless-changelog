@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- **BREAKING** Change the default value of `enforceCheck` to `true`. ([#44](https://github.com/diffplug/spotless-changelog/pull/44))
+  - Our docs have always claimed this was the default, but we made a mistake and the default value has actually been `false`. 
 - Bump required Java from 8 to 11, and JGit from `5.13` to `6.4`. ([#43](https://github.com/diffplug/spotless-changelog/pull/43))
 
 ## [2.4.1] - 2022-11-24
