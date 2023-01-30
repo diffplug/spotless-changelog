@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Artifacts published correctly to MavenCentral and Plugin Portal.
+
+## [3.0.0] - 2023-01-29 [YANKED]
+- YANKED due to failed publish to Gradle plugin portal
 ### Changed
 - **BREAKING** Change the default value of `enforceCheck` to `true`. (fixes [#38](https://github.com/diffplug/spotless-changelog/issues/38))
   - Our docs have always claimed this was the default (it should be!), but we made a mistake and the default value has actually been `false` in the past.
