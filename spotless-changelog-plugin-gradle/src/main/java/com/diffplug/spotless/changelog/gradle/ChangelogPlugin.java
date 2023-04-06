@@ -63,11 +63,13 @@ public class ChangelogPlugin implements Plugin<Project> {
 
 		TaskProvider<PushWillRunTask> pushWillRun = project.getTasks().register(PushWillRunTask.NAME, PushWillRunTask.class, task -> {
 			task.getTaskOrderingService().set(taskOrdering);
+			task.usesService(taskOrdering);
 		});
 
 		TaskProvider<CheckTask> check = project.getTasks().register(CheckTask.NAME, CheckTask.class, extension);
 		check.configure(t -> {
 			t.getTaskOrderingService().set(taskOrdering);
+			t.usesService(taskOrdering);
 			t.mustRunAfter(pushWillRun);
 		});
 		TaskProvider<BumpTask> bump = project.getTasks().register(BumpTask.NAME, BumpTask.class, extension);
