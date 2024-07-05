@@ -15,8 +15,8 @@ ext.javadoc_agg='spotless-changelog-lib spotless-changelog-plugin-gradle'
 apply from: 干.file('base/sonatype.gradle')
 
 String VER_JUNIT = '4.13.2'
-String VER_ASSERTJ = '3.24.2'
-String VER_JGIT= '6.4.0.202211300538-r'
+String VER_ASSERTJ = '3.26.0'
+String VER_JGIT= '6.10.0.202406032230-r'
 
 subprojects {
 	apply from: 干.file('base/java.gradle')
