@@ -19,6 +19,7 @@ import com.diffplug.common.collect.Iterables;
 import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,7 @@ import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.transport.ssh.jsch.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.ssh.jsch.OpenSshConfig;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 /** API for doing the commit, tag, and push operations.  See {@link GitCfg#withChangelog(File, ChangelogAndNext)}. */
 public class GitActions implements AutoCloseable {
@@ -200,7 +202,7 @@ public class GitActions implements AutoCloseable {
 	}
 
 	// similar to https://github.com/ajoberstar/grgit/blob/5766317fbe67ec39faa4632e2b80c2b056f5c124/grgit-core/src/main/groovy/org/ajoberstar/grgit/auth/AuthConfig.groovy
-	private static CredentialsProvider creds() {
+	private static @NullOr CredentialsProvider creds() {
 		String username = System.getenv(GRGIT_USERNAME_ENV_VAR);
 		if (username != null) {
 			String password = System.getenv(GRGIT_PASSWORD_ENV_VAR);
@@ -209,18 +211,25 @@ public class GitActions implements AutoCloseable {
 			}
 			return new UsernamePasswordCredentialsProvider(username, password);
 		}
-		username = System.getenv(GH_TOKEN_ENV_VAR);
-		if (username != null) {
-			return new UsernamePasswordCredentialsProvider(username, "");
+		String githubToken = GITHUB_VARS.stream()
+				.map(System::getenv)
+				.filter(Objects::nonNull)
+				.findFirst().orElse(null);
+		if (githubToken != null) {
+			return new UsernamePasswordCredentialsProvider(githubToken, "");
 		}
 		return null;
 	}
 
 	private static final String GRGIT_USERNAME_ENV_VAR = "GRGIT_USER";
 	private static final String GRGIT_PASSWORD_ENV_VAR = "GRGIT_PASS";
-	private static final String GH_TOKEN_ENV_VAR = "gh_token";
+	private static final List<String> GITHUB_VARS = Arrays.asList("GH_TOKEN", "GITHUB_TOKEN", "gh_token");
 
 	private static List<String> envVars() {
-		return Arrays.asList(GRGIT_USERNAME_ENV_VAR, GRGIT_PASSWORD_ENV_VAR, GH_TOKEN_ENV_VAR);
+		var list = new ArrayList<String>();
+		list.addAll(GITHUB_VARS);
+		list.add(GRGIT_USERNAME_ENV_VAR);
+		list.add(GRGIT_PASSWORD_ENV_VAR);
+		return list;
 	}
 }
