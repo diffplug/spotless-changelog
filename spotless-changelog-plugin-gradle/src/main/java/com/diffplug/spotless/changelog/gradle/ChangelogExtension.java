@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 DiffPlug
+ * Copyright (C) 2019-2024 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -236,6 +236,11 @@ public class ChangelogExtension {
 	/** Default value is null (creates a lightweight tag) - {{changes}} and {{version}} will be replaced. */
 	public void tagMessage(String tagMessage) {
 		data.gitCfg.tagMessage = tagMessage;
+	}
+
+	/** Runs a CLI command after the push if not null - {{changes}} and {{version}} will be replaced. */
+	public void runAfterPush(String runAfterPush) {
+		data.gitCfg.runAfterPush = runAfterPush;
 	}
 
 	/** Default value is 'origin' */

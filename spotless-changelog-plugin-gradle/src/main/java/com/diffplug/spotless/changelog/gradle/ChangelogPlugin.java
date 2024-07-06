@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 DiffPlug
+ * Copyright (C) 2019-2024 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -247,6 +247,17 @@ public class ChangelogPlugin implements Plugin<Project> {
 			GitActions git = data.gitCfg.withChangelog(data.changelogFile, data.model());
 			git.addAndCommit();
 			git.tagBranchPush();
+			if (data.gitCfg.runAfterPush != null) {
+				try (var runner = new ProcessRunner()) {
+					var result = runner.shell(data.gitCfg.runAfterPush);
+					System.out.write(result.stdOut());
+					System.out.flush();
+					System.err.write(result.stdErr());
+					System.err.flush();
+				} catch (IOException | InterruptedException e) {
+					throw new GradleException("runAfterPush failed: " + data.gitCfg.runAfterPush, e);
+				}
+			}
 		}
 	}
 }
