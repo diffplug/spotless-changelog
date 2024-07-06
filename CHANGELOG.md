@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.1.2] - 2024-07-06
 ### Fixed
 - In addition to `GRGIT_USER`, `GRGIT_PASS`, and `gh_token`, we also now look for:
   - `GH_TOKEN`, `GITHUB_TOKEN` ([#53](https://github.com/diffplug/spotless-changelog/pull/53))
