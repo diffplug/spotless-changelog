@@ -58,6 +58,8 @@ subprojects {
 		}
 		tasks.register('configCacheTest', Test) {
 			systemProperty 'com.diffplug.config-cache-test', 'true'
+			testClassesDirs = testing.suites.test.sources.output.classesDirs
+			classpath = testing.suites.test.sources.runtimeClasspath
 		}
 		tasks.named('check') {
 			dependsOn 'configCacheTest'

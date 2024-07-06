@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.diffplug.spotless.changelog.gradle;
+package com.diffplug.spotless.changelog;
 
 import static java.util.Objects.requireNonNull;
 
@@ -34,8 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import pl.tlinkowski.annotation.basic.NullOr;
 
 /**
  * Shelling out to a process is harder than it ought to be in Java.
@@ -82,7 +81,7 @@ class ProcessRunner implements AutoCloseable {
 	}
 
 	/** Executes the given shell command (using {@code cmd} on windows and {@code sh} on unix). */
-	public Result shellWinUnix(@Nullable File cwd, @Nullable Map<String, String> environment, String cmdWin, String cmdUnix) throws IOException, InterruptedException {
+	public Result shellWinUnix(@NullOr File cwd, @NullOr Map<String, String> environment, String cmdWin, String cmdUnix) throws IOException, InterruptedException {
 		List<String> args;
 		if (machineIsWin()) {
 			args = Arrays.asList("cmd", "/c", cmdWin);
@@ -98,7 +97,7 @@ class ProcessRunner implements AutoCloseable {
 	}
 
 	/** Creates a process with the given arguments, the given byte array is written to stdin immediately. */
-	public Result exec(@Nullable byte[] stdin, String... args) throws IOException, InterruptedException {
+	public Result exec(@NullOr byte[] stdin, String... args) throws IOException, InterruptedException {
 		return exec(stdin, Arrays.asList(args));
 	}
 
@@ -108,12 +107,12 @@ class ProcessRunner implements AutoCloseable {
 	}
 
 	/** Creates a process with the given arguments, the given byte array is written to stdin immediately. */
-	public Result exec(@Nullable byte[] stdin, List<String> args) throws IOException, InterruptedException {
+	public Result exec(@NullOr byte[] stdin, List<String> args) throws IOException, InterruptedException {
 		return exec(null, null, stdin, args);
 	}
 
 	/** Creates a process with the given arguments, the given byte array is written to stdin immediately. */
-	public Result exec(@Nullable File cwd, @Nullable Map<String, String> environment, @Nullable byte[] stdin, List<String> args) throws IOException, InterruptedException {
+	public Result exec(@NullOr File cwd, @NullOr Map<String, String> environment, @NullOr byte[] stdin, List<String> args) throws IOException, InterruptedException {
 		LongRunningProcess process = start(cwd, environment, stdin, args);
 		try {
 			// wait for the process to finish
@@ -130,7 +129,7 @@ class ProcessRunner implements AutoCloseable {
 	 * <br>
 	 * Delegates to {@link #start(File, Map, byte[], boolean, List)} with {@code false} for {@code redirectErrorStream}.
 	 */
-	public LongRunningProcess start(@Nullable File cwd, @Nullable Map<String, String> environment, @Nullable byte[] stdin, List<String> args) throws IOException {
+	public LongRunningProcess start(@NullOr File cwd, @NullOr Map<String, String> environment, @NullOr byte[] stdin, List<String> args) throws IOException {
 		return start(cwd, environment, stdin, false, args);
 	}
 
@@ -142,7 +141,7 @@ class ProcessRunner implements AutoCloseable {
 	 * To dispose this {@code ProcessRunner} instance, either call {@link #close()} or {@link LongRunningProcess#close()}. After
 	 * {@link #close()} or {@link LongRunningProcess#close()} has been called, this {@code ProcessRunner} instance must not be used anymore.
 	 */
-	public LongRunningProcess start(@Nullable File cwd, @Nullable Map<String, String> environment, @Nullable byte[] stdin, boolean redirectErrorStream, List<String> args) throws IOException {
+	public LongRunningProcess start(@NullOr File cwd, @NullOr Map<String, String> environment, @NullOr byte[] stdin, boolean redirectErrorStream, List<String> args) throws IOException {
 		checkState();
 		ProcessBuilder builder = new ProcessBuilder(args);
 		if (cwd != null) {
@@ -203,7 +202,7 @@ class ProcessRunner implements AutoCloseable {
 		private final int exitCode;
 		private final byte[] stdOut, stdErr;
 
-		public Result(@Nonnull List<String> args, int exitCode, @Nonnull byte[] stdOut, @Nullable byte[] stdErr) {
+		public Result(List<String> args, int exitCode, byte[] stdOut, @NullOr byte[] stdErr) {
 			this.args = args;
 			this.exitCode = exitCode;
 			this.stdOut = stdOut;
@@ -295,7 +294,7 @@ class ProcessRunner implements AutoCloseable {
 		private final Future<byte[]> outputFut;
 		private final Future<byte[]> errorFut;
 
-		public LongRunningProcess(@Nonnull Process delegate, @Nonnull List<String> args, @Nonnull Future<byte[]> outputFut, @Nullable Future<byte[]> errorFut) {
+		public LongRunningProcess(Process delegate, List<String> args, Future<byte[]> outputFut, @NullOr Future<byte[]> errorFut) {
 			this.delegate = requireNonNull(delegate);
 			this.args = args;
 			this.outputFut = outputFut;

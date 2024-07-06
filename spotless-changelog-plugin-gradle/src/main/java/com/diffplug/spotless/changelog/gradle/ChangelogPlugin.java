@@ -247,17 +247,7 @@ public class ChangelogPlugin implements Plugin<Project> {
 			GitActions git = data.gitCfg.withChangelog(data.changelogFile, data.model());
 			git.addAndCommit();
 			git.tagBranchPush();
-			if (data.gitCfg.runAfterPush != null) {
-				try (var runner = new ProcessRunner()) {
-					var result = runner.shell(data.gitCfg.runAfterPush);
-					System.out.write(result.stdOut());
-					System.out.flush();
-					System.err.write(result.stdErr());
-					System.err.flush();
-				} catch (IOException | InterruptedException e) {
-					throw new GradleException("runAfterPush failed: " + data.gitCfg.runAfterPush, e);
-				}
-			}
+			git.runAfterPush();
 		}
 	}
 }
