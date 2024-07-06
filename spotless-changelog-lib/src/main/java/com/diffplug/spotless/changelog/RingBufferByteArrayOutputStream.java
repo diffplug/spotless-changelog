@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.diffplug.spotless.changelog.gradle;
+package com.diffplug.spotless.changelog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
