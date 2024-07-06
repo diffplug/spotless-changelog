@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- The `runAfterPush` command should replace brackets as documented. ([#52](https://github.com/diffplug/spotless-changelog/pull/52))
 
 ## [3.1.0] - 2024-07-06
 ### Added
