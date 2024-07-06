@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.1.0] - 2024-07-06
 ### Added
 - A `runAfterPush` command to run a CLI command after the push is complete. ([#51](https://github.com/diffplug/spotless-changelog/pull/51))
 
