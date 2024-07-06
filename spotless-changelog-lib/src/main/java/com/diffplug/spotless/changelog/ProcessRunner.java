@@ -202,7 +202,7 @@ class ProcessRunner implements AutoCloseable {
 		private final int exitCode;
 		private final byte[] stdOut, stdErr;
 
-		public Result(List<String> args, int exitCode, byte[] stdOut, byte[] stdErr) {
+		public Result(List<String> args, int exitCode, byte[] stdOut, @NullOr byte[] stdErr) {
 			this.args = args;
 			this.exitCode = exitCode;
 			this.stdOut = stdOut;
