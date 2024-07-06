@@ -29,6 +29,7 @@ jobs:
     name: deploy
     env:
       gh_token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ORG_GRADLE_PROJECT_nexus_user: ${{ secrets.NEXUS_USER }}
       ORG_GRADLE_PROJECT_nexus_pass64: ${{ secrets.NEXUS_PASS64 }}
       ORG_GRADLE_PROJECT_gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
@@ -44,9 +45,11 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
-      - name: git fetch origin main
-        run: git fetch origin main
+      - run: git fetch origin main
       - name: publish all
         if: "${{ github.event.inputs.to_publish == 'all' }}"
         run: |
           ./gradlew :changelogPush -Prelease=true -Penable_publishing=true -Pgradle.publish.key=${{ secrets.GRADLE_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_SECRET }} --stacktrace --warning-mode all
+      - run: git checkout main
+      - run: git merge release --ff-only
+      - run: git push origin main
