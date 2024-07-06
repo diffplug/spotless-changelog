@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 DiffPlug
+ * Copyright (C) 2019-2024 DiffPlug
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,21 @@ public class GitActions implements AutoCloseable {
 		}
 		push(tagCommand.call(), RemoteRefUpdate.Status.OK);
 		push(cfg.branch, RemoteRefUpdate.Status.OK);
+	}
+
+	public void runAfterPush() {
+		if (cfg.runAfterPush == null) {
+			return;
+		}
+		try (var runner = new ProcessRunner()) {
+			var result = runner.shell(formatTagMessage(cfg.runAfterPush));
+			System.out.write(result.stdOut());
+			System.out.flush();
+			System.err.write(result.stdErr());
+			System.err.flush();
+		} catch (IOException | InterruptedException e) {
+			throw new RuntimeException("runAfterPush failed: " + formatTagMessage(cfg.runAfterPush), e);
+		}
 	}
 
 	private String formatCommitMessage(final String commitMessage) {
